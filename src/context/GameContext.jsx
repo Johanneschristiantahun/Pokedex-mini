@@ -583,6 +583,43 @@ export function GameProvider({ children }) {
     setTeam(newTeam);
   }
 
+  // Action: Set active party leader (slot 0) for battle
+  function setTeamLeader(instanceId) {
+    const index = team.findIndex((p) => p.instanceId === instanceId);
+    if (index <= 0) return;
+    const newTeam = [...team];
+    const [leader] = newTeam.splice(index, 1);
+    newTeam.unshift(leader);
+    setTeam(newTeam);
+  }
+
+  // Action: Update single Pokemon HP (persisted to team & localStorage)
+  function updatePokemonHp(instanceId, newHp) {
+    setTeam((prev) =>
+      prev.map((p) => {
+        if (p.instanceId !== instanceId) return p;
+        const clamped = Math.max(0, Math.min(p.maxHp, Math.round(newHp)));
+        return {
+          ...p,
+          currentHp: clamped,
+        };
+      })
+    );
+  }
+
+  // Action: Damage current active leader directly
+  function damageTeamLeader(amount) {
+    if (team.length === 0) return { newHp: 0, isFainted: true };
+    const leader = team[0];
+    const newHp = Math.max(0, (leader.currentHp || 0) - amount);
+    updatePokemonHp(leader.instanceId, newHp);
+    return {
+      newHp,
+      isFainted: newHp <= 0,
+      pokemon: leader,
+    };
+  }
+
   // Action: Catch Wild Pokemon with ball from inventory
   function catchWildPokemon(wildPokemon, ballKey = "poke-ball") {
     const ballCount = getItemCount(ballKey);
@@ -826,6 +863,8 @@ export function GameProvider({ children }) {
     renamePokemon,
     setTeamLeader,
     movePokemonInTeam,
+    updatePokemonHp,
+    damageTeamLeader,
     catchWildPokemon,
     gainExpToLeader,
     depositToBox,

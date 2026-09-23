@@ -10,6 +10,9 @@ import {
   capitalize,
   getAnimatedSpriteUrl,
   getAnimatedShinySpriteUrl,
+  getAnimatedBackSpriteUrl,
+  getAnimatedBackShinySpriteUrl,
+  getBackSpriteUrl,
   getTypeColor,
   playPokemonCry,
 } from "../utils.js";
@@ -20,20 +23,42 @@ import {
   playHitSound,
   playRunSound,
   playItemUseSound,
+  playAttackWhooshSound,
+  playCriticalHitSound,
+  playSuperEffectiveSound,
+  playNotVeryEffectiveSound,
+  playFaintSound,
 } from "../utils/soundEffects.js";
+import { getPokemonMoves, pickWildMove } from "../data/pokemonMoves.js";
+import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
   IconTrees,
   IconPokeball,
   IconSparkles,
   IconSwords,
-  IconPotion,
-  IconCheck,
+  IconBackpack,
+  IconParty,
   IconArrowLeft,
   IconX,
+  IconCheck,
+  IconHeart,
 } from "../components/Icons.jsx";
 
 const BALL_KEYS = ["poke-ball", "great-ball", "ultra-ball", "master-ball"];
+const MEDICINE_KEYS = [
+  "potion",
+  "super-potion",
+  "hyper-potion",
+  "max-potion",
+  "oran-berry",
+  "sitrus-berry",
+  "revive",
+];
+
+function checkEscapeSuccess(playerSpeed, wildSpeed) {
+  return playerSpeed >= wildSpeed || Math.random() < 0.7;
+}
 
 function WildernessPage() {
   const {
@@ -44,6 +69,9 @@ function WildernessPage() {
     catchWildPokemon,
     gainExpToLeader,
     addMoney,
+    updatePokemonHp,
+    setTeamLeader,
+    applyItemToPokemon,
   } = useGame();
 
   const [selectedBiome, setSelectedBiome] = useState(WILDERNESS_BIOMES[0]);
@@ -51,23 +79,40 @@ function WildernessPage() {
   const [isSearchingGrass, setIsSearchingGrass] = useState(false);
   const [activeTileIndex, setActiveTileIndex] = useState(null);
 
-  // Notifications & Loot
+  // Spontaneous Loot Notification
   const [lootNotice, setLootNotice] = useState(null);
 
   // Active Encounter State
   const [activeEncounter, setActiveEncounter] = useState(null);
-  const [battleLog, setBattleLog] = useState([]);
-  const [battlePhase, setBattlePhase] = useState("action"); // "action" | "throwing" | "caught" | "fled" | "victory"
-  const [wobbleState, setWobbleState] = useState(0); // 0 = idle, 1, 2, 3 shakes
+  const [battleState, setBattleState] = useState("MENU"); // "MENU" | "MOVES" | "BAG" | "PARTY" | "ANIMATING" | "VICTORY" | "DEFEATED" | "CAUGHT"
+  const [playerMoves, setPlayerMoves] = useState([]);
+  const [battleDialogue, setBattleDialogue] = useState("");
+  const [battleHistory, setBattleHistory] = useState([]);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+
+  // In-Battle Bag Drawer Tab: "balls" | "medicine"
+  const [bagTab, setBagTab] = useState("balls");
+
+  // Catching Ball Animation
   const [throwingBallKey, setThrowingBallKey] = useState(null);
-  const [isBallPickerOpen, setIsBallPickerOpen] = useState(false);
+  const [wobbleState, setWobbleState] = useState(0);
+
+  // VFX States
+  const [playerAnim, setPlayerAnim] = useState(""); // "" | "anim-player-lunge" | "anim-player-hit" | "anim-faint-slide"
+  const [wildAnim, setWildAnim] = useState(""); // "" | "anim-wild-lunge" | "anim-wild-hit" | "anim-faint-slide"
+  const [screenShake, setScreenShake] = useState(false);
+  const [slashVfxOnWild, setSlashVfxOnWild] = useState(false);
+  const [slashVfxOnPlayer, setSlashVfxOnPlayer] = useState(false);
+  const [wildDamagePopup, setWildDamagePopup] = useState(null);
+  const [playerDamagePopup, setPlayerDamagePopup] = useState(null);
+
+  // Result state
   const [expResult, setExpResult] = useState(null);
 
   const leaderPokemon = team[0] || null;
 
-  // Add message to battle log
-  function logBattle(msg) {
-    setBattleLog((prev) => [...prev.slice(-6), msg]);
+  function pushLog(text) {
+    setBattleHistory((prev) => [...prev.slice(-15), text]);
   }
 
   // Handle Grass Rustle Exploration
@@ -86,24 +131,24 @@ function WildernessPage() {
       setIsSearchingGrass(false);
       setActiveTileIndex(null);
 
-      // Roll: 70% Wild Pokémon, 20% Item Drop, 10% Nothing
+      // Roll: 70% Wild Pokémon, 20% Item Drop, 10% Wind
       const roll = Math.random();
 
       if (roll < 0.7) {
-        // Wild Encounter!
         const wild = rollWildEncounter(selectedBiome.id);
         setActiveEncounter(wild);
-        setBattlePhase("action");
-        setBattleLog([
-          `Wild ${capitalize(wild.name)} (Lv. ${wild.level}) appeared from the tall grass!`,
-        ]);
+        setPlayerMoves(getPokemonMoves(leaderPokemon));
+        setBattleState("MENU");
+        setBattleDialogue(`Wild ${capitalize(wild.name)} appeared!`);
+        setBattleHistory([`Wild ${capitalize(wild.name)} (Lv. ${wild.level}) emerged from the brush!`]);
+
         if (wild.isShiny) {
-          logBattle("✨ What?! A sparkling, rare SHINY Pokémon appeared!");
+          pushLog("✨ A rare and glittering SHINY Pokémon appeared!");
         }
+
         playPokemonCry(wild.id);
         setEncounterCount((c) => c + 1);
       } else if (roll < 0.9) {
-        // Item Loot Found!
         const loot = rollLootDrop(selectedBiome.id);
         addLoot(loot.itemKey, loot.count);
         setLootNotice({
@@ -113,7 +158,6 @@ function WildernessPage() {
         });
         setTimeout(() => setLootNotice(null), 4500);
       } else {
-        // Nothing found
         setLootNotice({
           empty: true,
           message: "The wind rustled through the tall grass... Nothing stirred.",
@@ -123,71 +167,251 @@ function WildernessPage() {
     }, 450);
   }
 
-  // Attack Action (Reduce Wild HP to improve catch chance or gain EXP)
-  function handleAttack() {
-    if (!activeEncounter || battlePhase !== "action" || !leaderPokemon) return;
+  // Handle Dismiss Battle / Continue
+  function handleDismissBattle() {
+    setActiveEncounter(null);
+    setBattleState("MENU");
+    setPlayerAnim("");
+    setWildAnim("");
+    setThrowingBallKey(null);
+    setWobbleState(0);
+    setExpResult(null);
+    setWildDamagePopup(null);
+    setPlayerDamagePopup(null);
+    setSlashVfxOnWild(false);
+    setSlashVfxOnPlayer(false);
+  }
 
-    playHitSound();
+  // Combat Turn Execution Engine
+  function handleExecuteMove(move) {
+    if (!activeEncounter || battleState === "ANIMATING" || !leaderPokemon) return;
+    if (move.currentPp <= 0) {
+      setBattleDialogue(`No PP left for ${move.name.toUpperCase()}!`);
+      return;
+    }
 
-    // Damage Formula based on leader's level and attack
-    const baseAtk = leaderPokemon.attack || 40;
-    const wildDef = 35;
-    const rawDmg = Math.floor(
-      ((2 * leaderPokemon.level) / 5 + 2) * 35 * (baseAtk / wildDef) * (1 / 50) + 2
+    // Deduct 1 PP
+    setPlayerMoves((prev) =>
+      prev.map((m) => (m.id === move.id ? { ...m, currentPp: Math.max(0, m.currentPp - 1) } : m))
     );
-    const variance = 0.85 + Math.random() * 0.3;
-    const damage = Math.max(5, Math.floor(rawDmg * variance));
 
-    const newHp = Math.max(0, activeEncounter.currentHp - damage);
+    setBattleState("ANIMATING");
 
-    logBattle(`${leaderPokemon.nickname} attacked! Dealt ${damage} damage.`);
+    const playerSpeed = leaderPokemon.speed || 45;
+    const wildSpeed = activeEncounter.speed || 35;
+    const playerFirst = playerSpeed >= wildSpeed;
 
-    if (newHp <= 0) {
-      // Wild Pokémon faints!
-      setActiveEncounter((prev) => ({ ...prev, currentHp: 0 }));
-      setBattlePhase("victory");
-      logBattle(`Wild ${capitalize(activeEncounter.name)} fainted!`);
-
-      // Award EXP to leader
-      const expReward = activeEncounter.expReward || 45;
-      const moneyReward = activeEncounter.moneyReward || 120;
-      const res = gainExpToLeader(expReward);
-      addMoney(moneyReward);
-
-      setExpResult({
-        expGained: expReward,
-        moneyGained: moneyReward,
-        levelUpInfo: res?.didLevelUp ? res : null,
+    if (playerFirst) {
+      // Player attacks first -> Wild attacks second (if alive)
+      executePlayerAttack(move, () => {
+        // If wild survived, wild attacks
+        executeWildAttack(() => {
+          setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+          setBattleState("MENU");
+        });
       });
-
-      if (res?.didLevelUp) {
-        logBattle(`🌟 ${leaderPokemon.nickname} grew to Level ${res.newLevel}!`);
-      }
     } else {
-      setActiveEncounter((prev) => ({ ...prev, currentHp: newHp }));
-      const hpPercent = Math.round((newHp / activeEncounter.maxHp) * 100);
-      if (hpPercent <= 30) {
-        logBattle(`Wild ${capitalize(activeEncounter.name)} is weakened! It's much easier to catch!`);
-      }
+      // Wild attacks first -> Player attacks second (if alive)
+      executeWildAttack(() => {
+        executePlayerAttack(move, () => {
+          setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+          setBattleState("MENU");
+        });
+      });
     }
   }
 
-  // Throw Poké Ball Action
+  // 1. Player Attack Phase
+  function executePlayerAttack(move, onComplete) {
+    if (!leaderPokemon || !activeEncounter) return;
+
+    setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} used ${move.name.toUpperCase()}!`);
+    pushLog(`${leaderPokemon.nickname} used ${move.name}!`);
+
+    setPlayerAnim("anim-player-lunge");
+    playAttackWhooshSound();
+
+    setTimeout(() => {
+      setPlayerAnim("");
+
+      // Calculate Damage
+      const isCrit = Math.random() < 0.08;
+      const typeMult = getTypeDamageMultiplier(move.type, activeEncounter.types);
+      const baseAtk = leaderPokemon.attack || 40;
+      const wildDef = activeEncounter.defense || 35;
+
+      const baseDmg =
+        Math.floor(
+          (((2 * leaderPokemon.level) / 5 + 2) * move.power * (baseAtk / wildDef)) / 50
+        ) + 2;
+      const variance = 0.85 + Math.random() * 0.3;
+      const finalDmg = Math.max(
+        1,
+        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * variance)
+      );
+
+      // Trigger Visual Hit FX on Wild
+      setSlashVfxOnWild(true);
+      setWildAnim("anim-wild-hit");
+      setScreenShake(true);
+
+      if (isCrit) {
+        playCriticalHitSound();
+      } else if (typeMult > 1) {
+        playSuperEffectiveSound();
+      } else if (typeMult < 1 && typeMult > 0) {
+        playNotVeryEffectiveSound();
+      } else {
+        playHitSound();
+      }
+
+      setWildDamagePopup({ damage: finalDmg, isCrit, isSuper: typeMult > 1 });
+
+      const nextWildHp = Math.max(0, activeEncounter.currentHp - finalDmg);
+      setActiveEncounter((prev) => ({ ...prev, currentHp: nextWildHp }));
+
+      setTimeout(() => {
+        setSlashVfxOnWild(false);
+        setWildAnim("");
+        setScreenShake(false);
+        setWildDamagePopup(null);
+
+        // Update dialogue with outcome
+        if (typeMult > 1) {
+          setBattleDialogue("It's super effective!");
+          pushLog("It was super effective!");
+        } else if (typeMult < 1 && typeMult > 0) {
+          setBattleDialogue("It's not very effective...");
+          pushLog("It was not very effective.");
+        } else if (isCrit) {
+          setBattleDialogue("A critical hit!");
+          pushLog("A critical hit!");
+        } else {
+          setBattleDialogue(`Wild ${capitalize(activeEncounter.name)} took ${finalDmg} damage!`);
+        }
+
+        setTimeout(() => {
+          if (nextWildHp <= 0) {
+            // Wild Pokémon Faints!
+            setWildAnim("anim-faint-slide");
+            playFaintSound();
+            playPokemonCry(activeEncounter.id);
+            setBattleDialogue(`Wild ${capitalize(activeEncounter.name)} fainted!`);
+            pushLog(`Wild ${capitalize(activeEncounter.name)} fainted!`);
+
+            // Award EXP & Money
+            const expReward = activeEncounter.expReward || 45;
+            const moneyReward = activeEncounter.moneyReward || 120;
+            const res = gainExpToLeader(expReward);
+            addMoney(moneyReward);
+
+            setExpResult({
+              expGained: expReward,
+              moneyGained: moneyReward,
+              levelUpInfo: res?.didLevelUp ? res : null,
+            });
+
+            setTimeout(() => {
+              setBattleState("VICTORY");
+            }, 850);
+          } else {
+            if (onComplete) onComplete();
+          }
+        }, 650);
+      }, 450);
+    }, 350);
+  }
+
+  // 2. Wild Counter-Attack Phase
+  function executeWildAttack(onComplete) {
+    if (!activeEncounter || !leaderPokemon) return;
+
+    const wildMove = pickWildMove(activeEncounter);
+    setBattleDialogue(`Wild ${capitalize(activeEncounter.name)} used ${wildMove.name.toUpperCase()}!`);
+    pushLog(`Wild ${capitalize(activeEncounter.name)} used ${wildMove.name}!`);
+
+    setWildAnim("anim-wild-lunge");
+    playAttackWhooshSound();
+
+    setTimeout(() => {
+      setWildAnim("");
+
+      // Enemy Damage Calculation against Player
+      const isCrit = Math.random() < 0.06;
+      const typeMult = getTypeDamageMultiplier(wildMove.type, leaderPokemon.types);
+      const enemyAtk = activeEncounter.attack || 35;
+      const playerDef = leaderPokemon.defense || 40;
+
+      const baseDmg =
+        Math.floor(
+          (((2 * activeEncounter.level) / 5 + 2) * wildMove.power * (enemyAtk / playerDef)) / 50
+        ) + 2;
+      const variance = 0.85 + Math.random() * 0.3;
+      const finalDmg = Math.max(
+        2,
+        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * variance)
+      );
+
+      // Trigger Visual Hit FX on Player
+      setSlashVfxOnPlayer(true);
+      setPlayerAnim("anim-player-hit");
+      setScreenShake(true);
+
+      if (isCrit) {
+        playCriticalHitSound();
+      } else {
+        playHitSound();
+      }
+
+      setPlayerDamagePopup({ damage: finalDmg, isCrit });
+
+      const newPlayerHp = Math.max(0, (leaderPokemon.currentHp || 0) - finalDmg);
+      updatePokemonHp(leaderPokemon.instanceId, newPlayerHp);
+
+      setTimeout(() => {
+        setSlashVfxOnPlayer(false);
+        setPlayerAnim("");
+        setScreenShake(false);
+        setPlayerDamagePopup(null);
+
+        setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} took ${finalDmg} damage!`);
+        pushLog(`${leaderPokemon.nickname} took ${finalDmg} damage!`);
+
+        setTimeout(() => {
+          if (newPlayerHp <= 0) {
+            // Player Leader Faints!
+            setPlayerAnim("anim-faint-slide");
+            playFaintSound();
+            playPokemonCry(leaderPokemon.id);
+            setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} fainted!`);
+            pushLog(`${leaderPokemon.nickname} fainted!`);
+
+            setTimeout(() => {
+              setBattleState("DEFEATED");
+            }, 850);
+          } else {
+            if (onComplete) onComplete();
+          }
+        }, 650);
+      }, 450);
+    }, 350);
+  }
+
+  // 3. Catch Action (Throw Poké Ball)
   function handleThrowBall(ballKey) {
-    if (!activeEncounter || battlePhase !== "action") return;
+    if (!activeEncounter || battleState === "ANIMATING") return;
 
     const ballCount = getItemCount(ballKey);
     if (ballCount <= 0) return;
 
-    setIsBallPickerOpen(false);
     setThrowingBallKey(ballKey);
-    setBattlePhase("throwing");
+    setBattleState("ANIMATING");
     setWobbleState(0);
 
     playBallThrowSound();
-    logBattle(`Threw a ${ballKey.replace("-", " ").toUpperCase()}!`);
+    setBattleDialogue(`Threw a ${ballKey.replace("-", " ").toUpperCase()}!`);
+    pushLog(`Threw a ${ballKey.replace("-", " ").toUpperCase()}!`);
 
-    // Ball Animation Sequence: 1 shake -> 2 shake -> 3 shake -> catch / break
     const catchResult = catchWildPokemon(activeEncounter, ballKey);
 
     setTimeout(() => {
@@ -197,11 +421,19 @@ function WildernessPage() {
 
       setTimeout(() => {
         if (!catchResult.success && catchResult.shakes === 0) {
-          // Immediate Break out!
-          setBattlePhase("action");
+          // Break out immediately
           setThrowingBallKey(null);
           setWobbleState(0);
-          logBattle(catchResult.message);
+          setBattleDialogue(catchResult.message);
+          pushLog(catchResult.message);
+
+          // Wild counter-attacks after break out!
+          setTimeout(() => {
+            executeWildAttack(() => {
+              setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+              setBattleState("MENU");
+            });
+          }, 800);
           return;
         }
 
@@ -211,11 +443,17 @@ function WildernessPage() {
 
         setTimeout(() => {
           if (!catchResult.success && catchResult.shakes === 1) {
-            // Break out after 1 shake!
-            setBattlePhase("action");
             setThrowingBallKey(null);
             setWobbleState(0);
-            logBattle(catchResult.message);
+            setBattleDialogue(catchResult.message);
+            pushLog(catchResult.message);
+
+            setTimeout(() => {
+              executeWildAttack(() => {
+                setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+                setBattleState("MENU");
+              });
+            }, 800);
             return;
           }
 
@@ -225,19 +463,23 @@ function WildernessPage() {
 
           setTimeout(() => {
             if (catchResult.success) {
-              // CAUGHT! Click!
-              setBattlePhase("caught");
+              // CAUGHT!
+              setBattleState("CAUGHT");
               setWobbleState(3);
-              logBattle(catchResult.message);
-              if (catchResult.sentToBox) {
-                logBattle("Party full! Pokémon was safely sent to PC Storage Box.");
-              }
+              setBattleDialogue(catchResult.message);
+              pushLog(catchResult.message);
             } else {
-              // Break out after 2 shakes!
-              setBattlePhase("action");
               setThrowingBallKey(null);
               setWobbleState(0);
-              logBattle(catchResult.message);
+              setBattleDialogue(catchResult.message);
+              pushLog(catchResult.message);
+
+              setTimeout(() => {
+                executeWildAttack(() => {
+                  setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+                  setBattleState("MENU");
+                });
+              }, 800);
             }
           }, 600);
         }, 600);
@@ -245,75 +487,123 @@ function WildernessPage() {
     }, 700);
   }
 
-  // Feed Berry Action (Calm the wild Pokémon)
-  function handleFeedBerry() {
-    if (!activeEncounter || battlePhase !== "action") return;
-    const berryCount = getItemCount("oran-berry");
-    if (berryCount <= 0) {
-      alert("You don't have any Oran Berries in your Bag!");
+  // 4. Use Healing Item on Active Leader Mid-Battle
+  function handleUseItem(itemKey) {
+    if (!activeEncounter || battleState === "ANIMATING" || !leaderPokemon) return;
+
+    const res = applyItemToPokemon(itemKey, leaderPokemon.instanceId);
+    if (!res.success) {
+      setBattleDialogue(res.message);
       return;
     }
 
     playItemUseSound();
-    // Slightly boost catch rate
-    setActiveEncounter((prev) => ({
-      ...prev,
-      catchRate: Math.min(255, (prev.catchRate || 190) + 25),
-    }));
-    logBattle(`Fed an Oran Berry to wild ${capitalize(activeEncounter.name)}! It looks calmer and friendly.`);
-  }
+    setBattleDialogue(res.message);
+    pushLog(res.message);
 
-  // Run Away Action
-  function handleRunAway() {
-    playRunSound();
-    setBattlePhase("fled");
-    logBattle("Got away safely!");
+    // Using an item consumes the turn; wild Pokémon counter-attacks
+    setBattleState("ANIMATING");
     setTimeout(() => {
-      setActiveEncounter(null);
-      setBattlePhase("action");
-      setThrowingBallKey(null);
-      setWobbleState(0);
-      setExpResult(null);
-    }, 700);
+      executeWildAttack(() => {
+        setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
+        setBattleState("MENU");
+      });
+    }, 750);
   }
 
-  // Close Battle Screen after Victory or Catch
-  function handleDismissBattle() {
-    setActiveEncounter(null);
-    setBattlePhase("action");
-    setThrowingBallKey(null);
-    setWobbleState(0);
-    setExpResult(null);
+  // 5. Mid-Battle Switch Pokémon Partner
+  function handleSwitchPokemon(targetPokemon) {
+    if (!activeEncounter || battleState === "ANIMATING") return;
+    if (targetPokemon.instanceId === leaderPokemon?.instanceId) {
+      setBattleDialogue(`${targetPokemon.nickname} is already in battle!`);
+      return;
+    }
+    if ((targetPokemon.currentHp || 0) <= 0) {
+      setBattleDialogue(`${targetPokemon.nickname} has no will to fight (Fainted)!`);
+      return;
+    }
+
+    setTeamLeader(targetPokemon.instanceId);
+    setPlayerMoves(getPokemonMoves(targetPokemon));
+    playPokemonCry(targetPokemon.id);
+
+    setBattleDialogue(`Come back, ${leaderPokemon?.nickname}! Go, ${targetPokemon.nickname}!`);
+    pushLog(`Switched out to ${targetPokemon.nickname}!`);
+
+    // Wild Pokémon takes opportunity turn upon switch
+    setBattleState("ANIMATING");
+    setTimeout(() => {
+      executeWildAttack(() => {
+        setBattleDialogue(`What will ${targetPokemon.nickname.toUpperCase()} do?`);
+        setBattleState("MENU");
+      });
+    }, 850);
   }
 
-  // Available Poké Balls in inventory
-  const availableBalls = BALL_KEYS.map((key) => ({
-    key,
-    count: getItemCount(key),
+  // 6. Run Away Action
+  function handleRunAway() {
+    if (!activeEncounter || battleState === "ANIMATING") return;
+
+    const playerSpeed = leaderPokemon?.speed || 40;
+    const wildSpeed = activeEncounter.speed || 35;
+
+    // Guaranteed escape if faster, or 70% chance
+    if (checkEscapeSuccess(playerSpeed, wildSpeed)) {
+      playRunSound();
+      setBattleDialogue("Got away safely!");
+      pushLog("Got away safely!");
+      setBattleState("ANIMATING");
+      setTimeout(() => {
+        handleDismissBattle();
+      }, 750);
+    } else {
+      setBattleDialogue("Can't escape!");
+      pushLog("Can't escape!");
+      setBattleState("ANIMATING");
+      setTimeout(() => {
+        executeWildAttack(() => {
+          setBattleDialogue(`What will ${leaderPokemon?.nickname.toUpperCase()} do?`);
+          setBattleState("MENU");
+        });
+      }, 750);
+    }
+  }
+
+  // Available items in inventory
+  const availableBalls = BALL_KEYS.map((k) => ({
+    key: k,
+    count: getItemCount(k),
   })).filter((b) => b.count > 0);
 
-  const primaryType = activeEncounter ? activeEncounter.types?.[0] || "normal" : "normal";
-  const wildTheme = getTypeColor(primaryType);
+  const availableMedicine = MEDICINE_KEYS.map((k) => ({
+    key: k,
+    count: getItemCount(k),
+  })).filter((m) => m.count > 0);
 
-  const wildHpPercent = activeEncounter
-    ? Math.max(0, Math.round((activeEncounter.currentHp / activeEncounter.maxHp) * 100))
-    : 100;
+  // Health percentages & colors
+  const wildHp = activeEncounter?.currentHp ?? 100;
+  const wildMaxHp = activeEncounter?.maxHp ?? 100;
+  const wildHpPercent = Math.max(0, Math.min(100, Math.round((wildHp / wildMaxHp) * 100)));
+  const wildHpColor = wildHpPercent > 50 ? "#22c55e" : wildHpPercent > 20 ? "#eab308" : "#ef4444";
 
-  let wildHpColor = "#22c55e";
-  if (wildHpPercent <= 25) wildHpColor = "#ef4444";
-  else if (wildHpPercent <= 50) wildHpColor = "#f97316";
+  const playerHp = leaderPokemon?.currentHp ?? 100;
+  const playerMaxHp = leaderPokemon?.maxHp ?? 100;
+  const playerHpPercent = Math.max(0, Math.min(100, Math.round((playerHp / playerMaxHp) * 100)));
+  const playerHpColor = playerHpPercent > 50 ? "#22c55e" : playerHpPercent > 20 ? "#eab308" : "#ef4444";
+
+  const wildTheme = getTypeColor(activeEncounter?.types?.[0]);
 
   return (
-    <div className="wilderness-page">
+    <div className="wilderness-container">
       {/* Page Header */}
-      <div className="wilderness-header-banner">
-        <div className="wilderness-header-info">
-          <div className="wilderness-title-row">
-            <IconTrees size={28} className="wilderness-header-icon" />
-            <div>
-              <h2>Wilderness Expedition</h2>
-              <p>Explore biomes, encounter wild Pokémon, grind EXP, and catch companions with Poké Balls!</p>
-            </div>
+      <div className="wilderness-header-card">
+        <div className="wilderness-header-left">
+          <div className="wilderness-badge-pill">
+            <IconTrees size={16} /> Wilderness Expedition
+          </div>
+          <div className="wilderness-header-text">
+            <h2>Wilderness Expedition</h2>
+            <p>Explore biomes, encounter wild Pokémon face-to-face, grind EXP, and catch companions with Poké Balls!</p>
           </div>
         </div>
 
@@ -385,7 +675,13 @@ function WildernessPage() {
 
       {/* Exploration Meadow (Tall Grass Field) */}
       {!activeEncounter && (
-        <div className="wilderness-meadow-zone">
+        <div
+          className="meadow-zone-card"
+          style={{
+            "--biome-gradient": selectedBiome.bgGradient,
+            "--biome-color": selectedBiome.color,
+          }}
+        >
           <div className="meadow-header">
             <div className="meadow-title-group">
               <h3>{selectedBiome.name} — Tall Grass Zone</h3>
@@ -439,61 +735,69 @@ function WildernessPage() {
         </div>
       )}
 
-      {/* Wild Encounter & Catch Arena Modal / Screen */}
+      {/* ======================================================== */}
+      {/* FACE-TO-FACE POV RPG TURN-BASED BATTLE ARENA MODAL      */}
+      {/* ======================================================== */}
       {activeEncounter && (
-        <div className="wild-arena-modal-backdrop">
+        <div className="rpg-battle-modal-backdrop">
           <div
-            className="wild-arena-card"
+            className={`rpg-battle-arena-window ${screenShake ? "camera-screen-shake" : ""}`}
             style={{
               "--wild-primary": wildTheme.primary,
               "--wild-bg": wildTheme.bg,
+              "--biome-color": selectedBiome.color,
             }}
           >
-            {/* Arena Top Nav / Biome Indicator */}
-            <div className="arena-top-bar">
-              <span className="arena-biome-tag">
+            {/* Top Navigation & Status Bar */}
+            <div className="rpg-arena-top-bar">
+              <span className="rpg-biome-badge">
                 <IconTrees size={14} /> {selectedBiome.name}
               </span>
-              <button
-                type="button"
-                onClick={handleRunAway}
-                className="arena-close-btn"
-                title="Run Away safely"
-              >
-                <IconX size={16} />
-              </button>
+              <div className="top-bar-right-actions">
+                <button
+                  type="button"
+                  onClick={() => setShowHistoryModal((prev) => !prev)}
+                  className="btn-history-toggle"
+                  title="Toggle Battle Log History"
+                >
+                  Battle Log
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRunAway}
+                  className="btn-arena-flee"
+                  title="Flee safely"
+                >
+                  <IconX size={16} />
+                </button>
+              </div>
             </div>
 
-            {/* Split Screen Battle Stage */}
-            <div className="battle-stage-wrapper">
-              {/* Opponent (Wild Pokémon) Field */}
-              <div className="stage-side stage-opponent">
-                <div className="wild-info-card">
-                  <div className="wild-header-row">
-                    <h4 className="wild-name">{capitalize(activeEncounter.name)}</h4>
-                    <span className="wild-level-tag">Lv. {activeEncounter.level}</span>
+            {/* Cinematic 3D Battlefield Stage (Face-to-Face POV) */}
+            <div className={`rpg-battlefield-stage biome-bg-${selectedBiome.id}`}>
+              {/* Distance: Opponent Platform (Center-Right, Face-to-Face) */}
+              <div className="rpg-opponent-area">
+                {/* Wild Pokémon RPG Status HUD (Floating Upper-Left) */}
+                <div className="rpg-hud-card wild-hud">
+                  <div className="hud-header">
+                    <span className="hud-name">{capitalize(activeEncounter.name)}</span>
+                    <span className="hud-level">Lv.{activeEncounter.level}</span>
                     {activeEncounter.isShiny && (
-                      <span className="wild-shiny-tag" title="Extremely Rare Sparkling Shiny!">
-                        <IconSparkles size={12} /> SHINY
+                      <span className="hud-shiny-star" title="Sparkling Shiny!">
+                        <IconSparkles size={13} />
                       </span>
                     )}
                   </div>
-
-                  <div className="wild-types-row">
+                  <div className="hud-types">
                     {activeEncounter.types?.map((t) => (
                       <TypeBadge key={t} type={t} size="sm" />
                     ))}
                   </div>
-
-                  {/* Wild HP Bar */}
-                  <div className="wild-hp-bar-wrap">
-                    <div className="wild-hp-meta">
-                      <span>HP</span>
-                      <span>{activeEncounter.currentHp} / {activeEncounter.maxHp}</span>
-                    </div>
-                    <div className="hp-track">
+                  <div className="hud-hp-block">
+                    <span className="hud-hp-label">HP</span>
+                    <div className="hud-hp-track">
                       <div
-                        className="hp-fill"
+                        className="hud-hp-fill"
                         style={{
                           width: `${wildHpPercent}%`,
                           backgroundColor: wildHpColor,
@@ -501,12 +805,33 @@ function WildernessPage() {
                       ></div>
                     </div>
                   </div>
+                  <div className="hud-hp-number">
+                    {activeEncounter.currentHp} / {activeEncounter.maxHp}
+                  </div>
                 </div>
 
-                <div className="wild-sprite-arena-box">
-                  {/* Catching Ball Animation Overlay */}
-                  {battlePhase === "throwing" && throwingBallKey && (
-                    <div className={`pokeball-throw-animation wobble-${wobbleState}`}>
+                {/* Wild Ground Pedestal & Sprite */}
+                <div className="rpg-pedestal-container wild-pedestal">
+                  <div className="ground-pedestal-shadow"></div>
+
+                  {/* Impact Slash VFX on Wild */}
+                  {slashVfxOnWild && <div className="vfx-energy-slash"></div>}
+
+                  {/* Floating Damage Popup on Wild */}
+                  {wildDamagePopup && (
+                    <div
+                      className={`floating-damage-number ${
+                        wildDamagePopup.isCrit ? "crit-damage" : ""
+                      } ${wildDamagePopup.isSuper ? "super-damage" : ""}`}
+                    >
+                      {wildDamagePopup.isCrit && <span className="crit-label">CRITICAL! </span>}
+                      -{wildDamagePopup.damage} HP
+                    </div>
+                  )}
+
+                  {/* Thrown Poké Ball Overlay */}
+                  {throwingBallKey && (
+                    <div className={`rpg-pokeball-wobble wobble-${wobbleState}`}>
                       <img
                         src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${throwingBallKey}.png`}
                         alt="Poké Ball"
@@ -515,15 +840,15 @@ function WildernessPage() {
                     </div>
                   )}
 
-                  {/* Caught Victory Badge */}
-                  {battlePhase === "caught" && (
-                    <div className="caught-stamp-overlay">
+                  {/* Caught Stamp */}
+                  {battleState === "CAUGHT" && (
+                    <div className="rpg-caught-stamp">
                       <IconCheck size={28} />
                       <span>CAUGHT!</span>
                     </div>
                   )}
 
-                  {/* Wild Sprite */}
+                  {/* Wild Pokémon Animated Sprite (Facing User) */}
                   <img
                     src={
                       activeEncounter.isShiny
@@ -531,9 +856,9 @@ function WildernessPage() {
                         : getAnimatedSpriteUrl(activeEncounter.id)
                     }
                     alt={activeEncounter.name}
-                    className={`wild-showdown-sprite ${
-                      battlePhase === "throwing" ? "sprite-being-caught" : ""
-                    } ${activeEncounter.currentHp <= 0 ? "sprite-fainted" : ""}`}
+                    className={`wild-battler-sprite ${wildAnim} ${
+                      throwingBallKey ? "sprite-shrunk-in-ball" : ""
+                    }`}
                     onError={(e) => {
                       e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeEncounter.id}.png`;
                     }}
@@ -541,41 +866,84 @@ function WildernessPage() {
                 </div>
               </div>
 
-              {/* Player Active Leader Field */}
+              {/* Foreground: Player Leader Platform (Lower-Left Over-The-Shoulder POV) */}
               {leaderPokemon && (
-                <div className="stage-side stage-player">
-                  <div className="player-sprite-arena-box">
+                <div className="rpg-player-area">
+                  {/* Player Ground Pedestal & Back Sprite */}
+                  <div className="rpg-pedestal-container player-pedestal">
+                    <div className="ground-pedestal-shadow"></div>
+
+                    {/* Impact Slash VFX on Player */}
+                    {slashVfxOnPlayer && <div className="vfx-energy-slash"></div>}
+
+                    {/* Floating Damage Popup on Player */}
+                    {playerDamagePopup && (
+                      <div
+                        className={`floating-damage-number player-damage-tag ${
+                          playerDamagePopup.isCrit ? "crit-damage" : ""
+                        }`}
+                      >
+                        -{playerDamagePopup.damage} HP
+                      </div>
+                    )}
+
+                    {/* Animated Back Sprite (Showing Punggung / Pundak menghadap lawan) */}
                     <img
                       src={
-                        leaderPokemon.sprites?.backAnimated ||
-                        leaderPokemon.sprites?.animated ||
-                        leaderPokemon.sprites?.static
+                        leaderPokemon.isShiny
+                          ? getAnimatedBackShinySpriteUrl(leaderPokemon.id)
+                          : getAnimatedBackSpriteUrl(leaderPokemon.id)
                       }
                       alt={leaderPokemon.name}
-                      className="player-showdown-sprite"
+                      className={`player-battler-back-sprite ${playerAnim}`}
                       onError={(e) => {
-                        e.target.src = leaderPokemon.sprites?.static;
+                        e.target.src = getBackSpriteUrl(leaderPokemon.id);
                       }}
                     />
                   </div>
 
-                  <div className="player-info-card">
-                    <div className="player-header-row">
-                      <h4 className="player-pokemon-name">{leaderPokemon.nickname}</h4>
-                      <span className="player-level-tag">Lv. {leaderPokemon.level}</span>
+                  {/* Player RPG Status HUD (Floating Lower-Right) */}
+                  <div className="rpg-hud-card player-hud">
+                    <div className="hud-header">
+                      <span className="hud-name">{leaderPokemon.nickname}</span>
+                      <span className="hud-level">Lv.{leaderPokemon.level}</span>
                     </div>
-
-                    <div className="player-hp-bar-wrap">
-                      <div className="player-hp-meta">
-                        <span>HP</span>
-                        <span>{leaderPokemon.currentHp} / {leaderPokemon.maxHp}</span>
-                      </div>
-                      <div className="hp-track">
+                    <div className="hud-types">
+                      {leaderPokemon.types?.map((t) => (
+                        <TypeBadge key={t} type={t} size="sm" />
+                      ))}
+                    </div>
+                    <div className="hud-hp-block">
+                      <span className="hud-hp-label">HP</span>
+                      <div className="hud-hp-track">
                         <div
-                          className="hp-fill"
+                          className="hud-hp-fill"
                           style={{
-                            width: `${Math.round((leaderPokemon.currentHp / leaderPokemon.maxHp) * 100)}%`,
-                            backgroundColor: "#22c55e",
+                            width: `${playerHpPercent}%`,
+                            backgroundColor: playerHpColor,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="hud-hp-number">
+                      {leaderPokemon.currentHp} / {leaderPokemon.maxHp}
+                    </div>
+                    {/* EXP Bar Gauge */}
+                    <div className="hud-exp-row">
+                      <span className="exp-label">EXP</span>
+                      <div className="hud-exp-track">
+                        <div
+                          className="hud-exp-fill"
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              Math.round(
+                                ((leaderPokemon.exp || 0) /
+                                  (leaderPokemon.expToNextLevel ||
+                                    Math.pow(leaderPokemon.level + 1, 3))) *
+                                  100
+                              )
+                            )}%`,
                           }}
                         ></div>
                       </div>
@@ -585,148 +953,321 @@ function WildernessPage() {
               )}
             </div>
 
-            {/* Battle Text Console Log */}
-            <div className="battle-console-log">
-              {battleLog.map((log, index) => (
-                <div key={index} className="log-line">
-                  &rsaquo; {log}
-                </div>
-              ))}
+            {/* ======================================================== */}
+            {/* RETRO ACTION DIALOGUE BOX (Classic RPG Narration)        */}
+            {/* ======================================================== */}
+            <div className="rpg-dialogue-box-container">
+              <div className="rpg-dialogue-text">
+                <span className="dialogue-arrow">▶</span> {battleDialogue || `What will ${leaderPokemon?.nickname.toUpperCase()} do?`}
+              </div>
             </div>
 
-            {/* Post-Battle Victory Screen */}
-            {battlePhase === "victory" && expResult && (
-              <div className="battle-result-banner banner-victory">
-                <h4>Victory! Wild Pokémon Defeated</h4>
-                <div className="result-stats-row">
-                  <span>EXP Gained: <strong>+{expResult.expGained}</strong></span>
-                  <span>PokéDollars: <strong>+₽{expResult.moneyGained}</strong></span>
-                </div>
-                {expResult.levelUpInfo && (
-                  <div className="level-up-toast">
-                    <IconSparkles size={16} />
-                    <span>
-                      {expResult.levelUpInfo.pokemonName} leveled up to Lv. {expResult.levelUpInfo.newLevel}! Max HP is now {expResult.levelUpInfo.newHp}!
-                    </span>
-                  </div>
-                )}
-                <button type="button" onClick={handleDismissBattle} className="btn-dismiss-battle">
-                  Continue Exploring
-                </button>
-              </div>
-            )}
-
-            {/* Post-Catch Screen */}
-            {battlePhase === "caught" && (
-              <div className="battle-result-banner banner-caught">
-                <h4>Gotcha! {capitalize(activeEncounter.name)} was caught!</h4>
-                <p>
-                  Added to your collection! Check your{" "}
-                  <Link to="/team" className="result-inline-link">
-                    Team / PC Storage Box
-                  </Link>
-                  .
-                </p>
-                <button type="button" onClick={handleDismissBattle} className="btn-dismiss-battle">
-                  Continue Exploring
-                </button>
-              </div>
-            )}
-
-            {/* Battle Actions Control Bar */}
-            {battlePhase === "action" && (
-              <div className="arena-actions-bar">
-                {/* 1. Attack / Fight */}
-                <button
-                  type="button"
-                  onClick={handleAttack}
-                  className="btn-arena-action btn-arena-fight"
-                  title="Attack to weaken the wild Pokémon's HP"
-                >
-                  <IconSwords size={18} />
-                  <span>Fight</span>
-                </button>
-
-                {/* 2. Catch / Throw Poké Ball */}
-                <button
-                  type="button"
-                  onClick={() => setIsBallPickerOpen((prev) => !prev)}
-                  className="btn-arena-action btn-arena-ball"
-                  title="Throw a Poké Ball from your Bag"
-                >
-                  <IconPokeball size={18} />
-                  <span>Catch ({availableBalls.reduce((s, b) => s + b.count, 0)})</span>
-                </button>
-
-                {/* 3. Feed Berry */}
-                <button
-                  type="button"
-                  onClick={handleFeedBerry}
-                  className="btn-arena-action btn-arena-berry"
-                  title="Feed an Oran Berry to calm the wild Pokémon"
-                >
-                  <IconPotion size={18} />
-                  <span>Berry ({getItemCount("oran-berry")})</span>
-                </button>
-
-                {/* 4. Run Away */}
-                <button
-                  type="button"
-                  onClick={handleRunAway}
-                  className="btn-arena-action btn-arena-run"
-                  title="Flee the encounter safely"
-                >
-                  <IconArrowLeft size={18} />
-                  <span>Run</span>
-                </button>
-              </div>
-            )}
-
-            {/* Poké Ball Selector Dropup Drawer */}
-            {isBallPickerOpen && battlePhase === "action" && (
-              <div className="ball-picker-drawer">
-                <div className="ball-picker-header">
-                  <span>Choose Poké Ball from Bag:</span>
+            {/* ======================================================== */}
+            {/* RPG COMMAND HUB & MENU SELECTION (4 Classic Commands)     */}
+            {/* ======================================================== */}
+            <div className="rpg-command-panel">
+              {/* 1. Main 4 Commands Screen */}
+              {battleState === "MENU" && (
+                <div className="rpg-commands-grid">
                   <button
                     type="button"
-                    onClick={() => setIsBallPickerOpen(false)}
-                    className="ball-picker-close"
+                    onClick={() => setBattleState("MOVES")}
+                    className="rpg-cmd-btn cmd-fight"
                   >
-                    <IconX size={14} />
+                    <IconSwords size={20} />
+                    <span>FIGHT</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBattleState("BAG")}
+                    className="rpg-cmd-btn cmd-bag"
+                  >
+                    <IconBackpack size={20} />
+                    <span>BAG</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBattleState("PARTY")}
+                    className="rpg-cmd-btn cmd-pokemon"
+                  >
+                    <IconParty size={20} />
+                    <span>POKÉMON</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleRunAway}
+                    className="rpg-cmd-btn cmd-run"
+                  >
+                    <IconArrowLeft size={20} />
+                    <span>RUN</span>
                   </button>
                 </div>
+              )}
 
-                {availableBalls.length === 0 ? (
-                  <div className="ball-picker-empty">
-                    <span>You have no Poké Balls left in your Bag!</span>
-                    <Link to="/bag" className="btn-buy-balls-link">
-                      Go to Poké Mart
-                    </Link>
+              {/* 2. Moves 2x2 Selection Grid with PP */}
+              {battleState === "MOVES" && (
+                <div className="rpg-moves-wrapper">
+                  <div className="moves-2x2-grid">
+                    {playerMoves.map((m) => {
+                      const moveTheme = getTypeColor(m.type);
+                      const isOutOfPp = m.currentPp <= 0;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => handleExecuteMove(m)}
+                          disabled={isOutOfPp}
+                          className={`rpg-move-btn ${isOutOfPp ? "move-no-pp" : ""}`}
+                          style={{
+                            "--move-color": moveTheme.primary,
+                          }}
+                        >
+                          <div className="move-name-row">
+                            <span className="move-name">{m.name}</span>
+                            <span className="move-type-tag" style={{ backgroundColor: moveTheme.primary }}>
+                              {m.type.toUpperCase()}
+                            </span>
+                          </div>
+                          <div className="move-stats-row">
+                            <span className="move-power">PWR: {m.power}</span>
+                            <span className="move-pp">
+                              PP: <strong>{m.currentPp}</strong>/{m.maxPp}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
-                ) : (
-                  <div className="ball-options-list">
-                    {availableBalls.map((b) => (
+                  <button
+                    type="button"
+                    onClick={() => setBattleState("MENU")}
+                    className="btn-cancel-moves"
+                  >
+                    ‹ Back to Commands
+                  </button>
+                </div>
+              )}
+
+              {/* 3. In-Battle Bag Drawer (Balls & Medicine) */}
+              {battleState === "BAG" && (
+                <div className="rpg-bag-drawer">
+                  <div className="bag-tabs-header">
+                    <button
+                      type="button"
+                      onClick={() => setBagTab("balls")}
+                      className={`bag-tab-btn ${bagTab === "balls" ? "active" : ""}`}
+                    >
+                      <IconPokeball size={16} /> Poké Balls
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBagTab("medicine")}
+                      className={`bag-tab-btn ${bagTab === "medicine" ? "active" : ""}`}
+                    >
+                      <IconHeart size={16} /> Medicine & Berries
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBattleState("MENU")}
+                      className="btn-close-subdrawer"
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+
+                  {bagTab === "balls" && (
+                    <div className="bag-items-grid">
+                      {availableBalls.length === 0 ? (
+                        <div className="empty-pocket-msg">No Poké Balls in Bag!</div>
+                      ) : (
+                        availableBalls.map((b) => (
+                          <button
+                            key={b.key}
+                            type="button"
+                            onClick={() => handleThrowBall(b.key)}
+                            className="bag-item-card"
+                          >
+                            <img
+                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${b.key}.png`}
+                              alt={b.key}
+                              className="item-sprite-sm"
+                            />
+                            <span className="item-label">{b.key.replace("-", " ").toUpperCase()}</span>
+                            <span className="item-qty">x{b.count}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {bagTab === "medicine" && (
+                    <div className="bag-items-grid">
+                      {availableMedicine.length === 0 ? (
+                        <div className="empty-pocket-msg">No Medicine or Berries in Bag!</div>
+                      ) : (
+                        availableMedicine.map((m) => (
+                          <button
+                            key={m.key}
+                            type="button"
+                            onClick={() => handleUseItem(m.key)}
+                            className="bag-item-card"
+                          >
+                            <img
+                              src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${m.key}.png`}
+                              alt={m.key}
+                              className="item-sprite-sm"
+                            />
+                            <span className="item-label">{m.key.replace("-", " ").toUpperCase()}</span>
+                            <span className="item-qty">x{m.count}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* 4. In-Battle Pokémon Switcher Modal */}
+              {battleState === "PARTY" && (
+                <div className="rpg-party-drawer">
+                  <div className="party-drawer-header">
+                    <span>Select Pokémon Partner to Switch:</span>
+                    <button
+                      type="button"
+                      onClick={() => setBattleState("MENU")}
+                      className="btn-close-subdrawer"
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+                  <div className="party-members-grid">
+                    {team.map((pokemon, idx) => {
+                      const isCurrent = idx === 0;
+                      const isFainted = (pokemon.currentHp || 0) <= 0;
+                      return (
+                        <button
+                          key={pokemon.instanceId}
+                          type="button"
+                          disabled={isCurrent || isFainted}
+                          onClick={() => handleSwitchPokemon(pokemon)}
+                          className={`party-switch-card ${isCurrent ? "current-leader" : ""} ${
+                            isFainted ? "fainted-pokemon" : ""
+                          }`}
+                        >
+                          <img
+                            src={pokemon.sprites?.static}
+                            alt={pokemon.name}
+                            className="party-switch-sprite"
+                          />
+                          <div className="party-switch-info">
+                            <span className="switch-name">{pokemon.nickname}</span>
+                            <span className="switch-level">Lv.{pokemon.level}</span>
+                            <span className="switch-hp">
+                              HP: {pokemon.currentHp}/{pokemon.maxHp}
+                            </span>
+                          </div>
+                          {isCurrent && <span className="current-tag">ACTIVE</span>}
+                          {isFainted && <span className="faint-tag">FAINTED</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Victory Screen */}
+              {battleState === "VICTORY" && expResult && (
+                <div className="rpg-result-card result-victory">
+                  <h3>Victory! Wild Pokémon Defeated</h3>
+                  <div className="rewards-summary">
+                    <span className="reward-pill">+<strong>{expResult.expGained}</strong> EXP</span>
+                    <span className="reward-pill">+₽<strong>{expResult.moneyGained}</strong></span>
+                  </div>
+                  {expResult.levelUpInfo && (
+                    <div className="level-up-fanfare">
+                      <IconSparkles size={16} />
+                      <span>
+                        {expResult.levelUpInfo.pokemonName} grew to Level {expResult.levelUpInfo.newLevel}! Max HP is now {expResult.levelUpInfo.newHp}!
+                      </span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={handleDismissBattle}
+                    className="btn-rpg-finish"
+                  >
+                    Continue Journey
+                  </button>
+                </div>
+              )}
+
+              {/* 6. Caught Screen */}
+              {battleState === "CAUGHT" && (
+                <div className="rpg-result-card result-caught">
+                  <h3>Gotcha! {capitalize(activeEncounter.name)} was caught!</h3>
+                  <p>Safely added to your collection! Check your Team / PC Storage Box.</p>
+                  <button
+                    type="button"
+                    onClick={handleDismissBattle}
+                    className="btn-rpg-finish"
+                  >
+                    Continue Journey
+                  </button>
+                </div>
+              )}
+
+              {/* 7. Defeated Screen */}
+              {battleState === "DEFEATED" && (
+                <div className="rpg-result-card result-defeated">
+                  <h3>{leaderPokemon?.nickname} has fainted!</h3>
+                  <p>Your active Pokémon ran out of HP! What will you do?</p>
+                  <div className="defeated-actions">
+                    {team.some((p) => (p.currentHp || 0) > 0) && (
                       <button
-                        key={b.key}
                         type="button"
-                        onClick={() => handleThrowBall(b.key)}
-                        className="ball-option-btn"
+                        onClick={() => setBattleState("PARTY")}
+                        className="btn-rpg-finish"
                       >
-                        <img
-                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${b.key}.png`}
-                          alt={b.key}
-                          className="ball-sprite-sm"
-                        />
-                        <div className="ball-meta">
-                          <strong className="ball-name">
-                            {b.key.replace("-", " ").toUpperCase()}
-                          </strong>
-                          <span className="ball-count">Qty: {b.count}</span>
-                        </div>
+                        Switch Partner
                       </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleDismissBattle}
+                      className="btn-rpg-retreat"
+                    >
+                      Retreat to Pokémon Center
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Optional Collapsible Battle History Modal */}
+            {showHistoryModal && (
+              <div className="rpg-history-modal-overlay">
+                <div className="rpg-history-card">
+                  <div className="history-header">
+                    <h4>Battle Log History</h4>
+                    <button
+                      type="button"
+                      onClick={() => setShowHistoryModal(false)}
+                      className="history-close-btn"
+                    >
+                      <IconX size={16} />
+                    </button>
+                  </div>
+                  <div className="history-entries-list">
+                    {battleHistory.map((entry, index) => (
+                      <div key={index} className="history-row">
+                        &rsaquo; {entry}
+                      </div>
                     ))}
                   </div>
-                )}
+                </div>
               </div>
             )}
           </div>

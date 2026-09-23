@@ -63,6 +63,21 @@ export function getAnimatedShinySpriteUrl(id) {
   return `${ANIMATED_SPRITE_URL}/shiny/${id}.gif`;
 }
 
+// Moving animated showdown BACK GIF
+export function getAnimatedBackSpriteUrl(id) {
+  return `${ANIMATED_SPRITE_URL}/back/${id}.gif`;
+}
+
+// Moving animated showdown Shiny BACK GIF
+export function getAnimatedBackShinySpriteUrl(id) {
+  return `${ANIMATED_SPRITE_URL}/back/shiny/${id}.gif`;
+}
+
+// Fallback static back sprite
+export function getBackSpriteUrl(id) {
+  return `${SPRITE_BASE_URL}/back/${id}.png`;
+}
+
 // High-res official artwork
 export function getArtworkUrl(id) {
   return `${OFFICIAL_ARTWORK_URL}/${id}.png`;

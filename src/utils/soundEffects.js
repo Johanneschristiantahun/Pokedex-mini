@@ -226,3 +226,33 @@ export function playRunSound() {
   playTone({ freq: 340, type: "sine", duration: 0.12, startTime: 0.16, gain: 0.12 });
 }
 
+// 14. Attack Lunge / Whoosh Sound
+export function playAttackWhooshSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 320, type: "triangle", duration: 0.06, startTime: 0.0, gain: 0.16 });
+  playTone({ freq: 220, type: "sine", duration: 0.08, startTime: 0.03, gain: 0.14 });
+}
+
+// 15. Critical Hit Impact (Sharp high-frequency double crunch)
+export function playCriticalHitSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 880, type: "sawtooth", duration: 0.08, startTime: 0.0, gain: 0.22 });
+  playTone({ freq: 1100, type: "square", duration: 0.12, startTime: 0.06, gain: 0.25 });
+  playTone({ freq: 220, type: "triangle", duration: 0.15, startTime: 0.10, gain: 0.2 });
+}
+
+// 16. Super Effective Hit Sound (Upbeat chime chord)
+export function playSuperEffectiveSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 587.33, type: "triangle", duration: 0.1, startTime: 0.0, gain: 0.2 });
+  playTone({ freq: 880.0, type: "triangle", duration: 0.15, startTime: 0.08, gain: 0.22 });
+  playTone({ freq: 1174.66, type: "square", duration: 0.25, startTime: 0.16, gain: 0.22 });
+}
+
+// 17. Not Very Effective Hit Sound (Dull thud)
+export function playNotVeryEffectiveSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 140, type: "square", duration: 0.1, startTime: 0.0, gain: 0.18 });
+  playTone({ freq: 90, type: "triangle", duration: 0.15, startTime: 0.06, gain: 0.2 });
+}
+

@@ -254,3 +254,19 @@ export function calculateDefensiveMatchups(defenderTypes = []) {
 
   return result;
 }
+
+export function getTypeDamageMultiplier(attackType, defenderTypes = []) {
+  if (!attackType) return 1.0;
+  const chart = ATTACK_MULTIPLIERS[attackType.toLowerCase()];
+  if (!chart) return 1.0;
+  let mult = 1.0;
+  const list = Array.isArray(defenderTypes) ? defenderTypes : [defenderTypes];
+  for (const defType of list) {
+    if (!defType) continue;
+    const val = chart[defType.toLowerCase()];
+    if (val !== undefined) {
+      mult *= val;
+    }
+  }
+  return mult;
+}
