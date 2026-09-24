@@ -31,19 +31,24 @@ import {
 } from "../utils/soundEffects.js";
 import { getPokemonMoves, pickWildMove } from "../data/pokemonMoves.js";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
-import { BattleEnvironment, BattlePedestal } from "../components/BattleEnvironment.jsx";
-import TypeBadge from "../components/TypeBadge.jsx";
+import {
+  BattleEnvironment,
+  BattlePedestal,
+  ElementalVfxOverlay,
+} from "../components/BattleEnvironment.jsx";
 import {
   IconTrees,
   IconPokeball,
   IconSparkles,
-  IconSwords,
   IconBackpack,
   IconParty,
   IconArrowLeft,
   IconX,
   IconCheck,
   IconHeart,
+  IconGear,
+  IconCamera,
+  IconBook,
 } from "../components/Icons.jsx";
 
 const BALL_KEYS = ["poke-ball", "great-ball", "ultra-ball", "master-ball"];
@@ -104,8 +109,14 @@ function WildernessPage() {
   const [screenShake, setScreenShake] = useState(false);
   const [slashVfxOnWild, setSlashVfxOnWild] = useState(false);
   const [slashVfxOnPlayer, setSlashVfxOnPlayer] = useState(false);
+  const [elementalVfx, setElementalVfx] = useState(null); // { target: "wild" | "player", type: string }
   const [wildDamagePopup, setWildDamagePopup] = useState(null);
   const [playerDamagePopup, setPlayerDamagePopup] = useState(null);
+
+  // Modern Arena View & Combat Settings (Matching 2.5D Mobile Screenshot)
+  const [cameraMode, setCameraMode] = useState("isometric"); // "isometric" | "classic"
+  const [battleSpeed, setBattleSpeed] = useState(1); // 1 | 2
+  const [turnNumber, setTurnNumber] = useState(1);
 
   // Result state
   const [expResult, setExpResult] = useState(null);
@@ -205,8 +216,8 @@ function WildernessPage() {
     if (playerFirst) {
       // Player attacks first -> Wild attacks second (if alive)
       executePlayerAttack(move, () => {
-        // If wild survived, wild attacks
         executeWildAttack(() => {
+          setTurnNumber((t) => t + 1);
           setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
           setBattleState("MENU");
         });
@@ -215,6 +226,7 @@ function WildernessPage() {
       // Wild attacks first -> Player attacks second (if alive)
       executeWildAttack(() => {
         executePlayerAttack(move, () => {
+          setTurnNumber((t) => t + 1);
           setBattleDialogue(`What will ${leaderPokemon.nickname.toUpperCase()} do?`);
           setBattleState("MENU");
         });
@@ -229,7 +241,8 @@ function WildernessPage() {
     setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} used ${move.name.toUpperCase()}!`);
     pushLog(`${leaderPokemon.nickname} used ${move.name}!`);
 
-    setPlayerAnim("anim-player-lunge");
+    setPlayerAnim(cameraMode === "isometric" ? "anim-player-lunge-isometric" : "anim-player-lunge");
+    setElementalVfx({ target: "wild", type: move.type });
     playAttackWhooshSound();
 
     setTimeout(() => {
@@ -273,6 +286,7 @@ function WildernessPage() {
 
       setTimeout(() => {
         setSlashVfxOnWild(false);
+        setElementalVfx(null);
         setWildAnim("");
         setScreenShake(false);
         setWildDamagePopup(null);
@@ -331,7 +345,8 @@ function WildernessPage() {
     setBattleDialogue(`Wild ${capitalize(activeEncounter.name)} used ${wildMove.name.toUpperCase()}!`);
     pushLog(`Wild ${capitalize(activeEncounter.name)} used ${wildMove.name}!`);
 
-    setWildAnim("anim-wild-lunge");
+    setWildAnim(cameraMode === "isometric" ? "anim-wild-lunge-isometric" : "anim-wild-lunge");
+    setElementalVfx({ target: "player", type: wildMove.type });
     playAttackWhooshSound();
 
     setTimeout(() => {
@@ -371,6 +386,7 @@ function WildernessPage() {
 
       setTimeout(() => {
         setSlashVfxOnPlayer(false);
+        setElementalVfx(null);
         setPlayerAnim("");
         setScreenShake(false);
         setPlayerDamagePopup(null);
@@ -749,72 +765,218 @@ function WildernessPage() {
               "--biome-color": selectedBiome.color,
             }}
           >
-            {/* Top Navigation & Status Bar */}
-            <div className="rpg-arena-top-bar">
-              <span className="rpg-biome-badge">
-                <IconTrees size={14} /> {selectedBiome.name}
-              </span>
-              <div className="top-bar-right-actions">
-                <button
-                  type="button"
-                  onClick={() => setShowHistoryModal((prev) => !prev)}
-                  className="btn-history-toggle"
-                  title="Toggle Battle Log History"
-                >
-                  Battle Log
-                </button>
-                <button
-                  type="button"
-                  onClick={handleRunAway}
-                  className="btn-arena-flee"
-                  title="Flee safely"
-                >
-                  <IconX size={16} />
-                </button>
-              </div>
-            </div>
+            {/* ======================================================== */}
+            {/* MODERN 2.5D ARENA TOP HUD (MATCHING REFERENCE SCREENSHOT) */}
+            {/* ======================================================== */}
+            <div className="modern-arena-top-bar">
+              {/* Left Group: Controls & Player HUD */}
+              <div className="modern-top-left-cluster">
+                {/* Quick Action Circle Controls */}
+                <div className="modern-quick-controls">
+                  <button
+                    type="button"
+                    onClick={() => setShowHistoryModal((prev) => !prev)}
+                    className="btn-modern-circle-ctrl"
+                    title="Battle Log & Settings"
+                  >
+                    <IconGear size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBattleSpeed((s) => (s === 1 ? 2 : 1))}
+                    className={`btn-modern-circle-ctrl ${battleSpeed === 2 ? "ctrl-active" : ""}`}
+                    title="Toggle Battle Speed (1x / 2x Turbo)"
+                  >
+                    {battleSpeed === 2 ? "2x" : "1x"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCameraMode((m) => (m === "isometric" ? "classic" : "isometric"))
+                    }
+                    className={`btn-modern-circle-ctrl ${
+                      cameraMode === "isometric" ? "ctrl-active" : ""
+                    }`}
+                    title="Toggle Camera Angle (2.5D Arena / Classic POV)"
+                  >
+                    <IconCamera size={16} />
+                  </button>
+                </div>
 
-            {/* Cinematic 3D Battlefield Stage (Face-to-Face POV) */}
-            <BattleEnvironment biomeId={selectedBiome.id}>
-              {/* Distance: Opponent Platform (Center-Right, Face-to-Face) */}
-              <div className="rpg-opponent-area">
-                {/* Wild Pokémon RPG Status HUD (Floating Upper-Left) */}
-                <div className="rpg-hud-card wild-hud">
-                  <div className="hud-header">
-                    <span className="hud-name">{capitalize(activeEncounter.name)}</span>
-                    <span className="hud-level">Lv.{activeEncounter.level}</span>
+                {/* Player Status Card */}
+                {leaderPokemon && (
+                  <div className="modern-status-card player-status-card">
+                    <div className="modern-status-header">
+                      <span className="modern-status-name">
+                        {leaderPokemon.nickname || leaderPokemon.name}
+                      </span>
+                      <span className="modern-status-lvl">lv. {leaderPokemon.level}</span>
+                      <span
+                        className="modern-type-pill"
+                        style={{
+                          backgroundColor:
+                            getTypeColor(leaderPokemon.types?.[0] || "normal").primary,
+                        }}
+                      >
+                        {leaderPokemon.types?.[0] || "Normal"}
+                      </span>
+                    </div>
+
+                    {/* Slanted Neon Parallelogram HP Bar */}
+                    <div className="modern-slanted-hp-container">
+                      <div className="modern-slanted-hp-track">
+                        <div
+                          className="modern-slanted-hp-fill"
+                          style={{
+                            width: `${playerHpPercent}%`,
+                            boxShadow: `0 0 10px ${playerHpColor}88`,
+                            background:
+                              playerHpPercent > 50
+                                ? "linear-gradient(90deg, #06b6d4 0%, #10b981 100%)"
+                                : playerHpPercent > 20
+                                ? "linear-gradient(90deg, #f59e0b 0%, #eab308 100%)"
+                                : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
+                          }}
+                        ></div>
+                      </div>
+                      <span className="modern-slanted-hp-text">
+                        {leaderPokemon.currentHp} / {leaderPokemon.maxHp}
+                      </span>
+                    </div>
+
+                    <div className="modern-status-footer">
+                      <span className="modern-ability-badge">
+                        {leaderPokemon.ability?.name
+                          ? capitalize(leaderPokemon.ability.name)
+                          : leaderPokemon.types?.[0]?.toLowerCase() === "fire"
+                          ? "Blaze"
+                          : leaderPokemon.types?.[0]?.toLowerCase() === "water"
+                          ? "Torrent"
+                          : leaderPokemon.types?.[0]?.toLowerCase() === "grass"
+                          ? "Overgrow"
+                          : "Inner Focus"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Center Turn Counter Badge */}
+              <div className="modern-turn-badge" title={`Battle Turn ${turnNumber}`}>
+                <span className="turn-badge-label">TURN</span>
+                <span className="turn-badge-number">{turnNumber}</span>
+              </div>
+
+              {/* Right Group: Opponent HUD & Vertical Action Dock */}
+              <div className="modern-top-right-cluster">
+                {/* Opponent Status Card */}
+                <div className="modern-status-card opponent-status-card">
+                  <div className="modern-status-header">
+                    <span
+                      className="modern-type-pill"
+                      style={{
+                        backgroundColor:
+                          getTypeColor(activeEncounter.types?.[0] || "normal").primary,
+                      }}
+                    >
+                      {activeEncounter.types?.[0] || "Normal"}
+                    </span>
+                    <span className="modern-status-name">
+                      {capitalize(activeEncounter.name)}
+                    </span>
+                    <span className="modern-status-lvl">lv. {activeEncounter.level}</span>
                     {activeEncounter.isShiny && (
-                      <span className="hud-shiny-star" title="Sparkling Shiny!">
+                      <span className="hud-shiny-star" title="Shiny!">
                         <IconSparkles size={13} />
                       </span>
                     )}
                   </div>
-                  <div className="hud-types">
-                    {activeEncounter.types?.map((t) => (
-                      <TypeBadge key={t} type={t} size="sm" />
-                    ))}
-                  </div>
-                  <div className="hud-hp-block">
-                    <span className="hud-hp-label">HP</span>
-                    <div className="hud-hp-track">
+
+                  {/* Slanted Neon Parallelogram HP Bar */}
+                  <div className="modern-slanted-hp-container">
+                    <div className="modern-slanted-hp-track">
                       <div
-                        className="hud-hp-fill"
+                        className="modern-slanted-hp-fill"
                         style={{
                           width: `${wildHpPercent}%`,
-                          backgroundColor: wildHpColor,
+                          boxShadow: `0 0 10px ${wildHpColor}88`,
+                          background:
+                            wildHpPercent > 50
+                              ? "linear-gradient(90deg, #06b6d4 0%, #10b981 100%)"
+                              : wildHpPercent > 20
+                              ? "linear-gradient(90deg, #f59e0b 0%, #eab308 100%)"
+                              : "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
                         }}
                       ></div>
                     </div>
+                    <span className="modern-slanted-hp-text">
+                      {activeEncounter.currentHp} / {activeEncounter.maxHp}
+                    </span>
                   </div>
-                  <div className="hud-hp-number">
-                    {activeEncounter.currentHp} / {activeEncounter.maxHp}
+
+                  <div className="modern-status-footer">
+                    <span className="modern-ability-badge">???</span>
                   </div>
                 </div>
 
-                {/* Wild Ground Pedestal & Sprite */}
-                <BattlePedestal biomeId={selectedBiome.id} isPlayer={false}>
+                {/* Vertical Action Dock */}
+                <div className="modern-vertical-action-dock">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setBattleState((s) => (s === "PARTY" ? "MENU" : "PARTY"))
+                    }
+                    className="btn-dock-action"
+                    title="Switch Pokémon / Party Reserves"
+                  >
+                    <IconParty size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBattleState((s) => (s === "BAG" ? "MENU" : "BAG"))}
+                    className="btn-dock-action"
+                    title="Bag & Items"
+                  >
+                    <IconBackpack size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRunAway}
+                    className="btn-dock-action"
+                    title="Flee safely"
+                  >
+                    <IconArrowLeft size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowHistoryModal((prev) => !prev)}
+                    className="btn-dock-action"
+                    title="Battle Log"
+                  >
+                    <IconBook size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* ======================================================== */}
+            {/* 2.5D ISOMETRIC ARENA STAGE (FACE-TO-FACE MATCHING REF)   */}
+            {/* ======================================================== */}
+            <BattleEnvironment biomeId={selectedBiome.id} cameraMode={cameraMode}>
+              {/* Distance: Opponent Platform (Upper-Right Midground) */}
+              <div className="rpg-opponent-area">
+                <BattlePedestal
+                  biomeId={selectedBiome.id}
+                  isPlayer={false}
+                  cameraMode={cameraMode}
+                >
                   {/* Impact Slash VFX on Wild */}
                   {slashVfxOnWild && <div className="vfx-energy-slash"></div>}
+
+                  {/* Elemental Move Particle VFX */}
+                  {elementalVfx?.target === "wild" && (
+                    <ElementalVfxOverlay type={elementalVfx.type} />
+                  )}
 
                   {/* Floating Damage Popup on Wild */}
                   {wildDamagePopup && (
@@ -824,6 +986,9 @@ function WildernessPage() {
                       } ${wildDamagePopup.isSuper ? "super-damage" : ""}`}
                     >
                       {wildDamagePopup.isCrit && <span className="crit-label">CRITICAL! </span>}
+                      {wildDamagePopup.isSuper && (
+                        <span className="super-label">SUPER EFFECTIVE! </span>
+                      )}
                       -{wildDamagePopup.damage} HP
                     </div>
                   )}
@@ -847,7 +1012,7 @@ function WildernessPage() {
                     </div>
                   )}
 
-                  {/* Wild Pokémon Animated Sprite (Facing User) */}
+                  {/* Wild Pokémon Animated Sprite */}
                   <img
                     src={
                       activeEncounter.isShiny
@@ -855,7 +1020,7 @@ function WildernessPage() {
                         : getAnimatedSpriteUrl(activeEncounter.id)
                     }
                     alt={activeEncounter.name}
-                    className={`wild-battler-sprite ${wildAnim} ${
+                    className={`wild-battler-isometric-sprite ${wildAnim} ${
                       throwingBallKey ? "sprite-shrunk-in-ball" : ""
                     }`}
                     onError={(e) => {
@@ -865,13 +1030,21 @@ function WildernessPage() {
                 </BattlePedestal>
               </div>
 
-              {/* Foreground: Player Leader Platform (Lower-Left Over-The-Shoulder POV) */}
+              {/* Foreground: Player Leader Platform (Lower-Left 3D Arena Mount) */}
               {leaderPokemon && (
                 <div className="rpg-player-area">
-                  {/* Player Ground Pedestal & Back Sprite */}
-                  <BattlePedestal biomeId={selectedBiome.id} isPlayer={true}>
+                  <BattlePedestal
+                    biomeId={selectedBiome.id}
+                    isPlayer={true}
+                    cameraMode={cameraMode}
+                  >
                     {/* Impact Slash VFX on Player */}
                     {slashVfxOnPlayer && <div className="vfx-energy-slash"></div>}
+
+                    {/* Elemental Move Particle VFX */}
+                    {elementalVfx?.target === "player" && (
+                      <ElementalVfxOverlay type={elementalVfx.type} />
+                    )}
 
                     {/* Floating Damage Popup on Player */}
                     {playerDamagePopup && (
@@ -880,173 +1053,124 @@ function WildernessPage() {
                           playerDamagePopup.isCrit ? "crit-damage" : ""
                         }`}
                       >
+                        {playerDamagePopup.isCrit && <span className="crit-label">CRITICAL! </span>}
                         -{playerDamagePopup.damage} HP
                       </div>
                     )}
 
-                    {/* Animated Back Sprite (Showing Punggung / Pundak menghadap lawan) */}
-                    <img
-                      src={
-                        leaderPokemon.isShiny
-                          ? getAnimatedBackShinySpriteUrl(leaderPokemon.id)
-                          : getAnimatedBackSpriteUrl(leaderPokemon.id)
-                      }
-                      alt={leaderPokemon.name}
-                      className={`player-battler-back-sprite ${playerAnim}`}
-                      onError={(e) => {
-                        e.target.src = getBackSpriteUrl(leaderPokemon.id);
-                      }}
-                    />
+                    {/* Player Battler Sprite */}
+                    {cameraMode === "isometric" ? (
+                      <img
+                        src={
+                          leaderPokemon.isShiny
+                            ? getAnimatedShinySpriteUrl(leaderPokemon.id)
+                            : getAnimatedSpriteUrl(leaderPokemon.id)
+                        }
+                        alt={leaderPokemon.name}
+                        className={`player-battler-isometric-sprite ${playerAnim}`}
+                        onError={(e) => {
+                          e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${leaderPokemon.id}.png`;
+                        }}
+                      />
+                    ) : (
+                      <img
+                        src={
+                          leaderPokemon.isShiny
+                            ? getAnimatedBackShinySpriteUrl(leaderPokemon.id)
+                            : getAnimatedBackSpriteUrl(leaderPokemon.id)
+                        }
+                        alt={leaderPokemon.name}
+                        className={`player-battler-back-sprite ${playerAnim}`}
+                        onError={(e) => {
+                          e.target.src = getBackSpriteUrl(leaderPokemon.id);
+                        }}
+                      />
+                    )}
                   </BattlePedestal>
-
-                  {/* Player RPG Status HUD (Floating Lower-Right) */}
-                  <div className="rpg-hud-card player-hud">
-                    <div className="hud-header">
-                      <span className="hud-name">{leaderPokemon.nickname}</span>
-                      <span className="hud-level">Lv.{leaderPokemon.level}</span>
-                    </div>
-                    <div className="hud-types">
-                      {leaderPokemon.types?.map((t) => (
-                        <TypeBadge key={t} type={t} size="sm" />
-                      ))}
-                    </div>
-                    <div className="hud-hp-block">
-                      <span className="hud-hp-label">HP</span>
-                      <div className="hud-hp-track">
-                        <div
-                          className="hud-hp-fill"
-                          style={{
-                            width: `${playerHpPercent}%`,
-                            backgroundColor: playerHpColor,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                    <div className="hud-hp-number">
-                      {leaderPokemon.currentHp} / {leaderPokemon.maxHp}
-                    </div>
-                    {/* EXP Bar Gauge */}
-                    <div className="hud-exp-row">
-                      <span className="exp-label">EXP</span>
-                      <div className="hud-exp-track">
-                        <div
-                          className="hud-exp-fill"
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              Math.round(
-                                ((leaderPokemon.exp || 0) /
-                                  (leaderPokemon.expToNextLevel ||
-                                    Math.pow(leaderPokemon.level + 1, 3))) *
-                                  100
-                              )
-                            )}%`,
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               )}
             </BattleEnvironment>
 
-            {/* ======================================================== */}
-            {/* RETRO ACTION DIALOGUE BOX (Classic RPG Narration)        */}
-            {/* ======================================================== */}
-            <div className="rpg-dialogue-box-container">
-              <div className="rpg-dialogue-text">
-                <span className="dialogue-arrow">▶</span> {battleDialogue || `What will ${leaderPokemon?.nickname.toUpperCase()} do?`}
+            {/* Floating Action Dialogue Banner */}
+            {battleDialogue && (
+              <div className="modern-battle-announcement">
+                <span className="dialogue-arrow">▶</span> {battleDialogue}
               </div>
+            )}
+
+            {/* ======================================================== */}
+            {/* MODERN BOTTOM COMMAND DECK & MOVE CAPSULE PILLS          */}
+            {/* ======================================================== */}
+            <div className="modern-bottom-deck">
+              <div className="modern-moves-strip">
+                {playerMoves.map((m) => {
+                  const moveTheme = getTypeColor(m.type);
+                  const isOutOfPp = m.currentPp <= 0;
+                  const typeMult = getTypeDamageMultiplier(m.type, activeEncounter.types);
+                  const isSuperEffective = typeMult > 1;
+
+                  const categoryLabel =
+                    m.category === "special" ? "SP" : m.category === "status" ? "STAT" : "PHY";
+                  const categoryClass =
+                    m.category === "special"
+                      ? "category-special"
+                      : m.category === "status"
+                      ? "category-status"
+                      : "category-physical";
+
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => handleExecuteMove(m)}
+                      disabled={isOutOfPp || battleState === "ANIMATING"}
+                      className={`modern-move-pill ${
+                        isSuperEffective ? "move-advantage-super" : ""
+                      }`}
+                      title={`${m.name} (${m.type}) - PWR: ${m.power || "-"}, ACC: ${
+                        m.accuracy || "-"
+                      }%`}
+                    >
+                      <span className={`move-category-badge ${categoryClass}`}>
+                        {categoryLabel}
+                      </span>
+                      <span className="modern-move-title">{m.name}</span>
+                      <span
+                        className="modern-move-type"
+                        style={{ backgroundColor: moveTheme.primary }}
+                      >
+                        {m.type}
+                      </span>
+                      <span className="modern-move-pp">
+                        PP {m.currentPp}/{m.maxPp}
+                      </span>
+                      {isSuperEffective && (
+                        <span
+                          className="super-advantage-arrow"
+                          title="Super Effective against target!"
+                        >
+                          ⬆
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Big Circular Monster / Actions Button */}
+              <button
+                type="button"
+                onClick={() =>
+                  setBattleState((s) => (s === "PARTY" ? "MENU" : "PARTY"))
+                }
+                className="btn-monster-action"
+                title="View Team Party & Reserves"
+              >
+                <IconParty size={20} />
+                <span>Monster</span>
+              </button>
             </div>
 
-            {/* ======================================================== */}
-            {/* RPG COMMAND HUB & MENU SELECTION (4 Classic Commands)     */}
-            {/* ======================================================== */}
-            <div className="rpg-command-panel">
-              {/* 1. Main 4 Commands Screen */}
-              {battleState === "MENU" && (
-                <div className="rpg-commands-grid">
-                  <button
-                    type="button"
-                    onClick={() => setBattleState("MOVES")}
-                    className="rpg-cmd-btn cmd-fight"
-                  >
-                    <IconSwords size={20} />
-                    <span>FIGHT</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setBattleState("BAG")}
-                    className="rpg-cmd-btn cmd-bag"
-                  >
-                    <IconBackpack size={20} />
-                    <span>BAG</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setBattleState("PARTY")}
-                    className="rpg-cmd-btn cmd-pokemon"
-                  >
-                    <IconParty size={20} />
-                    <span>POKÉMON</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleRunAway}
-                    className="rpg-cmd-btn cmd-run"
-                  >
-                    <IconArrowLeft size={20} />
-                    <span>RUN</span>
-                  </button>
-                </div>
-              )}
-
-              {/* 2. Moves 2x2 Selection Grid with PP */}
-              {battleState === "MOVES" && (
-                <div className="rpg-moves-wrapper">
-                  <div className="moves-2x2-grid">
-                    {playerMoves.map((m) => {
-                      const moveTheme = getTypeColor(m.type);
-                      const isOutOfPp = m.currentPp <= 0;
-                      return (
-                        <button
-                          key={m.id}
-                          type="button"
-                          onClick={() => handleExecuteMove(m)}
-                          disabled={isOutOfPp}
-                          className={`rpg-move-btn ${isOutOfPp ? "move-no-pp" : ""}`}
-                          style={{
-                            "--move-color": moveTheme.primary,
-                          }}
-                        >
-                          <div className="move-name-row">
-                            <span className="move-name">{m.name}</span>
-                            <span className="move-type-tag" style={{ backgroundColor: moveTheme.primary }}>
-                              {m.type.toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="move-stats-row">
-                            <span className="move-power">PWR: {m.power}</span>
-                            <span className="move-pp">
-                              PP: <strong>{m.currentPp}</strong>/{m.maxPp}
-                            </span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setBattleState("MENU")}
-                    className="btn-cancel-moves"
-                  >
-                    ‹ Back to Commands
-                  </button>
-                </div>
-              )}
 
               {/* 3. In-Battle Bag Drawer (Balls & Medicine) */}
               {battleState === "BAG" && (
@@ -1241,7 +1365,6 @@ function WildernessPage() {
                   </div>
                 </div>
               )}
-            </div>
 
             {/* Optional Collapsible Battle History Modal */}
             {showHistoryModal && (

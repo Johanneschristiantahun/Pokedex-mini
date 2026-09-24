@@ -4,12 +4,88 @@
 // atmospheric animated particles, and authentic 3D battle pedestals
 // ========================================================
 
+// Elemental Move VFX Overlay Component
+export function ElementalVfxOverlay({ type }) {
+  if (!type) return null;
+  const t = type.toLowerCase();
+
+  if (t === "fire") {
+    return (
+      <div className="elemental-vfx fire-vfx" aria-hidden="true">
+        <span className="vfx-particle flame-1">🔥</span>
+        <span className="vfx-particle flame-2">💥</span>
+        <span className="vfx-particle flame-3">🔥</span>
+      </div>
+    );
+  }
+  if (t === "water") {
+    return (
+      <div className="elemental-vfx water-vfx" aria-hidden="true">
+        <span className="vfx-particle water-1">🌊</span>
+        <span className="vfx-particle water-2">💧</span>
+        <span className="vfx-particle water-3">🌊</span>
+      </div>
+    );
+  }
+  if (t === "electric") {
+    return (
+      <div className="elemental-vfx electric-vfx" aria-hidden="true">
+        <span className="vfx-particle spark-1">⚡</span>
+        <span className="vfx-particle spark-2">⚡</span>
+        <span className="vfx-particle spark-3">⚡</span>
+      </div>
+    );
+  }
+  if (t === "grass" || t === "bug") {
+    return (
+      <div className="elemental-vfx grass-vfx" aria-hidden="true">
+        <span className="vfx-particle leaf-1">🍃</span>
+        <span className="vfx-particle leaf-2">🌿</span>
+        <span className="vfx-particle leaf-3">🍃</span>
+      </div>
+    );
+  }
+  if (t === "psychic" || t === "ghost") {
+    return (
+      <div className="elemental-vfx psychic-vfx" aria-hidden="true">
+        <div className="psychic-ring ring-1"></div>
+        <div className="psychic-ring ring-2"></div>
+        <span className="vfx-particle psychic-orb">🔮</span>
+      </div>
+    );
+  }
+  if (t === "rock" || t === "ground") {
+    return (
+      <div className="elemental-vfx rock-vfx" aria-hidden="true">
+        <span className="vfx-particle rock-1">🪨</span>
+        <span className="vfx-particle rock-2">💥</span>
+        <span className="vfx-particle rock-3">🪨</span>
+      </div>
+    );
+  }
+  if (t === "ice") {
+    return (
+      <div className="elemental-vfx ice-vfx" aria-hidden="true">
+        <span className="vfx-particle ice-1">❄️</span>
+        <span className="vfx-particle ice-2">✨</span>
+        <span className="vfx-particle ice-3">❄️</span>
+      </div>
+    );
+  }
+  return (
+    <div className="elemental-vfx normal-vfx" aria-hidden="true">
+      <div className="vfx-slash-blade"></div>
+    </div>
+  );
+}
+
 export function BattleEnvironment({
   biomeId,
+  cameraMode = "isometric",
   children,
 }) {
   return (
-    <div className={`rpg-battlefield-stage biome-theme-${biomeId}`}>
+    <div className={`rpg-battlefield-stage biome-theme-${biomeId} camera-mode-${cameraMode}`}>
       {/* 1. Scenic Environmental Layer (Sky, Horizon, Scenery) */}
       <div className="env-backdrop-layer">
         {biomeId === "viridian-forest" && <ViridianForestBackdrop />}
@@ -49,7 +125,7 @@ export function BattleEnvironment({
 
 function ViridianForestBackdrop() {
   return (
-    <div className="env-scenery-wrap forest-scenery">
+    <div className="env-scenery-wrap forest-scenery anime-forest-theme">
       <svg
         className="env-svg-scenery"
         viewBox="0 0 800 360"
@@ -58,57 +134,115 @@ function ViridianForestBackdrop() {
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <linearGradient id="forestSky" x1="0" y1="0" x2="0" y2="360" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#064e3b" />
-            <stop offset="40%" stopColor="#0f766e" />
-            <stop offset="75%" stopColor="#15803d" />
-            <stop offset="100%" stopColor="#166534" />
+          <linearGradient id="animeSky" x1="0" y1="0" x2="0" y2="240" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#38bdf8" />
+            <stop offset="45%" stopColor="#7dd3fc" />
+            <stop offset="80%" stopColor="#bae6fd" />
+            <stop offset="100%" stopColor="#e0f2fe" />
           </linearGradient>
           <linearGradient id="sunbeam" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.35" />
+            <stop offset="0%" stopColor="#fef08a" stopOpacity="0.32" />
             <stop offset="100%" stopColor="#fef08a" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="canopyDeep" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#34d399" />
+            <stop offset="35%" stopColor="#10b981" />
+            <stop offset="85%" stopColor="#047857" />
+            <stop offset="100%" stopColor="#064e3b" />
+          </linearGradient>
+          <linearGradient id="canopyLight" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#86efac" />
+            <stop offset="40%" stopColor="#22c55e" />
+            <stop offset="100%" stopColor="#15803d" />
+          </linearGradient>
+          <linearGradient id="treeTrunkGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#78350f" />
+            <stop offset="40%" stopColor="#92400e" />
+            <stop offset="100%" stopColor="#451a03" />
+          </linearGradient>
+          <linearGradient id="animeLawn" x1="0" y1="200" x2="0" y2="360" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#15803d" />
+            <stop offset="35%" stopColor="#22c55e" />
+            <stop offset="80%" stopColor="#16a34a" />
+            <stop offset="100%" stopColor="#14532d" />
           </linearGradient>
         </defs>
 
-        {/* Sky Base */}
-        <rect width="800" height="360" fill="url(#forestSky)" />
+        {/* 1. Clear Anime Sky */}
+        <rect width="800" height="230" fill="url(#animeSky)" />
 
-        {/* Sunbeams / God Rays */}
-        <polygon points="120,0 260,0 480,360 280,360" fill="url(#sunbeam)" />
-        <polygon points="450,0 560,0 720,360 580,360" fill="url(#sunbeam)" />
-
-        {/* Distant Foggy Tree Silhouette Layer 1 */}
+        {/* 2. Soft Distant Rolling Mountains */}
         <path
-          d="M0,230 L50,190 L90,225 L140,180 L190,220 L250,175 L310,215 L380,170 L440,210 L500,165 L570,215 L640,180 L700,220 L760,175 L800,210 L800,360 L0,360 Z"
-          fill="#065f46"
+          d="M0,170 Q160,110 320,155 T640,140 Q720,130 800,165 L800,230 L0,230 Z"
+          fill="#059669"
+          opacity="0.4"
+        />
+        <path
+          d="M0,185 Q220,135 440,175 T800,160 L800,230 L0,230 Z"
+          fill="#10b981"
           opacity="0.55"
         />
 
-        {/* Midground Pine Trees Layer 2 */}
+        {/* 3. Sunbeams Streaming Through Canopies */}
+        <polygon points="120,0 220,0 360,250 200,250" fill="url(#sunbeam)" />
+        <polygon points="480,0 560,0 680,250 560,250" fill="url(#sunbeam)" />
+
+        {/* 4. Left Major Tree Trunk & Fluffy Cloud Canopy */}
         <path
-          d="M0,250 L40,210 L70,240 L120,195 L170,245 L220,190 L280,240 L340,185 L400,235 L470,180 L540,240 L600,195 L670,245 L730,190 L800,240 L800,360 L0,360 Z"
-          fill="#047857"
-          opacity="0.8"
+          d="M120,140 Q130,190 115,240 L165,240 Q150,190 145,140 Z"
+          fill="url(#treeTrunkGrad)"
+        />
+        <ellipse cx="140" cy="110" rx="90" ry="60" fill="url(#canopyDeep)" />
+        <ellipse cx="85" cy="125" rx="65" ry="45" fill="url(#canopyDeep)" />
+        <ellipse cx="195" cy="120" rx="65" ry="45" fill="url(#canopyDeep)" />
+        <ellipse cx="130" cy="85" rx="75" ry="50" fill="url(#canopyLight)" />
+        <ellipse cx="90" cy="100" rx="45" ry="35" fill="url(#canopyLight)" opacity="0.9" />
+        <ellipse cx="170" cy="95" rx="55" ry="38" fill="url(#canopyLight)" opacity="0.9" />
+
+        {/* 5. Center-Right Midground Tree */}
+        <path
+          d="M590,150 Q595,190 585,235 L625,235 Q615,190 610,150 Z"
+          fill="url(#treeTrunkGrad)"
+        />
+        <ellipse cx="600" cy="125" rx="80" ry="55" fill="url(#canopyDeep)" />
+        <ellipse cx="545" cy="135" rx="60" ry="40" fill="url(#canopyDeep)" />
+        <ellipse cx="655" cy="135" rx="60" ry="40" fill="url(#canopyDeep)" />
+        <ellipse cx="595" cy="100" rx="65" ry="45" fill="url(#canopyLight)" />
+
+        {/* 6. Far-Right Canopy Layer */}
+        <ellipse cx="760" cy="115" rx="85" ry="60" fill="url(#canopyDeep)" />
+        <ellipse cx="740" cy="95" rx="65" ry="45" fill="url(#canopyLight)" />
+
+        {/* 7. Vibrant Anime Meadow Ground */}
+        <path
+          d="M0,215 Q200,195 400,210 T800,205 L800,360 L0,360 Z"
+          fill="url(#animeLawn)"
         />
 
-        {/* Deep Forest Floor Ridge */}
+        {/* 8. Midground Wildflower Dots & Shrub Foliage */}
+        <path d="M260,225 Q290,205 320,225 Z" fill="#4ade80" />
+        <path d="M370,220 Q400,202 430,220 Z" fill="#34d399" />
+        <path d="M660,228 Q690,210 720,228 Z" fill="#4ade80" />
+
+        {/* Yellow Wildflowers */}
+        <circle cx="280" cy="222" r="3.5" fill="#fde047" />
+        <circle cx="290" cy="224" r="3" fill="#fde047" />
+        <circle cx="285" cy="227" r="2.5" fill="#fde047" />
+        <circle cx="390" cy="216" r="3.5" fill="#fde047" />
+        <circle cx="400" cy="218" r="3" fill="#fde047" />
+        <circle cx="685" cy="223" r="3.5" fill="#fde047" />
+        <circle cx="695" cy="226" r="3" fill="#fde047" />
+
+        {/* Pink Wildflowers */}
+        <circle cx="310" cy="224" r="3" fill="#f472b6" />
+        <circle cx="415" cy="218" r="3" fill="#f472b6" />
+        <circle cx="670" cy="226" r="3" fill="#f472b6" />
+
+        {/* 9. Soft foreground grass blades & light streaks */}
         <path
-          d="M0,280 Q200,255 400,275 T800,265 L800,360 L0,360 Z"
+          d="M-10,340 Q150,330 300,345 T600,335 Q700,345 810,335 L810,360 L-10,360 Z"
           fill="#14532d"
-        />
-
-        {/* Overhanging Foreground Foliage & Vines */}
-        <path
-          d="M-20,-10 Q120,80 240,10 Q320,70 420,-10 Q500,60 620,0 Q700,80 820,-10 L820,-20 L-20,-20 Z"
-          fill="#022c22"
-          opacity="0.85"
-        />
-        <path
-          d="M180,0 Q190,70 185,110 M360,0 Q370,60 365,95 M580,0 Q575,80 580,120"
-          stroke="#064e3b"
-          strokeWidth="3"
-          strokeLinecap="round"
-          opacity="0.75"
+          opacity="0.6"
         />
       </svg>
     </div>
@@ -621,27 +755,117 @@ function GymArenaSpotlightsParticles() {
 // 3. AUTHENTIC 3D BATTLE PEDESTALS (Raised Terrain Bases)
 // ========================================================
 
+const PLAYER_GRASS_PATH =
+  "M 295.0,55.0 Q 295.0,55.0 305.3,59.7 Q 305.3,59.7 291.6,63.5 Q 291.6,63.5 300.6,69.2 Q 300.6,69.2 281.6,71.5 Q 281.6,71.5 288.5,78.3 Q 288.5,78.3 265.5,78.7 Q 265.5,78.7 263.4,84.6 Q 263.4,84.6 244.2,84.7 Q 244.2,84.7 239.3,91.3 Q 239.3,91.3 218.6,89.2 Q 218.6,89.2 210.1,96.4 Q 210.1,96.4 190.0,92.0 Q 190.0,92.0 176.4,96.7 Q 176.4,96.7 160.0,93.0 Q 160.0,93.0 143.3,97.6 Q 143.3,97.6 130.0,92.0 Q 130.0,92.0 109.9,96.4 Q 109.9,96.4 101.4,89.2 Q 101.4,89.2 82.2,90.5 Q 82.2,90.5 75.8,84.7 Q 75.8,84.7 54.6,85.3 Q 54.6,85.3 54.5,78.7 Q 54.5,78.7 31.5,78.3 Q 31.5,78.3 38.4,71.5 Q 38.4,71.5 22.0,68.8 Q 22.0,68.8 28.4,63.5 Q 28.4,63.5 11.9,59.8 Q 11.9,59.8 25.0,55.0 Q 25.0,55.0 9.2,50.1 Q 9.2,50.1 28.4,46.5 Q 28.4,46.5 22.0,41.2 Q 22.0,41.2 38.4,38.5 Q 38.4,38.5 33.8,32.2 Q 33.8,32.2 54.5,31.3 Q 54.5,31.3 52.7,24.0 Q 52.7,24.0 75.8,25.3 Q 75.8,25.3 82.2,19.5 Q 82.2,19.5 101.4,20.8 Q 101.4,20.8 110.8,14.5 Q 110.8,14.5 130.0,18.0 Q 130.0,18.0 143.0,11.4 Q 143.0,11.4 160.0,17.0 Q 160.0,17.0 176.4,13.3 Q 176.4,13.3 190.0,18.0 Q 190.0,18.0 209.2,14.5 Q 209.2,14.5 218.6,20.8 Q 218.6,20.8 240.8,17.8 Q 240.8,17.8 244.2,25.3 Q 244.2,25.3 263.4,25.4 Q 263.4,25.4 265.5,31.3 Q 265.5,31.3 286.2,32.2 Q 286.2,32.2 281.6,38.5 Q 281.6,38.5 303.3,40.5 Q 303.3,40.5 291.6,46.5 Q 291.6,46.5 305.3,50.3 Q 305.3,50.3 295.0,55.0 Z";
+
+const WILD_GRASS_PATH =
+  "M 200.0,40.0 Q 200.0,40.0 207.2,43.6 Q 207.2,43.6 196.9,46.5 Q 196.9,46.5 202.4,50.9 Q 202.4,50.9 187.9,52.5 Q 187.9,52.5 190.9,57.8 Q 190.9,57.8 173.6,57.7 Q 173.6,57.7 169.7,62.1 Q 169.7,62.1 155.0,61.7 Q 155.0,61.7 148.3,66.3 Q 148.3,66.3 133.3,64.1 Q 133.3,64.1 123.3,69.0 Q 123.3,69.0 110.0,65.0 Q 110.0,65.0 97.2,67.6 Q 97.2,67.6 86.7,64.1 Q 86.7,64.1 71.7,66.3 Q 71.7,66.3 65.0,61.7 Q 65.0,61.7 47.9,63.2 Q 47.9,63.2 46.4,57.7 Q 46.4,57.7 32.3,56.9 Q 32.3,56.9 32.1,52.5 Q 32.1,52.5 17.6,50.9 Q 17.6,50.9 23.1,46.5 Q 23.1,46.5 8.9,43.8 Q 8.9,43.8 20.0,40.0 Q 20.0,40.0 12.8,36.4 Q 12.8,36.4 23.1,33.5 Q 23.1,33.5 17.6,29.1 Q 17.6,29.1 32.1,27.5 Q 32.1,27.5 29.1,22.2 Q 29.1,22.2 46.4,22.3 Q 46.4,22.3 50.3,17.9 Q 50.3,17.9 65.0,18.3 Q 65.0,18.3 71.7,13.7 Q 71.7,13.7 86.7,15.9 Q 86.7,15.9 96.7,11.0 Q 96.7,11.0 110.0,15.0 Q 110.0,15.0 122.8,12.4 Q 122.8,12.4 133.3,15.9 Q 133.3,15.9 148.3,13.7 Q 148.3,13.7 155.0,18.3 Q 155.0,18.3 172.1,16.8 Q 172.1,16.8 173.6,22.3 Q 173.6,22.3 187.7,23.1 Q 187.7,23.1 187.9,27.5 Q 187.9,27.5 202.4,29.1 Q 202.4,29.1 196.9,33.5 Q 196.9,33.5 211.1,36.2 Q 211.1,36.2 200.0,40.0 Z";
+
+function GrassPedestalSvg({ isPlayer }) {
+  if (isPlayer) {
+    return (
+      <svg
+        className="pedestal-grass-svg player-grass-svg"
+        viewBox="0 0 320 110"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <radialGradient id="playerGrassLawn" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#4ade80" />
+            <stop offset="45%" stopColor="#22c55e" />
+            <stop offset="85%" stopColor="#16a34a" />
+            <stop offset="100%" stopColor="#15803d" />
+          </radialGradient>
+          <radialGradient id="playerGrassSunlight" cx="45%" cy="40%" r="50%">
+            <stop offset="0%" stopColor="#a7f3d0" stopOpacity="0.75" />
+            <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        {/* Soft Ambient Ground Shadow */}
+        <ellipse cx="160" cy="62" rx="148" ry="40" fill="rgba(0,0,0,0.38)" />
+        {/* Outer Jagged Grass Blades Rim */}
+        <path d={PLAYER_GRASS_PATH} fill="#15803d" stroke="#14532d" strokeWidth="2.5" />
+        {/* Inner Vibrant Green Turf Lawn */}
+        <ellipse cx="160" cy="55" rx="128" ry="34" fill="url(#playerGrassLawn)" />
+        {/* Center Sunlight Dapple */}
+        <ellipse cx="150" cy="50" rx="90" ry="22" fill="url(#playerGrassSunlight)" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      className="pedestal-grass-svg wild-grass-svg"
+      viewBox="0 0 220 80"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        <radialGradient id="wildGrassLawn" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#4ade80" />
+          <stop offset="50%" stopColor="#22c55e" />
+          <stop offset="88%" stopColor="#16a34a" />
+          <stop offset="100%" stopColor="#15803d" />
+        </radialGradient>
+        <radialGradient id="wildGrassSunlight" cx="45%" cy="40%" r="50%">
+          <stop offset="0%" stopColor="#a7f3d0" stopOpacity="0.7" />
+          <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* Soft Ground Shadow */}
+      <ellipse cx="110" cy="46" rx="98" ry="28" fill="rgba(0,0,0,0.36)" />
+      {/* Outer Jagged Grass Blades Rim */}
+      <path d={WILD_GRASS_PATH} fill="#15803d" stroke="#14532d" strokeWidth="2" />
+      {/* Inner Vibrant Green Turf Lawn */}
+      <ellipse cx="110" cy="40" rx="84" ry="22" fill="url(#wildGrassLawn)" />
+      {/* Center Sunlight Dapple */}
+      <ellipse cx="104" cy="36" rx="55" ry="14" fill="url(#wildGrassSunlight)" />
+    </svg>
+  );
+}
+
 export function BattlePedestal({
   biomeId,
   isPlayer = false,
+  cameraMode = "isometric",
   children,
 }) {
+  const isGrassTheme =
+    !biomeId ||
+    biomeId === "viridian-forest" ||
+    biomeId === "route-1" ||
+    biomeId === "route-2" ||
+    biomeId === "gym-grass";
+
   return (
-    <div className={`rpg-battle-pedestal-root ${isPlayer ? "pedestal-player-side" : "pedestal-wild-side"}`}>
+    <div
+      className={`rpg-battle-pedestal-root ${
+        isPlayer ? "pedestal-player-side" : "pedestal-wild-side"
+      } ${cameraMode === "isometric" ? "pedestal-isometric" : "pedestal-classic"}`}
+    >
       {/* 3D Styled Raised Platform Base */}
-      <div className={`pedestal-3d-base pedestal-theme-${biomeId} ${isPlayer ? "pedestal-front" : "pedestal-back"}`}>
-        <div className="pedestal-surface">
-          <div className="pedestal-rim"></div>
-          <div className="pedestal-texture"></div>
+      {isGrassTheme ? (
+        <div className="pedestal-grass-3d-wrap">
+          <GrassPedestalSvg isPlayer={isPlayer} />
         </div>
-        <div className="pedestal-depth-lip"></div>
-        <div className="pedestal-ground-shadow"></div>
-      </div>
+      ) : (
+        <div
+          className={`pedestal-3d-base pedestal-theme-${biomeId} ${
+            isPlayer ? "pedestal-front" : "pedestal-back"
+          }`}
+        >
+          <div className="pedestal-surface">
+            <div className="pedestal-rim"></div>
+            <div className="pedestal-texture"></div>
+          </div>
+          <div className="pedestal-depth-lip"></div>
+          <div className="pedestal-ground-shadow"></div>
+        </div>
+      )}
 
       {/* Battler Sprite & VFX Anchored on Pedestal */}
-      <div className="pedestal-content-mount">
-        {children}
-      </div>
+      <div className="pedestal-content-mount">{children}</div>
     </div>
   );
 }
