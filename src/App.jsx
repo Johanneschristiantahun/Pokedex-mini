@@ -5,10 +5,11 @@ import DetailPage from "./pages/DetailPage.jsx";
 import TeamPage from "./pages/TeamPage.jsx";
 import BagAndMartPage from "./pages/BagAndMartPage.jsx";
 import WildernessPage from "./pages/WildernessPage.jsx";
+import GymPage from "./pages/GymPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import PlaceholderPage from "./pages/PlaceholderPage.jsx";
 import StarterModal from "./components/StarterModal.jsx";
-import { IconScale, IconSwords } from "./components/Icons.jsx";
+import { IconScale } from "./components/Icons.jsx";
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
           <Route path="/team" element={<TeamPage />} />
           <Route path="/bag" element={<BagAndMartPage />} />
           <Route path="/wilderness" element={<WildernessPage />} />
+          <Route path="/gym" element={<GymPage />} />
+          <Route path="/battle" element={<GymPage />} />
 
           <Route
             path="/compare"
@@ -34,24 +37,6 @@ function App() {
                   "Side-by-side base stat comparison bars",
                   "Type matchup calculator (Super Effective / Weaknesses)",
                   "Movepool overlap and physical trait analysis",
-                ]}
-              />
-            }
-          />
-
-          <Route
-            path="/battle"
-            element={
-              <PlaceholderPage
-                title="Battle Arena Simulator"
-                stage="Stage 7"
-                icon={IconSwords}
-                description="Engage in authentic turn-based battles against wild Pokémon and Kanto's 8 iconic Gym Leaders!"
-                features={[
-                  "Turn-based RPG system with Speed-based initiative",
-                  "Authentic damage formulas with STAB and type multipliers",
-                  "4 official moves with animations and status ailments (Burn, Paralyze, Sleep)",
-                  "Gym Leader challenge mode to earn real Gym Badges",
                 ]}
               />
             }

@@ -546,6 +546,76 @@ export function GameProvider({ children }) {
     setTrainer((prev) => ({ ...prev, money: Math.max(0, prev.money + amount) }));
   }
 
+  // Action: Award Official Gym Badge & Prize Money
+  function awardBadge(badgeId, prizeMoney = 0) {
+    if (!badgeId) return false;
+    let isNewlyAwarded = false;
+
+    setTrainer((prev) => {
+      const currentBadges = Array.isArray(prev.badges) ? prev.badges : [];
+      if (currentBadges.includes(badgeId)) {
+        return {
+          ...prev,
+          money: prev.money + (prizeMoney || 0),
+        };
+      }
+      isNewlyAwarded = true;
+      return {
+        ...prev,
+        badges: [...currentBadges, badgeId],
+        money: prev.money + (prizeMoney || 0),
+      };
+    });
+
+    return isNewlyAwarded;
+  }
+
+  // Check if Trainer owns badge
+  function hasBadge(badgeId) {
+    return Array.isArray(trainer?.badges) && trainer.badges.includes(badgeId);
+  }
+
+  // Action: Distribute EXP across entire active team (used after defeating Gym Leader)
+  function givePartyExp(expAmount) {
+    if (!expAmount || team.length === 0) return [];
+    const share = Math.max(10, Math.floor(expAmount / team.length));
+    const leveledUp = [];
+
+    setTeam((prev) =>
+      prev.map((mon) => {
+        if (mon.level >= 100) return mon;
+        let exp = (mon.exp || 0) + share;
+        let lvl = mon.level;
+        let up = mon;
+        let didUp = false;
+
+        while (
+          lvl < 100 &&
+          exp >= (up.expToNextLevel || Math.pow(lvl + 1, 3))
+        ) {
+          lvl += 1;
+          didUp = true;
+          up = recalculatePokemonStats(up, lvl);
+        }
+
+        if (didUp) {
+          leveledUp.push({ name: mon.nickname, newLevel: lvl });
+        }
+
+        return {
+          ...up,
+          exp,
+        };
+      })
+    );
+
+    if (leveledUp.length > 0) {
+      playLevelUpSound();
+    }
+
+    return leveledUp;
+  }
+
   // Action: Set Trainer Name
   function setTrainerName(newName) {
     if (!newName || !newName.trim()) return;
@@ -871,6 +941,9 @@ export function GameProvider({ children }) {
     withdrawFromBox,
     releaseFromBox,
     addMoney,
+    awardBadge,
+    hasBadge,
+    givePartyExp,
     setTrainerName,
     resetGameSession,
   };

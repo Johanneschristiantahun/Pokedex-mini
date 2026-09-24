@@ -5632,6 +5632,919 @@ body {
   border-color: #4ade80;
 }
 
+/* ========================================================
+   Stage 5: Official Kanto Gym Leader Challenge & Badges
+   ======================================================== */
+
+/* 1. Trainer Profile Kanto Badge Case */
+.trainer-badge-case-panel {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.badge-case-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.case-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #f8fafc;
+}
+
+.case-gym-link {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-decoration: none;
+  transition: var(--transition-smooth);
+}
+
+.case-gym-link:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+}
+
+.badge-case-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 768px) {
+  .badge-case-slots-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.badge-slot-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: default;
+}
+
+.badge-slot-cell.slot-unlocked {
+  background: radial-gradient(circle at center, rgba(234, 179, 8, 0.15), rgba(15, 23, 42, 0.8));
+  border-color: rgba(234, 179, 8, 0.4);
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.2);
+}
+
+.badge-slot-cell.slot-unlocked:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 0 16px rgba(234, 179, 8, 0.4);
+}
+
+.badge-slot-cell.slot-locked {
+  opacity: 0.45;
+  filter: grayscale(0.8);
+}
+
+.badge-slot-caption {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.slot-unlocked .badge-slot-caption {
+  color: #fef08a;
+  text-shadow: 0 0 6px rgba(234, 179, 8, 0.6);
+}
+
+/* 2. Gym Circuit Lobby View */
+.gym-circuit-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.gym-hero-banner {
+  text-align: center;
+  background: linear-gradient(135deg, #090d16 0%, #1e1b4b 50%, #0f172a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 36px 20px;
+  margin-bottom: 28px;
+  color: #f8fafc;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.gym-hero-banner::before {
+  content: "";
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 200px;
+  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.25), transparent 70%);
+  pointer-events: none;
+}
+
+.gym-hero-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fef08a;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+
+.gym-hero-title {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, #ffffff, #fef08a, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gym-hero-subtitle {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+}
+
+.gym-progress-card {
+  max-width: 480px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 18px;
+}
+
+.gym-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.progress-counter strong {
+  color: #facc15;
+  font-size: 0.95rem;
+}
+
+.gym-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.gym-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #eab308, #22c55e);
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+}
+
+/* Gym Leaders Grid */
+.gym-leaders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 20px;
+}
+
+.gym-leader-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gym-leader-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-badge-earned {
+  border-color: #facc15;
+  box-shadow: 0 4px 18px rgba(250, 204, 21, 0.2);
+}
+
+.card-current-target {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.25);
+  animation: currentGymPulse 2.5s infinite;
+}
+
+@keyframes currentGymPulse {
+  0%, 100% {
+    border-color: #38bdf8;
+    box-shadow: 0 4px 18px rgba(56, 189, 248, 0.2);
+  }
+  50% {
+    border-color: #0284c7;
+    box-shadow: 0 6px 26px rgba(56, 189, 248, 0.45);
+  }
+}
+
+.leader-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.leader-order-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.leader-portrait-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 6px;
+  background: linear-gradient(to bottom, #f8fafc, #ffffff);
+}
+
+.leader-badge-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-preview-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.leader-sprite-wrapper {
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #f1f5f9 60%, transparent);
+  border-radius: 50%;
+}
+
+.leader-showdown-sprite {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+}
+
+.leader-meta-content {
+  padding: 12px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.leader-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.leader-title {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin: 2px 0 0 0;
+}
+
+.leader-city {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0284c7;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+.leader-specs-row {
+  display: flex;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.spec-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spec-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.spec-val {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+.prize-val {
+  color: #ca8a04;
+}
+
+.leader-quote {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.leader-action-box {
+  margin-top: auto;
+}
+
+.btn-gym-action {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gym-challenge {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-gym-challenge:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-gym-rematch {
+  background: linear-gradient(135deg, #fef08a, #facc15);
+  color: #713f12;
+  border: 1px solid #eab308;
+  box-shadow: 0 2px 8px rgba(234, 179, 8, 0.2);
+}
+
+.btn-gym-rematch:hover {
+  background: linear-gradient(135deg, #facc15, #eab308);
+  transform: translateY(-1px);
+}
+
+/* 3. VS Screen Anime Clash */
+.gym-vs-screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #090d16;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.vs-screen-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: relative;
+}
+
+.vs-half {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 40px;
+  overflow: hidden;
+}
+
+.vs-player-side {
+  background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 70%, #0f172a 100%);
+  justify-content: flex-start;
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+  animation: vsSlideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.vs-leader-side {
+  justify-content: flex-end;
+  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
+  animation: vsSlideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes vsSlideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes vsSlideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.vs-trainer-info, .vs-leader-info {
+  color: #ffffff;
+  z-index: 2;
+}
+
+.vs-tag {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #fef08a;
+}
+
+.vs-name {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin: 4px 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.vs-title {
+  font-size: 1rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.vs-team-preview {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.vs-party-icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.vs-badge-slot {
+  margin-top: 14px;
+}
+
+.vs-leader-full-sprite {
+  height: 85%;
+  max-height: 400px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+  position: absolute;
+  right: 60px;
+  bottom: 0;
+  z-index: 1;
+}
+
+.vs-center-emblem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: vsEmblemPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes vsEmblemPop {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+    opacity: 0;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.vs-text {
+  font-size: 4.5rem;
+  font-weight: 900;
+  font-style: italic;
+  color: #fef08a;
+  text-shadow: 0 0 20px #eab308, 0 0 40px #ca8a04, 4px 4px 0 #78350f;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.vs-subtext {
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #ffffff;
+  background: #0f172a;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid #38bdf8;
+  margin-top: 8px;
+}
+
+/* 4. Gym Battle Arena Top Bar & Multi-Ball Rows */
+.gym-battle-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 12px 12px 40px;
+}
+
+.gym-top-match-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 23, 42, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+  color: #f8fafc;
+}
+
+.match-gym-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.btn-gym-forfeit {
+  padding: 5px 12px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fca5a5;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-gym-forfeit:hover {
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
+}
+
+.leader-party-balls-row, .player-party-balls-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ball-dot {
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.ball-alive {
+  color: #ef4444; /* Pokeball red */
+}
+
+.ball-active {
+  color: #facc15; /* Glowing active yellow */
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 4px #facc15);
+}
+
+.ball-fainted {
+  color: #94a3b8;
+  opacity: 0.35;
+}
+
+/* 5. Gold Badge Victory Ceremony Modal */
+.gym-victory-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(5, 8, 15, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.gym-victory-card {
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #0f172a 100%);
+  border: 2px solid #facc15;
+  border-radius: 24px;
+  padding: 36px 24px 28px;
+  text-align: center;
+  color: #f8fafc;
+  box-shadow: 0 0 40px rgba(250, 204, 21, 0.3), 0 20px 40px rgba(0, 0, 0, 0.7);
+  position: relative;
+  overflow: hidden;
+  animation: victoryModalZoom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes victoryModalZoom {
+  0% {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.victory-confetti-sparkles {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+.confetti-icon {
+  color: #facc15;
+  animation: sparkleTwinkle 1.8s infinite alternate;
+}
+
+.confetti-icon.icon-2 {
+  animation-delay: 0.9s;
+}
+
+@keyframes sparkleTwinkle {
+  0% {
+    transform: scale(0.8) rotate(0deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.2) rotate(45deg);
+    opacity: 1;
+  }
+}
+
+.victory-badge-presentation {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.badge-sunburst-halo {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, rgba(250, 204, 21, 0) 70%);
+  border-radius: 50%;
+  animation: haloPulse 2s infinite ease-in-out;
+}
+
+@keyframes haloPulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.9;
+  }
+}
+
+.victory-spinning-badge {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.8));
+  animation: badgeHoverFloat 3s infinite ease-in-out;
+}
+
+@keyframes badgeHoverFloat {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+
+.victory-kanto-pill {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #38bdf8;
+  margin-bottom: 6px;
+}
+
+.victory-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  margin: 0;
+  background: linear-gradient(to right, #fef08a, #facc15, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.victory-badge-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 4px 0 12px 0;
+}
+
+.victory-desc {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  max-width: 380px;
+  margin: 0 auto 16px;
+}
+
+.victory-quote-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.quote-body {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #e2e8f0;
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.quote-author {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #facc15;
+  text-align: right;
+}
+
+.victory-rewards-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.reward-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fef08a;
+}
+
+.victory-levelups-box {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-bottom: 20px;
+}
+
+.levelup-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #86efac;
+}
+
+.victory-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-victory-confirm {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #facc15, #eab308);
+  color: #713f12;
+  font-size: 0.95rem;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.4);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-victory-confirm:hover {
+  background: linear-gradient(135deg, #fef08a, #facc15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(234, 179, 8, 0.6);
+}
+
+.btn-victory-badge-case {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-victory-badge-case:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
 
 
 

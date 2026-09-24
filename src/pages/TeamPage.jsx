@@ -22,6 +22,18 @@ import {
 import { playHealingJingle } from "../utils/soundEffects.js";
 import { capitalize, getTypeColor, formatPokemonId } from "../utils.js";
 import { calculateExpNeeded } from "../utils/pokemonFactory.js";
+import GymBadgeIcon from "../components/GymBadgeIcons.jsx";
+
+const KANTO_BADGES = [
+  { id: "boulder", name: "Boulder Badge", leader: "Brock" },
+  { id: "cascade", name: "Cascade Badge", leader: "Misty" },
+  { id: "thunder", name: "Thunder Badge", leader: "Lt. Surge" },
+  { id: "rainbow", name: "Rainbow Badge", leader: "Erika" },
+  { id: "soul", name: "Soul Badge", leader: "Koga" },
+  { id: "marsh", name: "Marsh Badge", leader: "Sabrina" },
+  { id: "volcano", name: "Volcano Badge", leader: "Blaine" },
+  { id: "earth", name: "Earth Badge", leader: "Giovanni" },
+];
 
 function TeamPage() {
   const {
@@ -188,6 +200,33 @@ function TeamPage() {
             <IconHeart size={16} />
             <span>{isHealing ? "Restoring HP…" : "Heal All Team (Free)"}</span>
           </button>
+        </div>
+
+        {/* Kanto Gym Badges Showcase Case */}
+        <div className="trainer-badge-case-panel">
+          <div className="badge-case-header">
+            <span className="case-title">
+              Official Kanto League Badges ({trainer.badges?.length || 0}/8)
+            </span>
+            <Link to="/gym" className="case-gym-link">
+              Challenge Gym Leaders &rarr;
+            </Link>
+          </div>
+          <div className="badge-case-slots-grid">
+            {KANTO_BADGES.map((b) => {
+              const isOwned = (trainer.badges || []).includes(b.id);
+              return (
+                <div
+                  key={b.id}
+                  className={`badge-slot-cell ${isOwned ? "slot-unlocked" : "slot-locked"}`}
+                  title={`${b.name} - ${isOwned ? "Earned!" : "Defeat " + b.leader + " to earn"}`}
+                >
+                  <GymBadgeIcon badgeId={b.id} size={32} isLocked={!isOwned} />
+                  <span className="badge-slot-caption">{b.name.replace(" Badge", "")}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

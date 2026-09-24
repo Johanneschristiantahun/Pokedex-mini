@@ -77,6 +77,17 @@ function Navbar() {
           </NavLink>
 
           <NavLink
+            to="/gym"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "nav-item-active" : ""}`
+            }
+          >
+            <IconSwords size={17} />
+            <span className="nav-label">Gym Arena</span>
+            <span className="nav-badge nav-badge-live">Live</span>
+          </NavLink>
+
+          <NavLink
             to="/compare"
             className={({ isActive }) =>
               `nav-item ${isActive ? "nav-item-active" : ""}`
@@ -85,17 +96,6 @@ function Navbar() {
             <IconScale size={17} />
             <span className="nav-label">Compare</span>
             <span className="nav-badge">Stage 6</span>
-          </NavLink>
-
-          <NavLink
-            to="/battle"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconSwords size={17} />
-            <span className="nav-label">Battle</span>
-            <span className="nav-badge">Stage 7</span>
           </NavLink>
 
           {/* Money Pill Indicator */}

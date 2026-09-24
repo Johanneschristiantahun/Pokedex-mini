@@ -256,3 +256,29 @@ export function playNotVeryEffectiveSound() {
   playTone({ freq: 90, type: "triangle", duration: 0.15, startTime: 0.06, gain: 0.2 });
 }
 
+// 18. Gym Leader / Battle Start Fanfare (Dramatic ascending battle clash)
+export function playBattleStartSound() {
+  if (isMasterMuted) return;
+
+  const notes = [
+    { freq: 220.0, duration: 0.08, time: 0.0 },
+    { freq: 277.18, duration: 0.08, time: 0.07 },
+    { freq: 329.63, duration: 0.08, time: 0.14 },
+    { freq: 440.0, duration: 0.12, time: 0.21 },
+    { freq: 554.37, duration: 0.12, time: 0.32 },
+    { freq: 659.25, duration: 0.14, time: 0.43 },
+    { freq: 880.0, duration: 0.35, time: 0.56 },
+  ];
+
+  notes.forEach((n) => {
+    playTone({
+      freq: n.freq,
+      type: "sawtooth",
+      duration: n.duration,
+      startTime: n.time,
+      gain: 0.18,
+    });
+  });
+}
+
+
