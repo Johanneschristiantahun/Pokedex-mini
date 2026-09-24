@@ -445,23 +445,26 @@ function PowerPlantSparksParticles() {
   );
 }
 
-function GymArenaBackdrop({ gymId = "gym-arena" }) {
-  // Accent colors based on Gym Type
+function GymArenaBackdrop({ gymId = "gym-rock" }) {
+  // Thematic colors and styling for all 8 Kanto Gym Leaders
   const accentColors = {
-    "gym-rock": { primary: "#78716c", glow: "#d6d3d1", beam: "#e7e5e4" },
-    "gym-water": { primary: "#0284c7", glow: "#38bdf8", beam: "#bae6fd" },
-    "gym-electric": { primary: "#ca8a04", glow: "#facc15", beam: "#fef08a" },
-    "gym-grass": { primary: "#15803d", glow: "#4ade80", beam: "#bbf7d0" },
-    "gym-poison": { primary: "#7e22ce", glow: "#c084fc", beam: "#f3e8ff" },
-    "gym-psychic": { primary: "#db2777", glow: "#f472b6", beam: "#fce7f3" },
-    "gym-fire": { primary: "#c2410c", glow: "#fb923c", beam: "#ffedd5" },
-    "gym-ground": { primary: "#a16207", glow: "#fde047", beam: "#fef9c3" },
+    "gym-rock": { primary: "#78716c", glow: "#d6d3d1", beam: "#e7e5e4", floorA: "#44403c", floorB: "#292524", line: "#a8a29e" },
+    "gym-water": { primary: "#0284c7", glow: "#38bdf8", beam: "#bae6fd", floorA: "#0369a1", floorB: "#0c4a6e", line: "#7dd3fc" },
+    "gym-electric": { primary: "#ca8a04", glow: "#facc15", beam: "#fef08a", floorA: "#854d0e", floorB: "#422006", line: "#fde047" },
+    "gym-grass": { primary: "#15803d", glow: "#4ade80", beam: "#bbf7d0", floorA: "#166534", floorB: "#14532d", line: "#86efac" },
+    "gym-poison": { primary: "#7e22ce", glow: "#c084fc", beam: "#f3e8ff", floorA: "#6b21a8", floorB: "#3b0764", line: "#d8b4fe" },
+    "gym-psychic": { primary: "#db2777", glow: "#f472b6", beam: "#fce7f3", floorA: "#be185d", floorB: "#500724", line: "#fbcfe8" },
+    "gym-fire": { primary: "#c2410c", glow: "#fb923c", beam: "#ffedd5", floorA: "#9a3412", floorB: "#431407", line: "#fdba74" },
+    "gym-ground": { primary: "#a16207", glow: "#fde047", beam: "#fef9c3", floorA: "#713f12", floorB: "#292524", line: "#fde047" },
   };
 
   const currentTheme = accentColors[gymId] || {
     primary: "#2563eb",
     glow: "#60a5fa",
     beam: "#dbeafe",
+    floorA: "#1e293b",
+    floorB: "#0f172a",
+    line: "#93c5fd",
   };
 
   return (
@@ -475,102 +478,129 @@ function GymArenaBackdrop({ gymId = "gym-arena" }) {
       >
         <defs>
           <linearGradient id="gymDomeSky" x1="0" y1="0" x2="0" y2="360" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#090d16" />
-            <stop offset="40%" stopColor="#0f172a" />
-            <stop offset="80%" stopColor="#1e293b" />
-            <stop offset="100%" stopColor="#334155" />
+            <stop offset="0%" stopColor="#050811" />
+            <stop offset="35%" stopColor="#0b1120" />
+            <stop offset="70%" stopColor="#111827" />
+            <stop offset="100%" stopColor="#1f2937" />
           </linearGradient>
 
-          {/* Left Spotlight Beam */}
+          {/* Left Main Spotlight Beam */}
           <linearGradient id="leftSpotlight" x1="0" y1="0" x2="0.6" y2="1">
-            <stop offset="0%" stopColor={currentTheme.beam} stopOpacity="0.4" />
-            <stop offset="60%" stopColor={currentTheme.glow} stopOpacity="0.15" />
+            <stop offset="0%" stopColor={currentTheme.beam} stopOpacity="0.45" />
+            <stop offset="60%" stopColor={currentTheme.glow} stopOpacity="0.18" />
             <stop offset="100%" stopColor={currentTheme.glow} stopOpacity="0" />
           </linearGradient>
 
-          {/* Right Spotlight Beam */}
+          {/* Right Main Spotlight Beam */}
           <linearGradient id="rightSpotlight" x1="1" y1="0" x2="0.4" y2="1">
-            <stop offset="0%" stopColor={currentTheme.beam} stopOpacity="0.4" />
-            <stop offset="60%" stopColor={currentTheme.glow} stopOpacity="0.15" />
+            <stop offset="0%" stopColor={currentTheme.beam} stopOpacity="0.45" />
+            <stop offset="60%" stopColor={currentTheme.glow} stopOpacity="0.18" />
+            <stop offset="100%" stopColor={currentTheme.glow} stopOpacity="0" />
+          </linearGradient>
+
+          {/* Center Arena Beam */}
+          <linearGradient id="centerBeam" x1="0.5" y1="0" x2="0.5" y2="1">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+            <stop offset="70%" stopColor={currentTheme.glow} stopOpacity="0.08" />
             <stop offset="100%" stopColor={currentTheme.glow} stopOpacity="0" />
           </linearGradient>
 
           {/* Stadium Truss Glow */}
           <linearGradient id="trussGlow" x1="0" y1="0" x2="800" y2="0" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor={currentTheme.primary} stopOpacity="0.2" />
-            <stop offset="50%" stopColor={currentTheme.glow} stopOpacity="0.6" />
+            <stop offset="50%" stopColor={currentTheme.glow} stopOpacity="0.8" />
             <stop offset="100%" stopColor={currentTheme.primary} stopOpacity="0.2" />
+          </linearGradient>
+
+          {/* Court Perspective Surface Gradient */}
+          <linearGradient id="courtFloorGrad" x1="0" y1="230" x2="0" y2="360" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor={currentTheme.floorB} />
+            <stop offset="50%" stopColor={currentTheme.floorA} />
+            <stop offset="100%" stopColor={currentTheme.floorB} />
           </linearGradient>
         </defs>
 
-        {/* Stadium Arena Dome Sky */}
+        {/* 1. Stadium Arena Dome Sky */}
         <rect width="800" height="360" fill="url(#gymDomeSky)" />
 
-        {/* High Stadium Ceiling Trusses */}
+        {/* 2. High Stadium Ceiling Steel Trusses */}
         <path
-          d="M0,40 Q400,-15 800,40 L800,65 Q400,10 0,65 Z"
-          fill="#1e293b"
-          stroke="#475569"
+          d="M0,35 Q400,-15 800,35 L800,60 Q400,10 0,60 Z"
+          fill="#111827"
+          stroke="#374151"
           strokeWidth="1.5"
         />
         <path
-          d="M0,45 Q400,-5 800,45"
+          d="M0,42 Q400,-5 800,42"
           stroke="url(#trussGlow)"
-          strokeWidth="3"
+          strokeWidth="3.5"
         />
 
-        {/* Stadium Floodlight Fixtures Top-Left and Top-Right */}
-        <rect x="70" y="32" width="70" height="14" rx="3" fill="#334155" stroke="#64748b" />
-        <circle cx="85" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
-        <circle cx="105" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
-        <circle cx="125" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
+        {/* Floodlight Fixtures */}
+        <rect x="60" y="28" width="80" height="15" rx="3" fill="#1f2937" stroke="#4b5563" strokeWidth="1.5" />
+        <circle cx="75" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
+        <circle cx="100" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
+        <circle cx="125" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
 
-        <rect x="660" y="32" width="70" height="14" rx="3" fill="#334155" stroke="#64748b" />
-        <circle cx="675" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
-        <circle cx="695" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
-        <circle cx="715" cy="46" r="6" fill="#ffffff" filter="drop-shadow(0 0 8px #ffffff)" />
+        <rect x="660" y="28" width="80" height="15" rx="3" fill="#1f2937" stroke="#4b5563" strokeWidth="1.5" />
+        <circle cx="675" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
+        <circle cx="700" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
+        <circle cx="725" cy="43" r="6" fill="#ffffff" filter="drop-shadow(0 0 10px #ffffff)" />
 
-        {/* Dramatic Angle Spotlights Crossing the Arena */}
-        <polygon points="105,46 20,360 480,360" fill="url(#leftSpotlight)" />
-        <polygon points="695,46 320,360 780,360" fill="url(#rightSpotlight)" />
+        {/* Crossing Volumetric Spotlight Beams */}
+        <polygon points="100,43 10,360 480,360" fill="url(#leftSpotlight)" />
+        <polygon points="700,43 320,360 790,360" fill="url(#rightSpotlight)" />
+        <polygon points="380,0 420,0 520,360 280,360" fill="url(#centerBeam)" />
 
-        {/* Giant Pokémon League Emblem in Midground */}
-        <g opacity="0.22" transform="translate(400, 155)">
-          <circle cx="0" cy="0" r="75" stroke={currentTheme.glow} strokeWidth="5" fill="none" />
-          <path d="M-75,0 L75,0" stroke={currentTheme.glow} strokeWidth="7" />
-          <circle cx="0" cy="0" r="24" fill="#0f172a" stroke={currentTheme.glow} strokeWidth="5" />
-          <circle cx="0" cy="0" r="11" fill={currentTheme.glow} />
-        </g>
-
-        {/* Upper Spectator Tier Silhouette with Camera Flashes */}
+        {/* 3. Upper Spectator Tier Silhouettes & Flash Flashes */}
         <path
-          d="M0,175 Q400,165 800,175 L800,240 Q400,230 0,240 Z"
-          fill="#0b0f19"
-          opacity="0.9"
+          d="M0,165 Q400,155 800,165 L800,230 Q400,220 0,230 Z"
+          fill="#030712"
+          opacity="0.95"
         />
 
-        {/* Flash Dots (Crowd Spectators) */}
-        <circle cx="120" cy="195" r="1.5" fill="#f8fafc" opacity="0.6" />
-        <circle cx="180" cy="205" r="1.5" fill="#f8fafc" opacity="0.7" />
-        <circle cx="230" cy="190" r="2" fill="#38bdf8" opacity="0.5" />
-        <circle cx="310" cy="200" r="1.5" fill="#f8fafc" opacity="0.6" />
-        <circle cx="490" cy="195" r="2" fill="#f8fafc" opacity="0.8" />
-        <circle cx="560" cy="205" r="1.5" fill="#facc15" opacity="0.5" />
-        <circle cx="620" cy="190" r="1.5" fill="#f8fafc" opacity="0.7" />
-        <circle cx="710" cy="200" r="2" fill="#f8fafc" opacity="0.6" />
+        {/* Spectator camera flashes */}
+        <circle cx="90" cy="185" r="2" fill="#ffffff" opacity="0.8" />
+        <circle cx="150" cy="195" r="2.5" fill="#fef08a" opacity="0.7" />
+        <circle cx="210" cy="180" r="1.5" fill="#38bdf8" opacity="0.8" />
+        <circle cx="280" cy="190" r="2" fill="#ffffff" opacity="0.9" />
+        <circle cx="340" cy="182" r="1.5" fill="#ffffff" opacity="0.6" />
+        <circle cx="460" cy="182" r="2" fill="#fbcfe8" opacity="0.75" />
+        <circle cx="520" cy="192" r="1.5" fill="#ffffff" opacity="0.85" />
+        <circle cx="590" cy="180" r="2.5" fill="#fde047" opacity="0.7" />
+        <circle cx="670" cy="195" r="1.5" fill="#ffffff" opacity="0.8" />
+        <circle cx="730" cy="185" r="2" fill="#38bdf8" opacity="0.7" />
 
         {/* Midground Championship Banners */}
-        <polygon points="160,80 185,80 185,150 172.5,140 160,150" fill={currentTheme.primary} opacity="0.7" />
-        <polygon points="615,80 640,80 640,150 627.5,140 615,150" fill={currentTheme.primary} opacity="0.7" />
+        <polygon points="155,75 185,75 185,150 170,140 155,150" fill={currentTheme.primary} opacity="0.85" />
+        <polygon points="615,75 645,75 645,150 630,140 615,150" fill={currentTheme.primary} opacity="0.85" />
 
-        {/* Court Wall / Arena Barrier */}
+        {/* 4. Giant Pokémon League Emblem in Center Field */}
+        <g opacity="0.32" transform="translate(400, 150)">
+          <circle cx="0" cy="0" r="70" stroke={currentTheme.glow} strokeWidth="4.5" fill="none" />
+          <path d="M-70,0 L70,0" stroke={currentTheme.glow} strokeWidth="6" />
+          <circle cx="0" cy="0" r="22" fill="#0b1120" stroke={currentTheme.glow} strokeWidth="4.5" />
+          <circle cx="0" cy="0" r="10" fill={currentTheme.glow} />
+        </g>
+
+        {/* 5. Stadium Court Boundary Wall */}
         <path
-          d="M0,230 Q400,215 800,230 L800,265 Q400,250 0,265 Z"
-          fill="#1e293b"
-          stroke="#475569"
+          d="M0,225 Q400,210 800,225 L800,250 Q400,235 0,250 Z"
+          fill="#1f2937"
+          stroke="#374151"
           strokeWidth="2"
         />
-        <line x1="0" y1="248" x2="800" y2="248" stroke={currentTheme.glow} strokeWidth="1.5" opacity="0.4" />
+        <line x1="0" y1="238" x2="800" y2="238" stroke={currentTheme.glow} strokeWidth="2" opacity="0.6" />
+
+        {/* 6. Realistic 3D Stadium Court Floor Markings */}
+        {/* Outer Perspective Boundary Lines */}
+        <line x1="120" y1="245" x2="20" y2="360" stroke={currentTheme.line} strokeWidth="2.5" opacity="0.45" />
+        <line x1="680" y1="245" x2="780" y2="360" stroke={currentTheme.line} strokeWidth="2.5" opacity="0.45" />
+
+        {/* Center Court Circle in Perspective (Pokéball Court Design) */}
+        <ellipse cx="400" cy="295" rx="140" ry="45" stroke={currentTheme.line} strokeWidth="3" fill="none" opacity="0.5" />
+        <ellipse cx="400" cy="295" rx="45" ry="15" stroke={currentTheme.line} strokeWidth="2.5" fill={currentTheme.floorB} opacity="0.6" />
+        <line x1="260" y1="295" x2="540" y2="295" stroke={currentTheme.line} strokeWidth="3" opacity="0.55" />
       </svg>
     </div>
   );

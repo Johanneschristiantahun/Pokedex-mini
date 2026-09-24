@@ -6052,16 +6052,44 @@ body {
   transform: translateY(-1px);
 }
 
-/* 3. VS Screen Anime Clash */
+/* ========================================================
+   STAGE 5 ELEVATION: ANIME VS CLASH SCREEN (ZERO OVERLAP)
+   ======================================================== */
 .gym-vs-screen-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #090d16;
+  background: #030712;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+/* Dynamic moving anime diagonal speedlines */
+.vs-speedlines-bg {
+  position: absolute;
+  inset: -100px;
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 2px,
+    transparent 2px,
+    transparent 14px
+  );
+  opacity: 0.65;
+  pointer-events: none;
+  animation: speedlinesScroll 0.8s linear infinite;
+  z-index: 0;
+}
+
+@keyframes speedlinesScroll {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(-30px, 30px);
+  }
 }
 
 .vs-screen-container {
@@ -6069,31 +6097,34 @@ body {
   height: 100%;
   display: flex;
   position: relative;
+  z-index: 1;
 }
 
+/* Each Half has skewed anime clipping */
 .vs-half {
   flex: 1;
   display: flex;
   align-items: center;
   position: relative;
-  padding: 40px;
   overflow: hidden;
+  height: 100%;
 }
 
 .vs-player-side {
-  background: linear-gradient(135deg, #dc2626 0%, #7f1d1d 70%, #0f172a 100%);
-  justify-content: flex-start;
-  clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
-  animation: vsSlideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: radial-gradient(circle at 20% 50%, #b91c1c 0%, #7f1d1d 45%, #180507 90%);
+  clip-path: polygon(0 0, 100% 0, 84% 100%, 0 100%);
+  animation: vsSlideLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border-right: 3px solid rgba(255, 255, 255, 0.2);
 }
 
 .vs-leader-side {
-  justify-content: flex-end;
-  clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%);
-  animation: vsSlideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: radial-gradient(circle at 80% 50%, var(--leader-theme, #2563eb) 0%, rgba(15, 23, 42, 0.95) 60%, #030712 100%);
+  clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%);
+  animation: vsSlideRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border-left: 3px solid rgba(255, 255, 255, 0.2);
 }
 
-@keyframes vsSlideInLeft {
+@keyframes vsSlideLeft {
   from {
     transform: translateX(-100%);
   }
@@ -6102,7 +6133,7 @@ body {
   }
 }
 
-@keyframes vsSlideInRight {
+@keyframes vsSlideRight {
   from {
     transform: translateX(100%);
   }
@@ -6111,129 +6142,816 @@ body {
   }
 }
 
-.vs-trainer-info, .vs-leader-info {
-  color: #ffffff;
-  z-index: 2;
+/* Inner flex content with guaranteed side-by-side spacing */
+.vs-half-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 60px 40px 50px;
+  position: relative;
 }
 
-.vs-tag {
-  font-size: 0.85rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #fef08a;
+.vs-leader-inner {
+  padding: 40px 50px 40px 70px;
 }
 
-.vs-name {
-  font-size: 2.5rem;
+/* Challenger Dossier Card */
+.vs-trainer-dossier-card {
+  max-width: 320px;
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(16px);
+  border: 2px solid rgba(239, 68, 68, 0.5);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(239, 68, 68, 0.15);
+  z-index: 5;
+  animation: dossierPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+/* Leader Dossier Card */
+.vs-leader-dossier-card {
+  max-width: 320px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border: 2px solid var(--leader-theme, #38bdf8);
+  border-radius: 20px;
+  padding: 22px 24px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
+  z-index: 5;
+  animation: dossierPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+@keyframes dossierPop {
+  from {
+    transform: translateY(20px) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.vs-role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
   font-weight: 900;
-  margin: 4px 0 8px 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 10px;
 }
 
-.vs-title {
-  font-size: 1rem;
+.challenger-role {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+}
+
+.leader-role {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #f8fafc;
+}
+
+.role-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef4444;
+}
+
+.leader-dot {
+  background: #facc15;
+  box-shadow: 0 0 6px #facc15;
+}
+
+.vs-trainer-hero-name,
+.vs-leader-hero-name {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+.vs-leader-hero-title {
+  font-size: 0.88rem;
   color: #94a3b8;
-  margin: 0;
+  margin: 0 0 14px 0;
+  line-height: 1.35;
 }
 
-.vs-team-preview {
+.vs-trainer-meta-row {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-bottom: 14px;
 }
 
-.vs-party-icon {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  padding: 4px;
+.meta-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
 }
 
-.vs-badge-slot {
-  margin-top: 14px;
+.badges-held-tag {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fef08a;
+  border: 1px solid rgba(234, 179, 8, 0.4);
 }
 
-.vs-leader-full-sprite {
-  height: 85%;
-  max-height: 400px;
+/* Party showcase */
+.vs-party-showcase {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.party-showcase-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.party-icons-cluster {
+  display: flex;
+  gap: 6px;
+}
+
+.vs-party-slot {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.vs-party-slot-img {
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   image-rendering: pixelated;
-  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
-  position: absolute;
-  right: 60px;
-  bottom: 0;
-  z-index: 1;
 }
 
+.vs-party-slot-lvl {
+  position: absolute;
+  bottom: -3px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #fef08a;
+  background: #0f172a;
+  padding: 0 3px;
+  border-radius: 3px;
+}
+
+/* Dedicated Badge Showcase Stand */
+.vs-badge-pedestal-mount {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(250, 204, 21, 0.3);
+  border-radius: 14px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-orbit-glow {
+  position: absolute;
+  left: 10px;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.badge-pedestal-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge-pedestal-award-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #facc15;
+  letter-spacing: 0.08em;
+}
+
+.badge-pedestal-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.vs-leader-quote-bubble {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: #e2e8f0;
+  line-height: 1.4;
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
+  padding-left: 8px;
+}
+
+/* Character Sprites Anchors (Zero Overlap) */
+.vs-player-character-anchor {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  z-index: 4;
+}
+
+.vs-player-hero-sprite {
+  max-height: 380px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 20px rgba(239, 68, 68, 0.4));
+  animation: heroFloat 3s ease-in-out infinite alternate;
+}
+
+.vs-leader-character-anchor {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  z-index: 4;
+}
+
+.vs-leader-hero-sprite {
+  max-height: 400px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 25px rgba(255, 255, 255, 0.25));
+  animation: heroFloat 3.2s ease-in-out infinite alternate;
+}
+
+@keyframes heroFloat {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+/* 3D Gold Metallic Center VS Clash */
 .vs-center-emblem {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10;
+  z-index: 15;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  animation: vsEmblemPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: auto;
 }
 
-@keyframes vsEmblemPop {
+.vs-lightning-divider {
+  position: absolute;
+  top: -200px;
+  bottom: -200px;
+  width: 4px;
+  background: linear-gradient(to bottom, transparent, #ffffff 40%, #facc15 60%, transparent);
+  box-shadow: 0 0 16px #facc15, 0 0 30px #ffffff;
+  transform: rotate(-14deg);
+  pointer-events: none;
+  animation: lightningPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes lightningPulse {
   0% {
-    transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+    opacity: 0.6;
+    transform: rotate(-14deg) scaleY(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(-14deg) scaleY(1.05);
+  }
+}
+
+.vs-clash-core {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: vsCorePop 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes vsCorePop {
+  0% {
+    transform: scale(0) rotate(-25deg);
     opacity: 0;
   }
   70% {
-    transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+    transform: scale(1.25) rotate(4deg);
   }
   100% {
-    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
 
-.vs-text {
-  font-size: 4.5rem;
+.vs-letters-wrap {
+  display: flex;
+  font-size: 5.5rem;
   font-weight: 900;
   font-style: italic;
-  color: #fef08a;
-  text-shadow: 0 0 20px #eab308, 0 0 40px #ca8a04, 4px 4px 0 #78350f;
-  letter-spacing: -0.05em;
-  line-height: 1;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef08a 25%, #facc15 50%, #eab308 75%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 25px rgba(250, 204, 21, 0.8));
 }
 
-.vs-subtext {
-  font-size: 0.9rem;
+.vs-letter-v {
+  transform: translateY(-4px);
+}
+
+.vs-letter-s {
+  transform: translateY(4px);
+}
+
+.vs-lightning-spark {
+  font-size: 2rem;
+  color: #fde047;
+  filter: drop-shadow(0 0 10px #facc15);
+  animation: sparkJitter 0.4s steps(2, start) infinite;
+}
+
+@keyframes sparkJitter {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(3px, -3px) scale(1.2);
+  }
+}
+
+.vs-arena-location-pill {
+  font-size: 0.85rem;
   font-weight: 900;
   letter-spacing: 0.15em;
-  color: #ffffff;
+  color: #f8fafc;
   background: #0f172a;
-  padding: 4px 14px;
+  padding: 5px 18px;
   border-radius: 999px;
-  border: 1px solid #38bdf8;
-  margin-top: 8px;
+  border: 1.5px solid #38bdf8;
+  margin-top: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6), 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.btn-vs-skip-action {
+  margin-top: 14px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  border: 1.5px solid #fca5a5;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-vs-skip-action:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 22px rgba(239, 68, 68, 0.7);
+}
+
+/* ========================================================
+   GYM BATTLE ARENA & ELEVATED HUDs
+   ======================================================== */
+.gym-battle-outer-wrap {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+.gym-arena-theme {
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(15, 23, 42, 0.8);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.gym-hud-card {
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hud-gym-leader-sub {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #facc15;
+  margin-bottom: 2px;
+}
+
+/* ========================================================
+   ELEMENTAL MOVE ATTACK VFX OVERLAYS
+   ======================================================== */
+.elemental-vfx {
+  position: absolute;
+  inset: -20px;
+  z-index: 30;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.vfx-particle {
+  font-size: 2.4rem;
+  display: inline-block;
+}
+
+/* Fire VFX */
+.fire-vfx .flame-1 {
+  animation: flameBurst1 0.45s ease-out forwards;
+}
+.fire-vfx .flame-2 {
+  animation: flameBurst2 0.45s ease-out 0.08s forwards;
+}
+.fire-vfx .flame-3 {
+  animation: flameBurst1 0.45s ease-out 0.15s forwards;
+}
+
+@keyframes flameBurst1 {
+  0% {
+    transform: scale(0.4) translateY(20px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) translateY(-10px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6) translateY(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes flameBurst2 {
+  0% {
+    transform: scale(0.6) rotate(-20deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.4) rotate(15deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.8) rotate(30deg);
+    opacity: 0;
+  }
+}
+
+/* Water VFX */
+.water-vfx .water-1,
+.water-vfx .water-2,
+.water-vfx .water-3 {
+  animation: waterSurge 0.45s ease-out forwards;
+}
+.water-vfx .water-2 {
+  animation-delay: 0.08s;
+}
+
+@keyframes waterSurge {
+  0% {
+    transform: scale(0.5) translateY(25px);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* Electric VFX */
+.electric-vfx .spark-1,
+.electric-vfx .spark-2,
+.electric-vfx .spark-3 {
+  animation: electricJolt 0.35s steps(3, start) forwards;
+}
+.electric-vfx .spark-2 {
+  animation-delay: 0.06s;
+}
+
+@keyframes electricJolt {
+  0% {
+    transform: scale(0.5) translate(-10px, 0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5) translate(10px, -8px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2) translate(0, 0);
+    opacity: 0;
+  }
+}
+
+/* Grass VFX */
+.grass-vfx .leaf-1,
+.grass-vfx .leaf-2,
+.grass-vfx .leaf-3 {
+  animation: leafSwirl 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes leafSwirl {
+  0% {
+    transform: scale(0.4) rotate(0deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5) rotate(360deg) translateY(-20px);
+    opacity: 0;
+  }
+}
+
+/* Psychic VFX */
+.psychic-vfx {
+  position: absolute;
+  inset: -15px;
+}
+
+.psychic-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 3px solid #ec4899;
+  box-shadow: 0 0 20px #ec4899;
+}
+
+.ring-1 {
+  width: 70px;
+  height: 70px;
+  animation: psychicRingExpand 0.45s ease-out forwards;
+}
+
+.ring-2 {
+  width: 100px;
+  height: 100px;
+  animation: psychicRingExpand 0.45s ease-out 0.1s forwards;
+}
+
+@keyframes psychicRingExpand {
+  0% {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.psychic-orb {
+  animation: orbTwinkle 0.4s ease-out forwards;
+}
+
+@keyframes orbTwinkle {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Rock / Ground VFX */
+.rock-vfx .rock-1,
+.rock-vfx .rock-2,
+.rock-vfx .rock-3 {
+  animation: rockTumble 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes rockTumble {
+  0% {
+    transform: translateY(-40px) scale(0.6) rotate(-30deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(10px) scale(1.3) rotate(10deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(15px) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+/* Ice VFX */
+.ice-vfx .ice-1,
+.ice-vfx .ice-2,
+.ice-vfx .ice-3 {
+  animation: iceShatter 0.45s ease-out forwards;
+}
+
+@keyframes iceShatter {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* Normal / Slashing Blade */
+.vfx-slash-blade {
+  width: 120px;
+  height: 6px;
+  background: #ffffff;
+  box-shadow: 0 0 16px #38bdf8, 0 0 30px #ffffff;
+  transform: rotate(-35deg);
+  animation: bladeSlash 0.35s ease-out forwards;
+}
+
+@keyframes bladeSlash {
+  0% {
+    transform: scaleX(0.2) rotate(-35deg) translate(-30px, -30px);
+    opacity: 0;
+  }
+  50% {
+    transform: scaleX(1.3) rotate(-35deg) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1.5) rotate(-35deg) translate(30px, 30px);
+    opacity: 0;
+  }
+}
+
+/* ========================================================
+   GYM ARENA GROUND TERRAINS
+   ======================================================== */
+.ground-type-gym-rock {
+  background: radial-gradient(ellipse at 50% 90%, #57534e 0%, #44403c 45%, #292524 80%, #1c1917 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(120, 113, 108, 0.3);
+}
+
+.ground-type-gym-water {
+  background: radial-gradient(ellipse at 50% 90%, #0369a1 0%, #075985 45%, #0c4a6e 80%, #082f49 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(56, 189, 248, 0.35);
+}
+
+.ground-type-gym-electric {
+  background: radial-gradient(ellipse at 50% 90%, #a16207 0%, #713f12 45%, #422006 80%, #1a0e02 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(250, 204, 21, 0.4);
+}
+
+.ground-type-gym-grass {
+  background: radial-gradient(ellipse at 50% 90%, #15803d 0%, #166534 45%, #14532d 80%, #052e16 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(74, 222, 128, 0.3);
+}
+
+.ground-type-gym-poison {
+  background: radial-gradient(ellipse at 50% 90%, #6b21a8 0%, #581c87 45%, #3b0764 80%, #1e1b4b 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(192, 132, 252, 0.35);
+}
+
+.ground-type-gym-psychic {
+  background: radial-gradient(ellipse at 50% 90%, #9d174d 0%, #831843 45%, #500724 80%, #18030e 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(244, 114, 182, 0.35);
+}
+
+.ground-type-gym-fire {
+  background: radial-gradient(ellipse at 50% 90%, #9a3412 0%, #7c2d12 45%, #431407 80%, #1c0702 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(251, 146, 60, 0.4);
+}
+
+.ground-type-gym-ground {
+  background: radial-gradient(ellipse at 50% 90%, #854d0e 0%, #713f12 45%, #422006 80%, #1c1917 100%);
+  box-shadow: inset 0 20px 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(234, 179, 8, 0.3);
+}
+
+/* ========================================================
+   GYM ARENA PEDESTAL 3D BASES
+   ======================================================== */
+.pedestal-theme-gym-rock .pedestal-surface {
+  background: linear-gradient(135deg, #78716c, #57534e);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 12px rgba(214, 211, 209, 0.4);
+}
+.pedestal-theme-gym-rock .pedestal-depth-lip {
+  background: #292524;
+}
+
+.pedestal-theme-gym-water .pedestal-surface {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(56, 189, 248, 0.6);
+}
+.pedestal-theme-gym-water .pedestal-depth-lip {
+  background: #082f49;
+}
+
+.pedestal-theme-gym-electric .pedestal-surface {
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 18px rgba(250, 204, 21, 0.7);
+}
+.pedestal-theme-gym-electric .pedestal-depth-lip {
+  background: #422006;
+}
+
+.pedestal-theme-gym-grass .pedestal-surface {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(74, 222, 128, 0.5);
+}
+.pedestal-theme-gym-grass .pedestal-depth-lip {
+  background: #052e16;
+}
+
+.pedestal-theme-gym-poison .pedestal-surface {
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(192, 132, 252, 0.6);
+}
+.pedestal-theme-gym-poison .pedestal-depth-lip {
+  background: #3b0764;
+}
+
+.pedestal-theme-gym-psychic .pedestal-surface {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 18px rgba(244, 114, 182, 0.7);
+}
+.pedestal-theme-gym-psychic .pedestal-depth-lip {
+  background: #500724;
+}
+
+.pedestal-theme-gym-fire .pedestal-surface {
+  background: linear-gradient(135deg, #f97316, #c2410c);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 18px rgba(251, 146, 60, 0.7);
+}
+.pedestal-theme-gym-fire .pedestal-depth-lip {
+  background: #431407;
+}
+
+.pedestal-theme-gym-ground .pedestal-surface {
+  background: linear-gradient(135deg, #ca8a04, #a16207);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(234, 179, 8, 0.5);
+}
+.pedestal-theme-gym-ground .pedestal-depth-lip {
+  background: #422006;
 }
 
 /* 4. Gym Battle Arena Top Bar & Multi-Ball Rows */
-.gym-battle-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 12px 12px 40px;
-}
-
 .gym-top-match-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 8px 16px;
-  margin-bottom: 8px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+  padding: 10px 18px;
   color: #f8fafc;
 }
 
@@ -6241,21 +6959,21 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
 
 .btn-gym-forfeit {
-  padding: 5px 12px;
+  padding: 6px 14px;
   background: rgba(239, 68, 68, 0.2);
   border: 1px solid rgba(239, 68, 68, 0.4);
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #fca5a5;
   cursor: pointer;
-  transition: var(--transition-smooth);
+  transition: all 0.2s ease;
 }
 
 .btn-gym-forfeit:hover {

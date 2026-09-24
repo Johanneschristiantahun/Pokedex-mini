@@ -4,7 +4,7 @@
 // 8 Official Gym Leaders, Kanto Badges, and Victory Ceremonies
 // ========================================================
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useGame } from "../context/GameContext.jsx";
 import { KANTO_GYM_LEADERS } from "../data/gymLeaders.js";
@@ -19,6 +19,7 @@ import {
   IconCoin,
   IconSparkles,
   IconCheck,
+  IconX,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -37,6 +38,82 @@ import {
   playBattleStartSound,
   playCatchSuccessJingle,
 } from "../utils/soundEffects.js";
+
+// Elemental Move VFX Overlay Component
+function ElementalVfxOverlay({ type }) {
+  if (!type) return null;
+  const t = type.toLowerCase();
+
+  if (t === "fire") {
+    return (
+      <div className="elemental-vfx fire-vfx" aria-hidden="true">
+        <span className="vfx-particle flame-1">🔥</span>
+        <span className="vfx-particle flame-2">💥</span>
+        <span className="vfx-particle flame-3">🔥</span>
+      </div>
+    );
+  }
+  if (t === "water") {
+    return (
+      <div className="elemental-vfx water-vfx" aria-hidden="true">
+        <span className="vfx-particle water-1">🌊</span>
+        <span className="vfx-particle water-2">💧</span>
+        <span className="vfx-particle water-3">🌊</span>
+      </div>
+    );
+  }
+  if (t === "electric") {
+    return (
+      <div className="elemental-vfx electric-vfx" aria-hidden="true">
+        <span className="vfx-particle spark-1">⚡</span>
+        <span className="vfx-particle spark-2">⚡</span>
+        <span className="vfx-particle spark-3">⚡</span>
+      </div>
+    );
+  }
+  if (t === "grass" || t === "bug") {
+    return (
+      <div className="elemental-vfx grass-vfx" aria-hidden="true">
+        <span className="vfx-particle leaf-1">🍃</span>
+        <span className="vfx-particle leaf-2">🌿</span>
+        <span className="vfx-particle leaf-3">🍃</span>
+      </div>
+    );
+  }
+  if (t === "psychic" || t === "ghost") {
+    return (
+      <div className="elemental-vfx psychic-vfx" aria-hidden="true">
+        <div className="psychic-ring ring-1"></div>
+        <div className="psychic-ring ring-2"></div>
+        <span className="vfx-particle psychic-orb">🔮</span>
+      </div>
+    );
+  }
+  if (t === "rock" || t === "ground") {
+    return (
+      <div className="elemental-vfx rock-vfx" aria-hidden="true">
+        <span className="vfx-particle rock-1">🪨</span>
+        <span className="vfx-particle rock-2">💥</span>
+        <span className="vfx-particle rock-3">🪨</span>
+      </div>
+    );
+  }
+  if (t === "ice") {
+    return (
+      <div className="elemental-vfx ice-vfx" aria-hidden="true">
+        <span className="vfx-particle ice-1">❄️</span>
+        <span className="vfx-particle ice-2">✨</span>
+        <span className="vfx-particle ice-3">❄️</span>
+      </div>
+    );
+  }
+  // Default / Normal / Fighting
+  return (
+    <div className="elemental-vfx normal-vfx" aria-hidden="true">
+      <div className="vfx-slash-blade"></div>
+    </div>
+  );
+}
 
 function pickGymLeaderMove(moves = []) {
   if (!moves || moves.length === 0) {
@@ -78,12 +155,16 @@ export default function GymPage() {
   const [screenShake, setScreenShake] = useState(false);
   const [slashVfxOnLeader, setSlashVfxOnLeader] = useState(false);
   const [slashVfxOnPlayer, setSlashVfxOnPlayer] = useState(false);
+  const [elementalVfx, setElementalVfx] = useState(null);
   const [leaderDamagePopup, setLeaderDamagePopup] = useState(null);
   const [playerDamagePopup, setPlayerDamagePopup] = useState(null);
 
   // Victory Rewards
   const [victoryData, setVictoryData] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Intro transition timer ref
+  const vsTimeoutRef = useRef(null);
 
   function showToast(msg) {
     setToastMessage(msg);
@@ -95,6 +176,33 @@ export default function GymPage() {
   // Active Leader Mon and Player Mon
   const activeLeaderMon = leaderRoster[activeLeaderIndex] || null;
   const activePlayerMon = team[activePartyIndex] || null;
+
+  // ------------------------------------------------------
+  // Battle Sequence Startup Helper
+  // ------------------------------------------------------
+  function startBattleSequence(leader, freshLeaderTeam, firstAliveIndex) {
+    const targetLeader = leader || selectedLeader;
+    const targetTeam = freshLeaderTeam || leaderRoster;
+    const firstMon = targetTeam[0];
+    const playerMon = team[firstAliveIndex !== undefined ? firstAliveIndex : activePartyIndex];
+
+    setViewMode("BATTLE");
+    setBattleSubMenu("BUSY");
+    setBattleDialogue(`Gym Leader ${targetLeader.name} sent out ${firstMon.nickname.toUpperCase()}!`);
+    pushLog(`Gym Leader ${targetLeader.name} sent out ${firstMon.nickname}!`);
+    playPokemonCry(firstMon.id);
+
+    setTimeout(() => {
+      setBattleDialogue(`Go! ${playerMon.nickname.toUpperCase()}!`);
+      pushLog(`Trainer ${trainer.name} sent out ${playerMon.nickname}!`);
+      playPokemonCry(playerMon.id);
+
+      setTimeout(() => {
+        setBattleDialogue(`What will ${playerMon.nickname.toUpperCase()} do?`);
+        setBattleSubMenu("MENU");
+      }, 1100);
+    }, 1400);
+  }
 
   // ------------------------------------------------------
   // 1. START GYM CHALLENGE: VS SCREEN INTRO
@@ -126,27 +234,15 @@ export default function GymPage() {
     setViewMode("VS_INTRO");
     playBattleStartSound();
 
-    // Trigger Gym Leader First Mon Cry after VS Banner
-    setTimeout(() => {
-      setViewMode("BATTLE");
-      setBattleSubMenu("BUSY");
-      const firstMon = freshLeaderTeam[0];
-      setBattleDialogue(`Gym Leader ${leader.name} sent out ${firstMon.nickname.toUpperCase()}!`);
-      pushLog(`Gym Leader ${leader.name} sent out ${firstMon.nickname}!`);
-      playPokemonCry(firstMon.id);
+    if (vsTimeoutRef.current) clearTimeout(vsTimeoutRef.current);
+    vsTimeoutRef.current = setTimeout(() => {
+      startBattleSequence(leader, freshLeaderTeam, firstAliveIndex);
+    }, 2800);
+  }
 
-      setTimeout(() => {
-        const playerMon = team[firstAliveIndex];
-        setBattleDialogue(`Go! ${playerMon.nickname.toUpperCase()}!`);
-        pushLog(`Trainer ${trainer.name} sent out ${playerMon.nickname}!`);
-        playPokemonCry(playerMon.id);
-
-        setTimeout(() => {
-          setBattleDialogue(`What will ${playerMon.nickname.toUpperCase()} do?`);
-          setBattleSubMenu("MENU");
-        }, 1100);
-      }, 1400);
-    }, 2400);
+  function handleSkipVsIntro() {
+    if (vsTimeoutRef.current) clearTimeout(vsTimeoutRef.current);
+    startBattleSequence(selectedLeader, leaderRoster, activePartyIndex);
   }
 
   // ------------------------------------------------------
@@ -197,6 +293,7 @@ export default function GymPage() {
     setBattleDialogue(`${activePlayerMon.nickname.toUpperCase()} used ${move.name.toUpperCase()}!`);
     pushLog(`${activePlayerMon.nickname} used ${move.name}!`);
     setPlayerAnim("anim-player-lunge");
+    setElementalVfx({ target: "leader", type: move.type });
     playAttackWhooshSound();
 
     setTimeout(() => {
@@ -246,6 +343,7 @@ export default function GymPage() {
       setTimeout(() => {
         setSlashVfxOnLeader(false);
         setLeaderAnim("");
+        setElementalVfx(null);
         setScreenShake(false);
         setLeaderDamagePopup(null);
 
@@ -283,7 +381,8 @@ export default function GymPage() {
     setBattleDialogue(`Leader's ${activeLeaderMon.nickname.toUpperCase()} used ${chosenMove.name.toUpperCase()}!`);
     pushLog(`Leader's ${activeLeaderMon.nickname} used ${chosenMove.name}!`);
 
-    setLeaderAnim("anim-wild-lunge-forward");
+    setLeaderAnim("anim-wild-lunge");
+    setElementalVfx({ target: "player", type: chosenMove.type });
     playAttackWhooshSound();
 
     setTimeout(() => {
@@ -328,6 +427,7 @@ export default function GymPage() {
       setTimeout(() => {
         setSlashVfxOnPlayer(false);
         setPlayerAnim("");
+        setElementalVfx(null);
         setScreenShake(false);
         setPlayerDamagePopup(null);
 
@@ -471,15 +571,17 @@ export default function GymPage() {
       return;
     }
 
+    const wasFainted = (activePlayerMon?.currentHp || 0) <= 0;
+
     setBattleSubMenu("BUSY");
-    setBattleDialogue(`Come back, ${activePlayerMon.nickname}! Go, ${targetMon.nickname.toUpperCase()}!`);
+    setBattleDialogue(`Come back, ${activePlayerMon?.nickname || "partner"}! Go, ${targetMon.nickname.toUpperCase()}!`);
     pushLog(`${trainer.name} switched to ${targetMon.nickname}!`);
     setActivePartyIndex(newIndex);
     playPokemonCry(targetMon.id);
 
-    // Opponent gets a free attack on switch turn if opponent is alive
+    // Opponent only gets a free attack on tactical switches, not when player was forced to switch after fainted
     setTimeout(() => {
-      if (activeLeaderMon && activeLeaderMon.currentHp > 0) {
+      if (!wasFainted && activeLeaderMon && activeLeaderMon.currentHp > 0) {
         executeLeaderAttack(() => {
           setBattleDialogue(`What will ${targetMon.nickname.toUpperCase()} do?`);
           setBattleSubMenu("MENU");
@@ -684,57 +786,144 @@ export default function GymPage() {
   }
 
   // ========================================================
-  // RENDER VIEW 2: DRAMATIC VS SCREEN ANIME CLASH
+  // RENDER VIEW 2: DRAMATIC VS SCREEN ANIME CLASH (ZERO OVERLAP)
   // ========================================================
   if (viewMode === "VS_INTRO" && selectedLeader) {
     return (
       <div className="gym-vs-screen-overlay">
+        {/* Dynamic diagonal speedlines background */}
+        <div className="vs-speedlines-bg" aria-hidden="true"></div>
+
         <div className="vs-screen-container">
-          {/* Left Player Side */}
+          {/* ==================================================== */}
+          {/* LEFT HALF: CHALLENGER (TRAINER RED)                  */}
+          {/* ==================================================== */}
           <div className="vs-half vs-player-side">
-            <div className="vs-trainer-info">
-              <span className="vs-tag">Challenger</span>
-              <h2 className="vs-name">{trainer.name}</h2>
-              <div className="vs-team-preview">
-                {team.map((mon) => (
-                  <img
-                    key={mon.instanceId}
-                    src={mon.sprites.animated || mon.sprites.front}
-                    alt={mon.nickname}
-                    className="vs-party-icon"
-                  />
-                ))}
+            <div className="vs-half-inner">
+              {/* Challenger Dossier Card */}
+              <div className="vs-trainer-dossier-card">
+                <div className="vs-role-badge challenger-role">
+                  <span className="role-dot"></span>
+                  <span>KANTO LEAGUE CHALLENGER</span>
+                </div>
+                <h2 className="vs-trainer-hero-name">{trainer.name || "Trainer Red"}</h2>
+                <div className="vs-trainer-meta-row">
+                  <span className="meta-tag">TRAINER ID: #00151</span>
+                  <span className="meta-tag badges-held-tag">
+                    {trainer.badges?.length || 0} / 8 BADGES
+                  </span>
+                </div>
+
+                {/* Party Roster Display (6 slots) */}
+                <div className="vs-party-showcase">
+                  <span className="party-showcase-label">CHALLENGE TEAM</span>
+                  <div className="party-icons-cluster">
+                    {team.slice(0, 6).map((mon) => (
+                      <div
+                        key={mon.instanceId}
+                        className="vs-party-slot"
+                        title={`${mon.nickname} (Lv.${mon.level})`}
+                      >
+                        <img
+                          src={mon.sprites?.animated || mon.sprites?.front}
+                          alt={mon.nickname}
+                          className="vs-party-slot-img"
+                        />
+                        <span className="vs-party-slot-lvl">Lv.{mon.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Trainer Red Character Artwork */}
+              <div className="vs-player-character-anchor">
+                <img
+                  src="https://play.pokemonshowdown.com/sprites/trainers/red.png"
+                  alt="Trainer Red"
+                  className="vs-player-hero-sprite"
+                  onError={(e) => {
+                    if (activePlayerMon) {
+                      e.target.src = getAnimatedSpriteUrl(activePlayerMon.id);
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Giant Clashing VS Badge */}
+          {/* ==================================================== */}
+          {/* CENTER: 3D METALLIC GOLD ANIME "VS" EMBLEM & LIGHTNING */}
+          {/* ==================================================== */}
           <div className="vs-center-emblem">
-            <div className="vs-lightning-effect"></div>
-            <span className="vs-text">VS</span>
-            <div className="vs-subtext">{selectedLeader.city.toUpperCase()}</div>
+            <div className="vs-lightning-divider"></div>
+            <div className="vs-clash-core">
+              <span className="vs-lightning-spark spark-left">⚡</span>
+              <div className="vs-letters-wrap">
+                <span className="vs-letter-v">V</span>
+                <span className="vs-letter-s">S</span>
+              </div>
+              <span className="vs-lightning-spark spark-right">⚡</span>
+            </div>
+            <div className="vs-arena-location-pill">
+              <span>{selectedLeader.city.toUpperCase()} GYM</span>
+            </div>
+            {/* Interactive Skip / Fast Forward Button */}
+            <button
+              type="button"
+              onClick={handleSkipVsIntro}
+              className="btn-vs-skip-action"
+              title="Skip intro and start battle immediately"
+            >
+              <span>START BATTLE ➔</span>
+            </button>
           </div>
 
-          {/* Right Gym Leader Side */}
+          {/* ==================================================== */}
+          {/* RIGHT HALF: OFFICIAL KANTO GYM LEADER                */}
+          {/* ==================================================== */}
           <div
             className="vs-half vs-leader-side"
             style={{
-              background: `linear-gradient(135deg, ${selectedLeader.themeColor}44, #0f172a 90%)`,
+              "--leader-theme": selectedLeader.themeColor,
             }}
           >
-            <div className="vs-leader-info">
-              <span className="vs-tag">Gym Leader</span>
-              <h2 className="vs-name">{selectedLeader.name}</h2>
-              <p className="vs-title">{selectedLeader.title}</p>
-              <div className="vs-badge-slot">
-                <GymBadgeIcon badgeId={selectedLeader.badge.id} size={50} />
+            <div className="vs-half-inner vs-leader-inner">
+              {/* Leader Dossier Card (Left side of right half - NEVER OVERLAPPING SPRITE) */}
+              <div className="vs-leader-dossier-card">
+                <div className="vs-role-badge leader-role">
+                  <span className="role-dot leader-dot"></span>
+                  <span>
+                    GYM #{selectedLeader.order} &bull; {selectedLeader.specialtyType.toUpperCase()} LEADER
+                  </span>
+                </div>
+                <h2 className="vs-leader-hero-name">{selectedLeader.name}</h2>
+                <p className="vs-leader-hero-title">{selectedLeader.title}</p>
+
+                {/* Dedicated Badge Showcase Stand */}
+                <div className="vs-badge-pedestal-mount">
+                  <div className="badge-orbit-glow"></div>
+                  <GymBadgeIcon badgeId={selectedLeader.badge.id} size={52} />
+                  <div className="badge-pedestal-info">
+                    <span className="badge-pedestal-award-label">SANCTIONED AWARD</span>
+                    <span className="badge-pedestal-title">{selectedLeader.badge.name}</span>
+                  </div>
+                </div>
+
+                <div className="vs-leader-quote-bubble">
+                  <span>"{selectedLeader.dialogue.intro}"</span>
+                </div>
+              </div>
+
+              {/* Gym Leader Full Character Sprite (Far Right of right half) */}
+              <div className="vs-leader-character-anchor">
+                <img
+                  src={selectedLeader.spriteUrl}
+                  alt={selectedLeader.name}
+                  className="vs-leader-hero-sprite"
+                />
               </div>
             </div>
-            <img
-              src={selectedLeader.spriteUrl}
-              alt={selectedLeader.name}
-              className="vs-leader-full-sprite"
-            />
           </div>
         </div>
       </div>
@@ -747,49 +936,76 @@ export default function GymPage() {
   if (viewMode === "BATTLE" && selectedLeader && activePlayerMon && activeLeaderMon) {
     const playerHpPercent = Math.max(
       0,
-      Math.min(100, ((activePlayerMon.currentHp || 0) / activePlayerMon.maxHp) * 100)
+      Math.min(100, Math.round(((activePlayerMon.currentHp || 0) / activePlayerMon.maxHp) * 100))
     );
     const leaderHpPercent = Math.max(
       0,
-      Math.min(100, (activeLeaderMon.currentHp / activeLeaderMon.maxHp) * 100)
+      Math.min(100, Math.round((activeLeaderMon.currentHp / activeLeaderMon.maxHp) * 100))
     );
 
+    const playerHpColor =
+      playerHpPercent > 50 ? "#22c55e" : playerHpPercent > 20 ? "#eab308" : "#ef4444";
+    const leaderHpColor =
+      leaderHpPercent > 50 ? "#22c55e" : leaderHpPercent > 20 ? "#eab308" : "#ef4444";
+
+    const playerExpPercent = Math.min(
+      100,
+      Math.round(
+        ((activePlayerMon.exp || 0) /
+          (activePlayerMon.expToNextLevel || Math.pow(activePlayerMon.level + 1, 3))) *
+          100
+      )
+    );
+
+    // Available medicine in inventory
+    const availableMedicine = Object.entries(inventory)
+      .filter(([key, qty]) => qty > 0 && !key.includes("ball"))
+      .map(([key, count]) => ({ key, count }));
+
     return (
-      <div className={`gym-battle-container ${screenShake ? "camera-screen-shake" : ""}`}>
-        {/* Top Arena HUD Bar */}
-        <div className="gym-top-match-bar">
-          <div className="match-gym-title">
-            <GymBadgeIcon badgeId={selectedLeader.badge.id} size={24} />
-            <span>
-              {selectedLeader.city} Gym &bull; Leader {selectedLeader.name}
-            </span>
+      <div className="gym-battle-outer-wrap">
+        <div
+          className={`rpg-battle-arena-window gym-arena-theme ${
+            screenShake ? "camera-screen-shake" : ""
+          }`}
+        >
+          {/* Top Arena Header Bar */}
+          <div className="gym-top-match-bar">
+            <div className="match-gym-title">
+              <GymBadgeIcon badgeId={selectedLeader.badge.id} size={24} />
+              <span>
+                {selectedLeader.city} Gym &bull; Leader {selectedLeader.name}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleForfeitBattle}
+              className="btn-gym-forfeit"
+              title="Surrender and return to Gym Circuit Lobby"
+            >
+              Forfeit Match
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleForfeitBattle}
-            className="btn-gym-forfeit"
-            title="Surrender and return to Gym Lobby"
-          >
-            Forfeit Match
-          </button>
-        </div>
-
-        {/* 3D Battle Arena Environment */}
-        <BattleEnvironment biomeId={selectedLeader.arenaTheme || "gym-rock"}>
-          {/* ==================================================== */}
-          {/* OPPONENT SIDE (GYM LEADER POKÉMON + LEADER HUD) */}
-          {/* ==================================================== */}
-          <div className="battle-opponent-anchor">
-            {/* Gym Leader Multi-Pokémon Floating HUD */}
-            <div className="gym-leader-hud-card">
-              <div className="hud-header-row">
-                <div className="hud-name-box">
-                  <span className="hud-pokemon-name">
-                    {capitalize(activeLeaderMon.name)}
-                  </span>
-                  <span className="hud-pokemon-level">Lv.{activeLeaderMon.level}</span>
+          {/* 3D Battle Arena Environment */}
+          <BattleEnvironment biomeId={selectedLeader.arenaTheme || "gym-rock"}>
+            {/* ==================================================== */}
+            {/* OPPONENT SIDE (GYM LEADER POKÉMON + LEADER HUD) */}
+            {/* ==================================================== */}
+            <div className="rpg-opponent-area">
+              {/* Floating Gym Leader HUD */}
+              <div className="rpg-hud-card wild-hud gym-hud-card">
+                <div className="hud-gym-leader-sub">
+                  Gym Leader {selectedLeader.name}
                 </div>
+                <div className="hud-header">
+                  <span className="hud-name">
+                    {capitalize(activeLeaderMon.nickname || activeLeaderMon.name)}
+                  </span>
+                  <span className="hud-level">Lv.{activeLeaderMon.level}</span>
+                </div>
+
                 {/* 6 Pokéballs Roster Status */}
                 <div className="leader-party-balls-row" title="Gym Leader Reserve Pokémon">
                   {leaderRoster.map((mon, idx) => (
@@ -807,73 +1023,111 @@ export default function GymPage() {
                     </span>
                   ))}
                 </div>
-              </div>
 
-              {/* HP Bar */}
-              <div className="hud-hp-track">
-                <div
-                  className={`hud-hp-fill ${
-                    leaderHpPercent < 25
-                      ? "hp-critical"
-                      : leaderHpPercent < 50
-                      ? "hp-warning"
-                      : "hp-healthy"
-                  }`}
-                  style={{ width: `${leaderHpPercent}%` }}
-                ></div>
-              </div>
-
-              <div className="hud-sub-stats">
-                <div className="hud-type-pills">
+                <div className="hud-types">
                   {activeLeaderMon.types.map((t) => (
                     <TypeBadge key={t} type={t} size="sm" />
                   ))}
                 </div>
-                <span className="hud-hp-numbers">
-                  {activeLeaderMon.currentHp} / {activeLeaderMon.maxHp} HP
-                </span>
-              </div>
-            </div>
 
-            {/* Gym Leader Pokémon 3D Pedestal & Sprite */}
-            <BattlePedestal biomeId={selectedLeader.arenaTheme || "gym-rock"} isPlayer={false}>
-              <div className={`wild-sprite-anchor ${leaderAnim}`}>
+                <div className="hud-hp-block">
+                  <span className="hud-hp-label">HP</span>
+                  <div className="hud-hp-track">
+                    <div
+                      className="hud-hp-fill"
+                      style={{
+                        width: `${leaderHpPercent}%`,
+                        backgroundColor: leaderHpColor,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="hud-hp-number">
+                  {activeLeaderMon.currentHp} / {activeLeaderMon.maxHp}
+                </div>
+              </div>
+
+              {/* Gym Leader Pokémon 3D Pedestal & Sprite */}
+              <BattlePedestal biomeId={selectedLeader.arenaTheme || "gym-rock"} isPlayer={false}>
                 {/* Slash VFX Hit */}
-                {slashVfxOnLeader && <div className="vfx-slash-energy"></div>}
+                {slashVfxOnLeader && <div className="vfx-energy-slash"></div>}
+
+                {/* Elemental Move Particle VFX */}
+                {elementalVfx?.target === "leader" && (
+                  <ElementalVfxOverlay type={elementalVfx.type} />
+                )}
 
                 {/* Floating Damage Popup */}
                 {leaderDamagePopup && (
                   <div
-                    className={`damage-popup-text ${
-                      leaderDamagePopup.isCrit ? "popup-crit" : ""
-                    } ${leaderDamagePopup.isSuper ? "popup-super" : ""}`}
+                    className={`floating-damage-number ${
+                      leaderDamagePopup.isCrit ? "crit-damage" : ""
+                    } ${leaderDamagePopup.isSuper ? "super-damage" : ""}`}
                   >
-                    -{leaderDamagePopup.damage}
+                    {leaderDamagePopup.isCrit && <span className="crit-label">CRITICAL! </span>}
+                    {leaderDamagePopup.isSuper && (
+                      <span className="super-label">SUPER EFFECTIVE! </span>
+                    )}
+                    -{leaderDamagePopup.damage} HP
                   </div>
                 )}
 
                 <img
                   src={getAnimatedSpriteUrl(activeLeaderMon.id)}
                   alt={activeLeaderMon.name}
-                  className="battle-actor-sprite sprite-leader-active"
+                  className={`wild-battler-sprite ${leaderAnim}`}
+                  onError={(e) => {
+                    e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeLeaderMon.id}.png`;
+                  }}
                 />
-              </div>
-            </BattlePedestal>
-          </div>
+              </BattlePedestal>
+            </div>
 
-          {/* ==================================================== */}
-          {/* PLAYER SIDE (OVER-THE-SHOULDER BACK SPRITE + HUD) */}
-          {/* ==================================================== */}
-          <div className="battle-player-anchor">
-            {/* Player Floating HUD */}
-            <div className="player-hud-card">
-              <div className="hud-header-row">
-                <div className="hud-name-box">
-                  <span className="hud-pokemon-name">
-                    {activePlayerMon.nickname}
-                  </span>
-                  <span className="hud-pokemon-level">Lv.{activePlayerMon.level}</span>
+            {/* ==================================================== */}
+            {/* PLAYER SIDE (OVER-THE-SHOULDER BACK SPRITE + HUD) */}
+            {/* ==================================================== */}
+            <div className="rpg-player-area">
+              {/* Player Pokémon 3D Pedestal & Back Sprite */}
+              <BattlePedestal biomeId={selectedLeader.arenaTheme || "gym-rock"} isPlayer={true}>
+                {/* Slash Hit on Player */}
+                {slashVfxOnPlayer && <div className="vfx-energy-slash"></div>}
+
+                {/* Elemental Move Particle VFX */}
+                {elementalVfx?.target === "player" && (
+                  <ElementalVfxOverlay type={elementalVfx.type} />
+                )}
+
+                {/* Floating Damage Popup on Player */}
+                {playerDamagePopup && (
+                  <div
+                    className={`floating-damage-number player-damage-tag ${
+                      playerDamagePopup.isCrit ? "crit-damage" : ""
+                    }`}
+                  >
+                    {playerDamagePopup.isCrit && <span className="crit-label">CRITICAL! </span>}
+                    -{playerDamagePopup.damage} HP
+                  </div>
+                )}
+
+                <img
+                  src={getAnimatedBackSpriteUrl(activePlayerMon.id)}
+                  alt={activePlayerMon.name}
+                  className={`player-battler-back-sprite ${playerAnim}`}
+                  onError={(e) => {
+                    e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/back/${activePlayerMon.id}.png`;
+                  }}
+                />
+              </BattlePedestal>
+
+              {/* Player Floating HUD */}
+              <div className="rpg-hud-card player-hud gym-hud-card">
+                <div className="hud-header">
+                  <span className="hud-name">{activePlayerMon.nickname}</span>
+                  <span className="hud-level">Lv.{activePlayerMon.level}</span>
                 </div>
+
+                {/* 6 Party Balls Status */}
                 <div className="player-party-balls-row" title="Your Active Party Reserves">
                   {team.map((mon, idx) => (
                     <span
@@ -890,79 +1144,65 @@ export default function GymPage() {
                     </span>
                   ))}
                 </div>
-              </div>
 
-              {/* HP Bar */}
-              <div className="hud-hp-track">
-                <div
-                  className={`hud-hp-fill ${
-                    playerHpPercent < 25
-                      ? "hp-critical"
-                      : playerHpPercent < 50
-                      ? "hp-warning"
-                      : "hp-healthy"
-                  }`}
-                  style={{ width: `${playerHpPercent}%` }}
-                ></div>
-              </div>
-
-              <div className="hud-sub-stats">
-                <div className="hud-type-pills">
-                  {activePlayerMon.types.map((t) => (
+                <div className="hud-types">
+                  {activePlayerMon.types?.map((t) => (
                     <TypeBadge key={t} type={t} size="sm" />
                   ))}
                 </div>
-                <span className="hud-hp-numbers">
-                  {activePlayerMon.currentHp} / {activePlayerMon.maxHp} HP
-                </span>
+
+                <div className="hud-hp-block">
+                  <span className="hud-hp-label">HP</span>
+                  <div className="hud-hp-track">
+                    <div
+                      className="hud-hp-fill"
+                      style={{
+                        width: `${playerHpPercent}%`,
+                        backgroundColor: playerHpColor,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="hud-hp-number">
+                  {activePlayerMon.currentHp} / {activePlayerMon.maxHp}
+                </div>
+
+                {/* EXP Gauge */}
+                <div className="hud-exp-row">
+                  <span className="exp-label">EXP</span>
+                  <div className="hud-exp-track">
+                    <div
+                      className="hud-exp-fill"
+                      style={{ width: `${playerExpPercent}%` }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             </div>
+          </BattleEnvironment>
 
-            {/* Player Pokémon 3D Pedestal & Showdown Back Sprite */}
-            <BattlePedestal biomeId={selectedLeader.arenaTheme || "gym-rock"} isPlayer={true}>
-              <div className={`player-sprite-anchor ${playerAnim}`}>
-                {/* Slash Hit on Player */}
-                {slashVfxOnPlayer && <div className="vfx-slash-energy"></div>}
-
-                {/* Floating Damage Popup on Player */}
-                {playerDamagePopup && (
-                  <div
-                    className={`damage-popup-text ${
-                      playerDamagePopup.isCrit ? "popup-crit" : ""
-                    }`}
-                  >
-                    -{playerDamagePopup.damage}
-                  </div>
-                )}
-
-                <img
-                  src={getAnimatedBackSpriteUrl(activePlayerMon.id)}
-                  alt={activePlayerMon.name}
-                  className="battle-actor-sprite sprite-player-back"
-                />
-              </div>
-            </BattlePedestal>
-          </div>
-        </BattleEnvironment>
-
-        {/* ==================================================== */}
-        {/* RETRO ACTION DIALOGUE & 4-COMMAND RPG HUB */}
-        {/* ==================================================== */}
-        <div className="rpg-battle-bottom-deck">
-          {/* Retro Narrative Dialogue Box */}
-          <div className="rpg-dialogue-screen">
-            <p className="rpg-narrative-text">{battleDialogue}</p>
+          {/* ==================================================== */}
+          {/* RETRO ACTION DIALOGUE BOX (Classic RPG Narration)        */}
+          {/* ==================================================== */}
+          <div className="rpg-dialogue-box-container">
+            <div className="rpg-dialogue-text">
+              <span className="dialogue-arrow">▶</span>{" "}
+              {battleDialogue || `What will ${activePlayerMon.nickname.toUpperCase()} do?`}
+            </div>
           </div>
 
-          {/* Action Command Hub */}
-          <div className="rpg-command-deck">
-            {/* SUB-MENU: 4 MAIN BUTTONS */}
+          {/* ==================================================== */}
+          {/* RPG COMMAND HUB & MENU SELECTION (4 Classic Commands)     */}
+          {/* ==================================================== */}
+          <div className="rpg-command-panel">
+            {/* 1. Main 4 Commands Screen */}
             {battleSubMenu === "MENU" && (
-              <div className="rpg-main-menu-grid">
+              <div className="rpg-commands-grid">
                 <button
                   type="button"
                   onClick={() => setBattleSubMenu("FIGHT")}
-                  className="rpg-cmd-btn btn-cmd-fight"
+                  className="rpg-cmd-btn cmd-fight"
                 >
                   <IconSwords size={20} />
                   <span>FIGHT</span>
@@ -971,7 +1211,7 @@ export default function GymPage() {
                 <button
                   type="button"
                   onClick={() => setBattleSubMenu("BAG")}
-                  className="rpg-cmd-btn btn-cmd-bag"
+                  className="rpg-cmd-btn cmd-bag"
                 >
                   <IconBackpack size={20} />
                   <span>BAG</span>
@@ -980,7 +1220,7 @@ export default function GymPage() {
                 <button
                   type="button"
                   onClick={() => setBattleSubMenu("SWITCH")}
-                  className="rpg-cmd-btn btn-cmd-party"
+                  className="rpg-cmd-btn cmd-pokemon"
                 >
                   <IconParty size={20} />
                   <span>POKÉMON</span>
@@ -989,7 +1229,7 @@ export default function GymPage() {
                 <button
                   type="button"
                   onClick={handleForfeitBattle}
-                  className="rpg-cmd-btn btn-cmd-run"
+                  className="rpg-cmd-btn cmd-run"
                 >
                   <IconCross size={20} />
                   <span>FORFEIT</span>
@@ -997,9 +1237,9 @@ export default function GymPage() {
               </div>
             )}
 
-            {/* SUB-MENU: FIGHT 4 MOVES */}
+            {/* 2. Moves 2x2 Selection Grid with PP */}
             {battleSubMenu === "FIGHT" && (
-              <div className="rpg-moves-deck">
+              <div className="rpg-moves-wrapper">
                 <div className="moves-2x2-grid">
                   {playerMoves.map((m, idx) => (
                     <button
@@ -1007,16 +1247,16 @@ export default function GymPage() {
                       type="button"
                       onClick={() => handlePlayerSelectMove(m)}
                       disabled={m.currentPp <= 0}
-                      className="rpg-move-action-btn"
+                      className={`rpg-move-btn ${m.currentPp <= 0 ? "move-no-pp" : ""}`}
                     >
-                      <div className="move-title-row">
-                        <span className="move-btn-name">{m.name}</span>
+                      <div className="move-name-row">
+                        <span className="move-name">{m.name}</span>
                         <TypeBadge type={m.type} size="sm" />
                       </div>
-                      <div className="move-pp-row">
-                        <span className="move-pp-label">PP</span>
-                        <span className={`move-pp-val ${m.currentPp === 0 ? "pp-empty" : ""}`}>
-                          {m.currentPp} / {m.maxPp}
+                      <div className="move-stats-row">
+                        <span className="move-power">PWR: {m.power}</span>
+                        <span className="move-pp">
+                          PP: <strong>{m.currentPp}</strong>/{m.maxPp}
                         </span>
                       </div>
                     </button>
@@ -1025,80 +1265,104 @@ export default function GymPage() {
                 <button
                   type="button"
                   onClick={() => setBattleSubMenu("MENU")}
-                  className="btn-rpg-back-sub"
+                  className="btn-cancel-moves"
                 >
-                  &larr; Back
+                  &lsaquo; Back to Commands
                 </button>
               </div>
             )}
 
-            {/* SUB-MENU: BAG (MEDICINE & NO-STEAL RULE) */}
+            {/* 3. In-Battle Bag Drawer (Medicine & No-Steal Rule) */}
             {battleSubMenu === "BAG" && (
-              <div className="rpg-bag-deck">
-                <div className="bag-items-list-row">
-                  {Object.entries(inventory)
-                    .filter(([, qty]) => qty > 0)
-                    .map(([key, qty]) => (
+              <div className="rpg-bag-drawer">
+                <div className="bag-tabs-header">
+                  <span>Available Medicine & Potions:</span>
+                  <button
+                    type="button"
+                    onClick={() => setBattleSubMenu("MENU")}
+                    className="btn-close-subdrawer"
+                  >
+                    <IconX size={16} />
+                  </button>
+                </div>
+                <div className="bag-items-grid">
+                  {availableMedicine.length === 0 ? (
+                    <div className="empty-pocket-msg">No medicine or potions in Bag!</div>
+                  ) : (
+                    availableMedicine.map((item) => (
                       <button
-                        key={key}
+                        key={item.key}
                         type="button"
-                        onClick={() => handleUseBagItem(key)}
-                        className="bag-item-action-pill"
+                        onClick={() => handleUseBagItem(item.key)}
+                        className="bag-item-card"
                       >
-                        <span className="bag-item-name">{capitalize(key.replace(/-/g, " "))}</span>
-                        <span className="bag-item-qty">x{qty}</span>
-                      </button>
-                    ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setBattleSubMenu("MENU")}
-                  className="btn-rpg-back-sub"
-                >
-                  &larr; Back
-                </button>
-              </div>
-            )}
-
-            {/* SUB-MENU: MID-BATTLE PARTY SWITCH */}
-            {battleSubMenu === "SWITCH" && (
-              <div className="rpg-switch-deck">
-                <div className="switch-team-scroll">
-                  {team.map((mon, idx) => (
-                    <button
-                      key={mon.instanceId}
-                      type="button"
-                      onClick={() => handleSwitchPokemon(idx)}
-                      disabled={idx === activePartyIndex || (mon.currentHp || 0) <= 0}
-                      className={`switch-mon-card ${
-                        idx === activePartyIndex ? "switch-mon-current" : ""
-                      } ${(mon.currentHp || 0) <= 0 ? "switch-mon-fainted" : ""}`}
-                    >
-                      <img
-                        src={mon.sprites.animated || mon.sprites.front}
-                        alt={mon.nickname}
-                        className="switch-mon-icon"
-                      />
-                      <div className="switch-mon-meta">
-                        <span className="switch-mon-name">{mon.nickname}</span>
-                        <span className="switch-mon-hp">
-                          {mon.currentHp} / {mon.maxHp} HP
+                        <img
+                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${item.key}.png`}
+                          alt={item.key}
+                          className="item-sprite-sm"
+                        />
+                        <span className="item-label">
+                          {capitalize(item.key.replace(/-/g, " "))}
                         </span>
-                      </div>
-                    </button>
-                  ))}
+                        <span className="item-qty">x{item.count}</span>
+                      </button>
+                    ))
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setBattleSubMenu("MENU")}
-                  className="btn-rpg-back-sub"
-                >
-                  &larr; Back
-                </button>
               </div>
             )}
 
-            {/* SUB-MENU: BUSY ANIMATION WAIT */}
+            {/* 4. In-Battle Pokémon Switcher Drawer */}
+            {battleSubMenu === "SWITCH" && (
+              <div className="rpg-party-drawer">
+                <div className="party-drawer-header">
+                  <span>Select Pokémon to Send Out:</span>
+                  {activePlayerMon?.currentHp > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setBattleSubMenu("MENU")}
+                      className="btn-close-subdrawer"
+                    >
+                      <IconX size={16} />
+                    </button>
+                  )}
+                </div>
+                <div className="party-members-grid">
+                  {team.map((pokemon, idx) => {
+                    const isCurrent = idx === activePartyIndex;
+                    const isFainted = (pokemon.currentHp || 0) <= 0;
+                    return (
+                      <button
+                        key={pokemon.instanceId}
+                        type="button"
+                        disabled={isCurrent || isFainted}
+                        onClick={() => handleSwitchPokemon(idx)}
+                        className={`party-switch-card ${isCurrent ? "current-leader" : ""} ${
+                          isFainted ? "fainted-pokemon" : ""
+                        }`}
+                      >
+                        <img
+                          src={pokemon.sprites?.animated || pokemon.sprites?.front}
+                          alt={pokemon.name}
+                          className="party-switch-sprite"
+                        />
+                        <div className="party-switch-info">
+                          <span className="switch-name">{pokemon.nickname}</span>
+                          <span className="switch-level">Lv.{pokemon.level}</span>
+                          <span className="switch-hp">
+                            HP: {pokemon.currentHp}/{pokemon.maxHp}
+                          </span>
+                        </div>
+                        {isCurrent && <span className="current-tag">ACTIVE</span>}
+                        {isFainted && <span className="faint-tag">FAINTED</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 5. Busy indicator */}
             {battleSubMenu === "BUSY" && (
               <div className="rpg-busy-indicator">
                 <span className="busy-dot dot-1">●</span>
