@@ -31,6 +31,7 @@ import {
 } from "../utils/soundEffects.js";
 import { getPokemonMoves, pickWildMove } from "../data/pokemonMoves.js";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
+import { BattleEnvironment, BattlePedestal } from "../components/BattleEnvironment.jsx";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
   IconTrees,
@@ -774,7 +775,7 @@ function WildernessPage() {
             </div>
 
             {/* Cinematic 3D Battlefield Stage (Face-to-Face POV) */}
-            <div className={`rpg-battlefield-stage biome-bg-${selectedBiome.id}`}>
+            <BattleEnvironment biomeId={selectedBiome.id}>
               {/* Distance: Opponent Platform (Center-Right, Face-to-Face) */}
               <div className="rpg-opponent-area">
                 {/* Wild Pokémon RPG Status HUD (Floating Upper-Left) */}
@@ -811,9 +812,7 @@ function WildernessPage() {
                 </div>
 
                 {/* Wild Ground Pedestal & Sprite */}
-                <div className="rpg-pedestal-container wild-pedestal">
-                  <div className="ground-pedestal-shadow"></div>
-
+                <BattlePedestal biomeId={selectedBiome.id} isPlayer={false}>
                   {/* Impact Slash VFX on Wild */}
                   {slashVfxOnWild && <div className="vfx-energy-slash"></div>}
 
@@ -863,16 +862,14 @@ function WildernessPage() {
                       e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${activeEncounter.id}.png`;
                     }}
                   />
-                </div>
+                </BattlePedestal>
               </div>
 
               {/* Foreground: Player Leader Platform (Lower-Left Over-The-Shoulder POV) */}
               {leaderPokemon && (
                 <div className="rpg-player-area">
                   {/* Player Ground Pedestal & Back Sprite */}
-                  <div className="rpg-pedestal-container player-pedestal">
-                    <div className="ground-pedestal-shadow"></div>
-
+                  <BattlePedestal biomeId={selectedBiome.id} isPlayer={true}>
                     {/* Impact Slash VFX on Player */}
                     {slashVfxOnPlayer && <div className="vfx-energy-slash"></div>}
 
@@ -900,7 +897,7 @@ function WildernessPage() {
                         e.target.src = getBackSpriteUrl(leaderPokemon.id);
                       }}
                     />
-                  </div>
+                  </BattlePedestal>
 
                   {/* Player RPG Status HUD (Floating Lower-Right) */}
                   <div className="rpg-hud-card player-hud">
@@ -951,7 +948,7 @@ function WildernessPage() {
                   </div>
                 </div>
               )}
-            </div>
+            </BattleEnvironment>
 
             {/* ======================================================== */}
             {/* RETRO ACTION DIALOGUE BOX (Classic RPG Narration)        */}

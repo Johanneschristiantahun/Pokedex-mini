@@ -4117,35 +4117,210 @@ body {
    ======================================================== */
 .rpg-battlefield-stage {
   position: relative;
-  height: 340px;
+  height: 380px;
   overflow: hidden;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 16px 24px;
-  background-size: cover;
-  background-position: center;
 }
 
-/* Biome Stage Backdrops */
-.biome-bg-viridian-forest {
-  background: linear-gradient(180deg, #064e3b 0%, #065f46 45%, #15803d 75%, #166534 100%);
+/* 1. Backdrop Layer (Sky & Landscape SVG) */
+.env-backdrop-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.biome-bg-mt-moon {
-  background: linear-gradient(180deg, #1e1b4b 0%, #2e1065 45%, #3b0764 75%, #1e293b 100%);
+.env-scenery-wrap,
+.env-svg-scenery {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
-.biome-bg-seafoam-coast {
-  background: linear-gradient(180deg, #0c4a6e 0%, #0284c7 40%, #38bdf8 70%, #0369a1 100%);
+/* 2. Ambient Particles Layer */
+.env-particles-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-.biome-bg-rock-tunnel {
-  background: linear-gradient(180deg, #450a0a 0%, #7f1d1d 40%, #991b1b 75%, #27272a 100%);
+.env-particles-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
-.biome-bg-power-plant {
-  background: linear-gradient(180deg, #0f172a 0%, #1e293b 40%, #334155 75%, #854d0e 100%);
+.particle {
+  position: absolute;
+  user-select: none;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Leaves Particle Animation */
+.particle-leaf {
+  font-size: 1.1rem;
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.leaf-1 { top: -10px; left: 15%; animation: floatLeaf 6s infinite ease-in-out; }
+.leaf-2 { top: -10px; left: 45%; animation: floatLeaf 8s 1.5s infinite ease-in-out; }
+.leaf-3 { top: -10px; left: 75%; animation: floatLeaf 7s 3s infinite ease-in-out; }
+.leaf-4 { top: -10px; left: 30%; animation: floatLeaf 9s 0.8s infinite ease-in-out; }
+.leaf-5 { top: -10px; left: 88%; animation: floatLeaf 7.5s 2.2s infinite ease-in-out; }
+
+@keyframes floatLeaf {
+  0% {
+    transform: translateY(-20px) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(180px) translateX(40px) rotate(180deg);
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(400px) translateX(80px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Crystal Glint Particle Animation */
+.particle-glint {
+  color: #38bdf8;
+  font-size: 1rem;
+  filter: drop-shadow(0 0 6px #7dd3fc);
+}
+
+.glint-1 { top: 25%; left: 22%; animation: glintTwinkle 3s infinite ease-in-out; }
+.glint-2 { top: 40%; left: 72%; animation: glintTwinkle 4s 1s infinite ease-in-out; color: #f0abfc; filter: drop-shadow(0 0 6px #e879f9); }
+.glint-3 { top: 15%; left: 55%; animation: glintTwinkle 3.5s 2s infinite ease-in-out; }
+.glint-4 { top: 60%; left: 35%; animation: glintTwinkle 4.5s 0.5s infinite ease-in-out; color: #f0abfc; filter: drop-shadow(0 0 6px #e879f9); }
+
+@keyframes glintTwinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* Seafoam Water Bubbles Animation */
+.particle-bubble {
+  color: #bae6fd;
+  font-size: 1.1rem;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 4px #38bdf8);
+}
+
+.bubble-1 { bottom: 10px; left: 20%; animation: seaBubble 5s infinite ease-in; }
+.bubble-2 { bottom: 10px; left: 50%; animation: seaBubble 6s 1.8s infinite ease-in; font-size: 0.8rem; }
+.bubble-3 { bottom: 10px; left: 80%; animation: seaBubble 4.5s 3.2s infinite ease-in; }
+.bubble-4 { bottom: 10px; left: 35%; animation: seaBubble 5.5s 0.9s infinite ease-in; font-size: 0.8rem; }
+
+@keyframes seaBubble {
+  0% { transform: translateY(0) scale(0.6); opacity: 0; }
+  20% { opacity: 0.75; }
+  80% { opacity: 0.6; }
+  100% { transform: translateY(-260px) scale(1.2); opacity: 0; }
+}
+
+/* Volcano Embers Animation */
+.particle-ember {
+  color: #f97316;
+  font-size: 0.9rem;
+  filter: drop-shadow(0 0 6px #ea580c);
+}
+
+.ember-1 { bottom: 10px; left: 15%; animation: emberDrift 4s infinite ease-out; }
+.ember-2 { bottom: 10px; left: 35%; animation: emberDrift 5s 1s infinite ease-out; color: #facc15; font-size: 0.6rem; }
+.ember-3 { bottom: 10px; left: 65%; animation: emberDrift 4.5s 2.2s infinite ease-out; }
+.ember-4 { bottom: 10px; left: 82%; animation: emberDrift 5.5s 0.5s infinite ease-out; color: #ef4444; font-size: 0.75rem; }
+.ember-5 { bottom: 10px; left: 48%; animation: emberDrift 4.8s 3s infinite ease-out; color: #facc15; font-size: 0.5rem; }
+
+@keyframes emberDrift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  15% { opacity: 0.9; }
+  50% { transform: translateY(-120px) translateX(15px); }
+  85% { opacity: 0.7; }
+  100% { transform: translateY(-280px) translateX(-20px); opacity: 0; }
+}
+
+/* Power Plant Electric Spark Jitter */
+.particle-spark {
+  color: #fde047;
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 8px #facc15);
+}
+
+.spark-1 { top: 30%; left: 24%; animation: sparkJitter 3s infinite; }
+.spark-2 { top: 22%; left: 74%; animation: sparkJitter 4s 1.2s infinite; }
+.spark-3 { top: 55%; left: 52%; animation: sparkJitter 3.5s 2.1s infinite; }
+
+@keyframes sparkJitter {
+  0%, 90%, 100% { opacity: 0; transform: scale(0.5); }
+  92% { opacity: 1; transform: scale(1.3) rotate(15deg); }
+  94% { opacity: 0.2; transform: scale(0.8) rotate(-10deg); }
+  96% { opacity: 1; transform: scale(1.2) rotate(5deg); }
+  98% { opacity: 0; }
+}
+
+/* 3. 3D Perspective Ground Plane */
+.env-ground-plane {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  z-index: 3;
+  pointer-events: none;
+  transform: perspective(500px) rotateX(20deg);
+  transform-origin: bottom center;
+}
+
+.ground-type-viridian-forest {
+  background: radial-gradient(ellipse at 50% 90%, #15803d 0%, #166534 40%, #14532d 75%, #052e16 100%);
+  box-shadow: inset 0 20px 40px rgba(5, 46, 22, 0.7);
+}
+
+.ground-type-mt-moon {
+  background: radial-gradient(ellipse at 50% 90%, #312e81 0%, #1e1b4b 45%, #0f172a 80%, #020617 100%);
+  box-shadow: inset 0 20px 40px rgba(2, 6, 23, 0.8);
+}
+
+.ground-type-seafoam-coast {
+  background: radial-gradient(ellipse at 50% 90%, #ca8a04 0%, #a16207 35%, #0369a1 70%, #075985 100%);
+  box-shadow: inset 0 20px 40px rgba(12, 74, 110, 0.6);
+}
+
+.ground-type-cinnabar-volcano {
+  background: radial-gradient(ellipse at 50% 90%, #7f1d1d 0%, #450a0a 45%, #1c1917 80%, #0c0a09 100%);
+  box-shadow: inset 0 20px 40px rgba(12, 10, 9, 0.8), inset 0 -15px 30px rgba(249, 115, 22, 0.35);
+}
+
+.ground-type-kanto-power-plant {
+  background: radial-gradient(ellipse at 50% 90%, #334155 0%, #1e293b 45%, #0f172a 80%, #020617 100%);
+  box-shadow: inset 0 20px 40px rgba(2, 6, 23, 0.8), inset 0 -10px 25px rgba(250, 204, 21, 0.25);
+}
+
+/* 4. Actors Stage Layer */
+.env-actors-stage {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 20px;
 }
 
 /* Opponent Area (Face-to-Face Center-Right) */
@@ -4279,39 +4454,148 @@ body {
   transition: width 0.4s ease;
 }
 
-/* Pedestals & Battler Sprites */
-.rpg-pedestal-container {
+/* ========================================================
+   AUTHENTIC 3D RAISED BATTLE PEDESTALS
+   ======================================================== */
+
+.rpg-battle-pedestal-root {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.wild-pedestal {
-  width: 160px;
-  height: 140px;
-  margin-right: 20px;
-}
-
-.player-pedestal {
+.pedestal-wild-side {
   width: 170px;
   height: 150px;
+  margin-right: 15px;
+}
+
+.pedestal-player-side {
+  width: 200px;
+  height: 165px;
   margin-left: 10px;
 }
 
-.ground-pedestal-shadow {
+.pedestal-3d-base {
   position: absolute;
-  bottom: 6px;
-  width: 140px;
-  height: 38px;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 70%);
-  border-radius: 50%;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   z-index: 1;
+  pointer-events: none;
 }
 
-.player-pedestal .ground-pedestal-shadow {
-  width: 160px;
-  height: 44px;
+.pedestal-back {
+  width: 150px;
+}
+
+.pedestal-front {
+  width: 185px;
+}
+
+/* Pedestal Surface (Top Oval) */
+.pedestal-surface {
+  width: 100%;
+  height: 42px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.4);
+}
+
+/* Pedestal Depth Lip (3D Layer below oval) */
+.pedestal-depth-lip {
+  width: 100%;
+  height: 14px;
+  margin-top: -21px;
+  border-radius: 0 0 50% 50%;
+  z-index: -1;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.pedestal-ground-shadow {
+  position: absolute;
+  bottom: -6px;
+  width: 110%;
+  height: 24px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 70%);
+  border-radius: 50%;
+  z-index: -2;
+}
+
+/* Biome 1: Viridian Forest - Raised Grass Turf */
+.pedestal-theme-viridian-forest .pedestal-surface {
+  background: radial-gradient(ellipse at 50% 40%, #86efac 0%, #22c55e 55%, #15803d 100%);
+  border: 3px solid #bbf7d0;
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.5), 0 0 16px rgba(34, 197, 94, 0.45);
+}
+
+.pedestal-theme-viridian-forest .pedestal-depth-lip {
+  background: linear-gradient(180deg, #78350f 0%, #451a03 100%);
+  border-bottom: 2px solid #291002;
+}
+
+/* Biome 2: Mt. Moon - Chiseled Crystal Bedrock */
+.pedestal-theme-mt-moon .pedestal-surface {
+  background: radial-gradient(ellipse at 50% 40%, #a5b4fc 0%, #6366f1 50%, #312e81 100%);
+  border: 3px solid #c7d2fe;
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.6), 0 0 20px rgba(99, 102, 241, 0.55);
+}
+
+.pedestal-theme-mt-moon .pedestal-depth-lip {
+  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+  border-bottom: 2px solid #020617;
+}
+
+/* Biome 3: Seafoam Coast - Foaming Water Ripple Basin */
+.pedestal-theme-seafoam-coast .pedestal-surface {
+  background: radial-gradient(ellipse at 50% 40%, #7dd3fc 0%, #0284c7 50%, #0369a1 100%);
+  border: 3px solid #e0f2fe;
+  box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.7), 0 0 22px rgba(56, 189, 248, 0.6);
+}
+
+.pedestal-theme-seafoam-coast .pedestal-depth-lip {
+  background: linear-gradient(180deg, #ca8a04 0%, #854d0e 100%);
+  border-bottom: 2px solid #713f12;
+}
+
+/* Biome 4: Cinnabar Volcano - Scorched Basalt & Magma Crack */
+.pedestal-theme-cinnabar-volcano .pedestal-surface {
+  background: radial-gradient(ellipse at 50% 40%, #fdba74 0%, #ea580c 45%, #292524 100%);
+  border: 3px solid #fb923c;
+  box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.6), 0 0 25px rgba(249, 115, 22, 0.7);
+}
+
+.pedestal-theme-cinnabar-volcano .pedestal-depth-lip {
+  background: linear-gradient(180deg, #991b1b 0%, #450a0a 100%);
+  border-bottom: 2px solid #18181b;
+}
+
+/* Biome 5: Power Plant - Hexagonal High-Tech Circuit Plate */
+.pedestal-theme-kanto-power-plant .pedestal-surface {
+  background: radial-gradient(ellipse at 50% 40%, #fef08a 0%, #eab308 30%, #334155 75%, #0f172a 100%);
+  border: 3px solid #facc15;
+  box-shadow: inset 0 3px 6px rgba(255, 255, 255, 0.6), 0 0 22px rgba(250, 204, 21, 0.65);
+}
+
+.pedestal-theme-kanto-power-plant .pedestal-depth-lip {
+  background: linear-gradient(180deg, #1e293b 0%, #020617 100%);
+  border-bottom: 2px solid #0f172a;
+}
+
+/* Battler Mount (Sprite & VFX seated on pedestal) */
+.pedestal-content-mount {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 .wild-battler-sprite {
