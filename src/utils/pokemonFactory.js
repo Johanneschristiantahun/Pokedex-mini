@@ -81,69 +81,74 @@ export const STARTER_POKEMON = [
   },
 ];
 
-// Evolution Stone Map for authentic Pokémon stone evolutions
-export const EVOLUTION_STONE_MAP = {
-  "pikachu": {
-    "thunder-stone": {
-      id: 26,
-      name: "raichu",
-      types: ["electric"],
-      baseStats: { hp: 60, attack: 90, defense: 55, spAttack: 90, spDefense: 80, speed: 110 },
-    },
-  },
-  "eevee": {
-    "fire-stone": {
-      id: 136,
-      name: "flareon",
-      types: ["fire"],
-      baseStats: { hp: 65, attack: 130, defense: 60, spAttack: 95, spDefense: 110, speed: 65 },
-    },
-    "water-stone": {
-      id: 134,
-      name: "vaporeon",
-      types: ["water"],
-      baseStats: { hp: 130, attack: 65, defense: 60, spAttack: 110, spDefense: 95, speed: 65 },
-    },
-    "thunder-stone": {
-      id: 135,
-      name: "jolteon",
-      types: ["electric"],
-      baseStats: { hp: 65, attack: 65, defense: 60, spAttack: 110, spDefense: 95, speed: 130 },
-    },
-  },
-  "vulpix": {
-    "fire-stone": {
-      id: 38,
-      name: "ninetales",
-      types: ["fire"],
-      baseStats: { hp: 73, attack: 76, defense: 75, spAttack: 81, spDefense: 100, speed: 100 },
-    },
-  },
-  "gloom": {
-    "leaf-stone": {
-      id: 45,
-      name: "vileplume",
-      types: ["grass", "poison"],
-      baseStats: { hp: 75, attack: 80, defense: 85, spAttack: 110, spDefense: 90, speed: 50 },
-    },
-  },
-  "clefairy": {
-    "moon-stone": {
-      id: 36,
-      name: "clefable",
-      types: ["fairy"],
-      baseStats: { hp: 95, attack: 70, defense: 73, spAttack: 95, spDefense: 90, speed: 60 },
-    },
-  },
-  "jigglypuff": {
-    "moon-stone": {
-      id: 40,
-      name: "wigglytuff",
-      types: ["normal", "fairy"],
-      baseStats: { hp: 140, attack: 70, defense: 45, spAttack: 85, spDefense: 50, speed: 45 },
-    },
-  },
+import {
+  LEVEL_UP_EVOLUTIONS,
+  STONE_EVOLUTIONS,
+  checkLevelEvolution,
+  checkStoneEvolution,
+} from "../data/evolutionData.js";
+import {
+  getAnimatedShinySpriteUrl,
+  getArtworkShinyUrl,
+} from "../utils.js";
+
+export {
+  LEVEL_UP_EVOLUTIONS,
+  STONE_EVOLUTIONS,
+  checkLevelEvolution,
+  checkStoneEvolution,
 };
+
+// Backward-compatible alias for existing imports
+export const EVOLUTION_STONE_MAP = STONE_EVOLUTIONS;
+
+// Evolve a Pokemon instance into its target evolution form
+export function evolvePokemonInstance(pokemon, targetEvo) {
+  if (!pokemon || !targetEvo) return pokemon;
+
+  const targetId = targetEvo.targetId;
+  const targetName = targetEvo.targetName.toLowerCase();
+  const baseStats = targetEvo.baseStats || pokemon.baseStats;
+  const level = pokemon.level || 5;
+
+  const newMaxHp = calculateHp(baseStats.hp, level);
+  const hpIncrease = Math.max(0, newMaxHp - (pokemon.maxHp || newMaxHp));
+  const newCurrentHp = Math.min(newMaxHp, (pokemon.currentHp || newMaxHp) + hpIncrease);
+
+  // If nickname was the old default species name, update to new species name
+  const wasDefaultNickname =
+    !pokemon.nickname ||
+    pokemon.nickname.toLowerCase() === pokemon.name.toLowerCase();
+  const nextNickname = wasDefaultNickname ? capitalize(targetName) : pokemon.nickname;
+
+  const isShiny = Boolean(pokemon.isShiny);
+
+  return {
+    ...pokemon,
+    id: targetId,
+    name: targetName,
+    nickname: nextNickname,
+    types: targetEvo.types || pokemon.types,
+    baseStats: baseStats,
+    maxHp: newMaxHp,
+    currentHp: newCurrentHp,
+    attack: calculateStat(baseStats.attack, level),
+    defense: calculateStat(baseStats.defense, level),
+    spAttack: calculateStat(baseStats.spAttack, level),
+    spDefense: calculateStat(baseStats.spDefense, level),
+    speed: calculateStat(baseStats.speed, level),
+    sprites: {
+      animated: isShiny
+        ? getAnimatedShinySpriteUrl(targetId)
+        : getAnimatedSpriteUrl(targetId),
+      static: getSpriteUrl(targetId),
+      artwork: isShiny
+        ? getArtworkShinyUrl(targetId)
+        : getArtworkUrl(targetId),
+      backAnimated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/back/${targetId}.gif`,
+    },
+  };
+}
 
 // Recalculates stats for a Pokemon when it levels up or evolves
 export function recalculatePokemonStats(pokemon, newLevel, newBaseStats = null) {

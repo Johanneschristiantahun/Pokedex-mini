@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route } from "react-router-dom";
+import { useGame } from "./context/GameContext.jsx";
 import Layout from "./components/Layout.jsx";
 import ListPage from "./pages/ListPage.jsx";
 import DetailPage from "./pages/DetailPage.jsx";
@@ -6,15 +7,23 @@ import TeamPage from "./pages/TeamPage.jsx";
 import BagAndMartPage from "./pages/BagAndMartPage.jsx";
 import WildernessPage from "./pages/WildernessPage.jsx";
 import GymPage from "./pages/GymPage.jsx";
+import LeaguePage from "./pages/LeaguePage.jsx";
+import ComparePage from "./pages/ComparePage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
-import PlaceholderPage from "./pages/PlaceholderPage.jsx";
 import StarterModal from "./components/StarterModal.jsx";
-import { IconScale } from "./components/Icons.jsx";
+import EvolutionModal from "./components/EvolutionModal.jsx";
 
 function App() {
+  const { pendingEvolution, completeEvolution, cancelEvolution } = useGame();
+
   return (
     <HashRouter>
       <StarterModal />
+      <EvolutionModal
+        pendingEvolution={pendingEvolution}
+        onComplete={completeEvolution}
+        onCancel={cancelEvolution}
+      />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<ListPage />} />
@@ -24,24 +33,9 @@ function App() {
           <Route path="/wilderness" element={<WildernessPage />} />
           <Route path="/gym" element={<GymPage />} />
           <Route path="/battle" element={<GymPage />} />
-
-          <Route
-            path="/compare"
-            element={
-              <PlaceholderPage
-                title="Pro Comparison Tool"
-                stage="Stage 6"
-                icon={IconScale}
-                description="Compare any two Pokémon head-to-head with stat visualization and type advantage analysis."
-                features={[
-                  "Side-by-side base stat comparison bars",
-                  "Type matchup calculator (Super Effective / Weaknesses)",
-                  "Movepool overlap and physical trait analysis",
-                ]}
-              />
-            }
-          />
-
+          <Route path="/league" element={<LeaguePage />} />
+          <Route path="/championship" element={<LeaguePage />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

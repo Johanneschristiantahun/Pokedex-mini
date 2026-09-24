@@ -8,6 +8,7 @@ import {
   IconHeart,
   IconPotion,
   IconCrown,
+  IconTrophy,
   IconPencil,
   IconCheck,
   IconBackpack,
@@ -20,7 +21,7 @@ import {
   IconParty,
 } from "../components/Icons.jsx";
 import { playHealingJingle } from "../utils/soundEffects.js";
-import { capitalize, getTypeColor, formatPokemonId } from "../utils.js";
+import { capitalize, getTypeColor, formatPokemonId, getAnimatedSpriteUrl } from "../utils.js";
 import { calculateExpNeeded } from "../utils/pokemonFactory.js";
 import GymBadgeIcon from "../components/GymBadgeIcons.jsx";
 
@@ -52,6 +53,7 @@ function TeamPage() {
     releaseFromBox,
     setTrainerName,
     resetGameSession,
+    hallOfFame,
   } = useGame();
 
   const [activeTab, setActiveTab] = useState("party"); // "party" | "box"
@@ -228,6 +230,49 @@ function TeamPage() {
             })}
           </div>
         </div>
+
+        {/* Hall of Fame Inductions Showcase Panel */}
+        {hallOfFame && hallOfFame.length > 0 && (
+          <div className="trainer-hof-panel">
+            <div className="hof-panel-header">
+              <div className="hof-header-left">
+                <IconTrophy size={18} className="hof-trophy-svg" />
+                <span className="case-title">
+                  Hall of Fame Inductions ({hallOfFame.length} Titles)
+                </span>
+              </div>
+              <Link to="/league" className="case-gym-link">
+                Indigo Plateau &rarr;
+              </Link>
+            </div>
+            <div className="hof-entries-list">
+              {hallOfFame.map((entry) => (
+                <div key={entry.id} className="hof-record-card">
+                  <div className="hof-record-meta">
+                    <span className="hof-record-date">🏆 {entry.date}</span>
+                    <span className="hof-record-champ">Champion: <strong>{entry.trainerName}</strong></span>
+                  </div>
+                  <div className="hof-record-sprites">
+                    {entry.team?.map((mon, mIdx) => (
+                      <div
+                        key={mIdx}
+                        className="hof-mon-thumbnail"
+                        title={`${mon.nickname} (Lv. ${mon.level})`}
+                      >
+                        <img
+                          src={getAnimatedSpriteUrl(mon.id)}
+                          alt={mon.name}
+                          className="hof-thumb-img"
+                        />
+                        <span className="hof-thumb-lvl">Lv.{mon.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Team vs PC Storage Box Tab Switcher */}

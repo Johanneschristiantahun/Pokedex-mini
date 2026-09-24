@@ -152,6 +152,20 @@ export function playEvolutionJingle() {
   });
 }
 
+// 5b. Evolution Suspense Pulse
+export function playEvolutionPulseSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 659.25, type: "sine", duration: 0.05, startTime: 0, gain: 0.12 });
+  playTone({ freq: 880.0, type: "sine", duration: 0.06, startTime: 0.06, gain: 0.14 });
+}
+
+// 5c. Cancel Sound
+export function playCancelSound() {
+  if (isMasterMuted) return;
+  playTone({ freq: 330, type: "square", duration: 0.1, startTime: 0, gain: 0.12 });
+  playTone({ freq: 220, type: "square", duration: 0.15, startTime: 0.08, gain: 0.14 });
+}
+
 // 6. Subtle UI Blip
 export function playButtonBlip() {
   if (isMasterMuted) return;

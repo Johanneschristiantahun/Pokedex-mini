@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useEffect } from "react";
 import {
   createPokemonInstance,
   recalculatePokemonStats,
-  EVOLUTION_STONE_MAP,
+  checkLevelEvolution,
+  checkStoneEvolution,
 } from "../utils/pokemonFactory.js";
 import {
   playPokemonCry,
@@ -32,6 +33,7 @@ const STORAGE_KEYS = {
   INVENTORY: "pokesphere_inventory_v2",
   LEGACY_INVENTORY: "pokesphere_inventory",
   HAS_STARTER: "pokesphere_has_starter",
+  HALL_OF_FAME: "pokesphere_hall_of_fame",
 };
 
 // Helper: Normalize inventory state from storage
@@ -116,6 +118,19 @@ export function GameProvider({ children }) {
   // 5. Global Sound Mute State
   const [isMuted, setIsMuted] = useState(() => getMasterMute());
 
+  // 6. Hall of Fame League Records
+  const [hallOfFame, setHallOfFame] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.HALL_OF_FAME);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // 7. Active Evolution In Progress Cutscene State
+  const [pendingEvolution, setPendingEvolution] = useState(null);
+
   function toggleSound() {
     const next = !isMuted;
     setIsMuted(next);
@@ -142,6 +157,10 @@ export function GameProvider({ children }) {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.HAS_STARTER, hasStarter.toString());
   }, [hasStarter]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.HALL_OF_FAME, JSON.stringify(hallOfFame));
+  }, [hallOfFame]);
 
   // Action: Choose Starter
   function chooseStarter(starterData, nickname) {
@@ -394,7 +413,7 @@ export function GameProvider({ children }) {
 
     // 5. Evolution Stones
     if (effect.type === "evolution_stone") {
-      const evoTarget = EVOLUTION_STONE_MAP[target.name]?.[itemKey];
+      const evoTarget = checkStoneEvolution(target, itemKey);
       if (!evoTarget) {
         return {
           success: false,
@@ -402,39 +421,18 @@ export function GameProvider({ children }) {
         };
       }
 
-      // Perform Evolution!
-      const evolvedPokemon = recalculatePokemonStats(
-        {
-          ...target,
-          id: evoTarget.id,
-          name: evoTarget.name,
-          nickname: target.nickname === capitalize(target.name) ? capitalize(evoTarget.name) : target.nickname,
-          types: evoTarget.types,
-          sprites: {
-            ...target.sprites,
-            animated: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${evoTarget.id}.gif`,
-            static: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${evoTarget.id}.png`,
-            artwork: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evoTarget.id}.png`,
-          },
-        },
-        target.level,
-        evoTarget.baseStats
-      );
-
-      setTeam((prev) =>
-        prev.map((p) => (p.instanceId === instanceId ? evolvedPokemon : p))
-      );
-
+      // Deduct stone from inventory
       setInventory((prev) => ({
         ...prev,
         [itemKey]: Math.max(0, (prev[itemKey] || 1) - 1),
       }));
 
-      playPokemonCry(evoTarget.id);
+      // Trigger Authentic Evolution Cinematic Modal
+      triggerEvolution(target, evoTarget, "stone");
 
       return {
         success: true,
-        message: `Congratulations! ${target.nickname} evolved into ${capitalize(evoTarget.name)}!`,
+        message: `${target.nickname} began reacting to the ${itemMeta.name}!`,
       };
     }
 
@@ -611,6 +609,18 @@ export function GameProvider({ children }) {
 
     if (leveledUp.length > 0) {
       playLevelUpSound();
+
+      // Check if any Pokémon reached evolution threshold
+      setTimeout(() => {
+        setTeam((currentTeam) => {
+          const eligible = currentTeam.find((mon) => checkLevelEvolution(mon));
+          if (eligible) {
+            const evo = checkLevelEvolution(eligible);
+            triggerEvolution(eligible, evo, "level");
+          }
+          return currentTeam;
+        });
+      }, 1400);
     }
 
     return leveledUp;
@@ -630,6 +640,8 @@ export function GameProvider({ children }) {
     setBox([]);
     setInventory({ ...DEFAULT_TRAINER_INVENTORY });
     setHasStarter(false);
+    setHallOfFame([]);
+    setPendingEvolution(null);
 
     localStorage.removeItem(STORAGE_KEYS.TRAINER);
     localStorage.removeItem(STORAGE_KEYS.TEAM);
@@ -637,6 +649,62 @@ export function GameProvider({ children }) {
     localStorage.removeItem(STORAGE_KEYS.INVENTORY);
     localStorage.removeItem(STORAGE_KEYS.LEGACY_INVENTORY);
     localStorage.removeItem(STORAGE_KEYS.HAS_STARTER);
+    localStorage.removeItem(STORAGE_KEYS.HALL_OF_FAME);
+  }
+
+  // Action: Record Induction into League Hall of Fame
+  function recordHallOfFame(teamSnapshot) {
+    const activeRoster = (teamSnapshot || team).map((p) => ({
+      id: p.id,
+      name: p.name,
+      nickname: p.nickname,
+      level: p.level,
+      types: p.types,
+      isShiny: Boolean(p.isShiny),
+      sprites: p.sprites,
+      moves: p.moves,
+      maxHp: p.maxHp,
+      attack: p.attack,
+      defense: p.defense,
+      speed: p.speed,
+    }));
+
+    const newEntry = {
+      id: `hof_${Date.now()}`,
+      date: new Date().toLocaleDateString("id-ID", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      trainerName: trainer.name,
+      team: activeRoster,
+    };
+
+    setHallOfFame((prev) => [newEntry, ...prev]);
+    return newEntry;
+  }
+
+  // Action: Trigger Cinematic Evolution
+  function triggerEvolution(pokemon, targetEvo, trigger = "level") {
+    setPendingEvolution({ pokemon, targetEvo, trigger });
+  }
+
+  // Action: Complete Evolution (Persists to team & box)
+  function completeEvolution(evolvedPokemon) {
+    setTeam((prev) =>
+      prev.map((p) => (p.instanceId === evolvedPokemon.instanceId ? evolvedPokemon : p))
+    );
+    setBox((prev) =>
+      prev.map((p) => (p.instanceId === evolvedPokemon.instanceId ? evolvedPokemon : p))
+    );
+    setPendingEvolution(null);
+  }
+
+  // Action: Cancel Evolution
+  function cancelEvolution() {
+    setPendingEvolution(null);
   }
 
   // Action: Move Pokemon position up (-1) or down (+1) in party
@@ -847,6 +915,15 @@ export function GameProvider({ children }) {
       setTeam((prev) => [updatedLeader, ...prev.slice(1)]);
       playLevelUpSound();
       playPokemonCry(updatedLeader.id);
+
+      // Check for level-up evolution
+      const evoTarget = checkLevelEvolution(updatedLeader);
+      if (evoTarget) {
+        setTimeout(() => {
+          triggerEvolution(updatedLeader, evoTarget, "level");
+        }, 1500);
+      }
+
       return {
         didLevelUp: true,
         oldLevel: leader.level,
@@ -946,6 +1023,12 @@ export function GameProvider({ children }) {
     givePartyExp,
     setTrainerName,
     resetGameSession,
+    hallOfFame,
+    recordHallOfFame,
+    pendingEvolution,
+    triggerEvolution,
+    completeEvolution,
+    cancelEvolution,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

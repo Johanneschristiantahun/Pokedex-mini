@@ -7,6 +7,7 @@ import {
   IconTrees,
   IconScale,
   IconSwords,
+  IconCrown,
   IconCoin,
   IconVolume,
   IconVolumeMute,
@@ -88,6 +89,17 @@ function Navbar() {
           </NavLink>
 
           <NavLink
+            to="/league"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "nav-item-active" : ""}`
+            }
+          >
+            <IconCrown size={17} />
+            <span className="nav-label">League</span>
+            <span className="nav-badge nav-badge-champ">Elite 4</span>
+          </NavLink>
+
+          <NavLink
             to="/compare"
             className={({ isActive }) =>
               `nav-item ${isActive ? "nav-item-active" : ""}`
@@ -95,7 +107,7 @@ function Navbar() {
           >
             <IconScale size={17} />
             <span className="nav-label">Compare</span>
-            <span className="nav-badge">Stage 6</span>
+            <span className="nav-badge nav-badge-live">Live</span>
           </NavLink>
 
           {/* Money Pill Indicator */}
