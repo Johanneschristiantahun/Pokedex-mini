@@ -36,6 +36,8 @@ import {
   BattlePedestal,
   ElementalVfxOverlay,
 } from "../components/BattleEnvironment.jsx";
+import WeatherWidget from "../components/WeatherWidget.jsx";
+import { getWeatherDamageMultiplier } from "../utils/weatherApi.js";
 import {
   IconTrees,
   IconPokeball,
@@ -87,6 +89,9 @@ function WildernessPage() {
 
   // Spontaneous Loot Notification
   const [lootNotice, setLootNotice] = useState(null);
+
+  // Live Real-World Weather State
+  const [currentWeather, setCurrentWeather] = useState(null);
 
   // Active Encounter State
   const [activeEncounter, setActiveEncounter] = useState(null);
@@ -251,6 +256,7 @@ function WildernessPage() {
       // Calculate Damage
       const isCrit = Math.random() < 0.08;
       const typeMult = getTypeDamageMultiplier(move.type, activeEncounter.types);
+      const weatherMult = getWeatherDamageMultiplier(move.type, currentWeather?.pokemonWeather);
       const baseAtk = leaderPokemon.attack || 40;
       const wildDef = activeEncounter.defense || 35;
 
@@ -261,7 +267,7 @@ function WildernessPage() {
       const variance = 0.85 + Math.random() * 0.3;
       const finalDmg = Math.max(
         1,
-        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * variance)
+        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * weatherMult * variance)
       );
 
       // Trigger Visual Hit FX on Wild
@@ -355,6 +361,7 @@ function WildernessPage() {
       // Enemy Damage Calculation against Player
       const isCrit = Math.random() < 0.06;
       const typeMult = getTypeDamageMultiplier(wildMove.type, leaderPokemon.types);
+      const weatherMult = getWeatherDamageMultiplier(wildMove.type, currentWeather?.pokemonWeather);
       const enemyAtk = activeEncounter.attack || 35;
       const playerDef = leaderPokemon.defense || 40;
 
@@ -365,7 +372,7 @@ function WildernessPage() {
       const variance = 0.85 + Math.random() * 0.3;
       const finalDmg = Math.max(
         2,
-        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * variance)
+        Math.floor(baseDmg * (isCrit ? 1.5 : 1.0) * typeMult * weatherMult * variance)
       );
 
       // Trigger Visual Hit FX on Player
@@ -688,6 +695,14 @@ function WildernessPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Live Real-World Weather Banner */}
+      {!activeEncounter && (
+        <WeatherWidget
+          onWeatherChange={setCurrentWeather}
+          className="wilderness-weather-bar"
+        />
       )}
 
       {/* Exploration Meadow (Tall Grass Field) */}

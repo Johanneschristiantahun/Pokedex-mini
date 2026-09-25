@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useGame } from "../context/GameContext.jsx";
+import TrainerPassportModal from "./TrainerPassportModal.jsx";
 import {
   IconBook,
   IconParty,
@@ -13,10 +15,12 @@ import {
   IconVolumeMute,
   IconDungeon,
   IconTower,
+  IconTrophy,
 } from "./Icons.jsx";
 
 function Navbar() {
   const { trainer, team, getTotalItemCount, isMuted, toggleSound } = useGame();
+  const [showPassport, setShowPassport] = useState(false);
   const totalItemCount = getTotalItemCount();
 
   return (
@@ -134,6 +138,28 @@ function Navbar() {
             <span className="nav-badge nav-badge-live">Live</span>
           </NavLink>
 
+          <NavLink
+            to="/link"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "nav-item-active" : ""}`
+            }
+          >
+            <IconSwords size={17} />
+            <span className="nav-label">PvP Link</span>
+            <span className="nav-badge nav-badge-pvp">Multi-Tab</span>
+          </NavLink>
+
+          {/* Trainer Passport QR Button */}
+          <button
+            type="button"
+            onClick={() => setShowPassport(true)}
+            className="navbar-passport-btn"
+            title="Open Trainer League Passport & QR Code"
+          >
+            <IconTrophy size={15} />
+            <span className="passport-btn-label">Passport</span>
+          </button>
+
           {/* Money Pill Indicator */}
           <Link to="/bag" className="navbar-money-pill" title="Trainer PokéDollars - Click to open Poké Mart">
             <IconCoin size={15} className="money-coin-svg" />
@@ -155,6 +181,11 @@ function Navbar() {
           </button>
         </nav>
       </div>
+
+      <TrainerPassportModal
+        isOpen={showPassport}
+        onClose={() => setShowPassport(false)}
+      />
     </header>
   );
 }

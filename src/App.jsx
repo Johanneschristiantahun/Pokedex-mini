@@ -11,6 +11,7 @@ import LeaguePage from "./pages/LeaguePage.jsx";
 import ComparePage from "./pages/ComparePage.jsx";
 import DungeonPage from "./pages/DungeonPage.jsx";
 import BattleTowerPage from "./pages/BattleTowerPage.jsx";
+import LinkBattlePage from "./pages/LinkBattlePage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import StarterModal from "./components/StarterModal.jsx";
 import EvolutionModal from "./components/EvolutionModal.jsx";
@@ -40,6 +41,8 @@ function App() {
           <Route path="/dungeons" element={<DungeonPage />} />
           <Route path="/tower" element={<BattleTowerPage />} />
           <Route path="/compare" element={<ComparePage />} />
+          <Route path="/link" element={<LinkBattlePage />} />
+          <Route path="/pvp" element={<LinkBattlePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

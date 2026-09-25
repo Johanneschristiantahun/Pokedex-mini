@@ -16,6 +16,11 @@
 | Feature Area | Key Functionality | Technical Highlights |
 | :--- | :--- | :--- |
 | **Pokédex Encyclopedia** | 151 Original Kanto Pokémon, real-time search, dual-type filtering, numerical/alphabetical sorting. | Lazy-loaded Showdown animated GIFs, Official Pokémon Cries via Web Audio. |
+| **Dexter Voice Narration** | Authentic talking Pokédex speaking Pokémon biology, species classification, and lore. | Powered by HTML5 **Web Speech Synthesis API** with customized pitch and cadence. |
+| **TCG Card Vault** | Real official Pokémon Trading Card Game cards gallery for every Pokémon with market valuation. | Powered by **Pokémon TCG API** (`pokemontcg.io`) with 3D tilt and holographic sheen. |
+| **Live Atmospheric Weather** | Real-world meteorological climate altering battle damage in the Wilderness Safari. | Powered by **Open-Meteo API** & GPS Geolocation; Rain boosts Water +50%, Sun boosts Fire +50%. |
+| **Trainer League Passport** | Official Kanto League Trainer Card with badge matrix, Hall of Fame stats, and scannable QR code. | Powered by **QR Server API** generating instant peer share QR codes. |
+| **Link Cable PvP Arena** | Real-time multi-tab head-to-head Pokémon battle across two browser windows or tabs. | Powered by HTML5 **BroadcastChannel API** simulating Game Boy Link Cable duels. |
 | **Team & Box Storage** | 6-member active battle party + 30-slot PC Box storage with nicknames, moves, and held items. | `localStorage` persistence, EV/IV calculations, dynamic stat updates on level-up. |
 | **Bag & Poké Mart** | Complete shopping economy with Pokéballs, Great Balls, Ultra Balls, Master Balls, Potions, and Evolution Stones. | Buy/Sell modes with trainer PokéDollar balances and inventory state hooks. |
 | **Wilderness Safari** | Live 2.5D wild encounter zone with tall grass animations, catch calculations, and rare Shiny rolls (1/512). | Status conditions, shake wobble physics, escape mechanics, and instant party/box dispatch. |
@@ -92,6 +97,21 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
+
+### 🌐 Deploy to GitHub Pages (Coursework 90+ Score Requirement)
+
+PokéSphere is pre-configured with `gh-pages` and relative asset resolution in `vite.config.js` and `HashRouter` navigation:
+
+```bash
+# Deploys dist/ to GitHub Pages in one command
+npm run deploy
+```
+
+> **Deployment Details**:
+> 1. Running `npm run deploy` automatically executes `predeploy` (`npm run build`), compiling the production bundle into `./dist/`.
+> 2. `gh-pages` pushes `./dist/` directly to the `gh-pages` branch on GitHub.
+> 3. In GitHub repository **Settings** → **Pages** → **Source**, set Branch to `gh-pages` / `root`.
+> 4. Your web application is instantly live at `https://<your-username>.github.io/<your-repo>/`.
 
 ---
 

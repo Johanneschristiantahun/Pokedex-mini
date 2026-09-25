@@ -16,6 +16,8 @@ import {
   pokemonDetailCache,
 } from "../utils.js";
 import { calculateDefensiveMatchups } from "../utils/typeEffectiveness.js";
+import { fetchPokemonTcgCards } from "../utils/tcgApi.js";
+import { speakPokemonEntry, stopSpeaking } from "../utils/speech.js";
 import {
   IconAlertTriangle,
   IconArrowLeft,
@@ -100,6 +102,11 @@ function DetailPage() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [teamNotice, setTeamNotice] = useState(null);
 
+  // Pokemon TCG API States
+  const [tcgCards, setTcgCards] = useState([]);
+  const [isLoadingTcg, setIsLoadingTcg] = useState(false);
+  const [inspectTcgCard, setInspectTcgCard] = useState(null);
+
   useEffect(() => {
     let isCurrent = true;
 
@@ -119,6 +126,19 @@ function DetailPage() {
           coreData = await res.json();
           pokemonDetailCache[name.toLowerCase()] = coreData;
         }
+
+        // Concurrently fetch TCG cards for this Pokémon
+        setIsLoadingTcg(true);
+        fetchPokemonTcgCards(coreData.id)
+          .then((cards) => {
+            if (isCurrent) setTcgCards(cards);
+          })
+          .catch(() => {
+            if (isCurrent) setTcgCards([]);
+          })
+          .finally(() => {
+            if (isCurrent) setIsLoadingTcg(false);
+          });
 
         let speciesData = null;
         let evoSteps = [];
@@ -165,9 +185,7 @@ function DetailPage() {
     return () => {
       isCurrent = false;
       stopPokemonCry();
-      if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      stopSpeaking();
     };
   }, [name]);
 
@@ -180,28 +198,28 @@ function DetailPage() {
   const genus =
     species?.genera?.find((g) => g.language.name === "en")?.genus || "Pokémon";
 
-  // Text-to-Speech handler
+  // Dexter Pokédex Text-to-Speech handler
   function handleSpeakDex() {
-    if (!("speechSynthesis" in window)) {
-      alert("Text-to-speech is not supported in this browser.");
-      return;
-    }
-
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setIsSpeaking(false);
       return;
     }
 
-    const textToSpeak = `${pokemon.name}. The ${genus}. ${flavorText}`;
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    utterance.rate = 0.95;
-    utterance.pitch = 1.0;
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+    const types = (pokemon?.types || []).map((t) => t.type.name);
+    const success = speakPokemonEntry(
+      {
+        name: capitalize(pokemon.name),
+        types,
+        description: flavorText || `The ${genus}.`,
+      },
+      () => setIsSpeaking(true),
+      () => setIsSpeaking(false)
+    );
 
-    setIsSpeaking(true);
-    window.speechSynthesis.speak(utterance);
+    if (!success) {
+      alert("Text-to-speech is not supported in this browser.");
+    }
   }
 
   // Real Add to Team handler
@@ -666,7 +684,132 @@ function DetailPage() {
             })}
           </div>
         </div>
+
+        {/* Trading Card Game (TCG) Official Cards Gallery */}
+        <div className="detail-tcg-section">
+          <div className="tcg-header">
+            <div>
+              <h3>Official Trading Cards</h3>
+              <p className="tcg-subtitle">
+                Collectible cards sourced live from Pokémon TCG API (pokemontcg.io)
+              </p>
+            </div>
+            <span className="tcg-badge">TCG Live Data</span>
+          </div>
+
+          {isLoadingTcg ? (
+            <div className="tcg-loading">
+              <div className="pokeball-spinner" style={{ width: 28, height: 28 }}></div>
+              <span>Connecting to Pokémon TCG Vault…</span>
+            </div>
+          ) : tcgCards.length === 0 ? (
+            <div className="tcg-empty">
+              <p>No trading cards found in the official archives for this entry.</p>
+            </div>
+          ) : (
+            <div className="tcg-cards-grid">
+              {tcgCards.map((card) => (
+                <div
+                  key={card.id}
+                  className="tcg-card-item"
+                  onClick={() => setInspectTcgCard(card)}
+                  title="Click to inspect holographic card"
+                >
+                  <div className="tcg-card-img-wrap">
+                    <img
+                      src={card.imageSmall}
+                      alt={card.name}
+                      loading="lazy"
+                      className="tcg-card-img"
+                    />
+                    <div className="tcg-card-sheen"></div>
+                  </div>
+                  <div className="tcg-card-info">
+                    <span className="tcg-set-name">{card.setName}</span>
+                    <span className="tcg-rarity">{card.rarity}</span>
+                    {card.marketPriceUsd && (
+                      <span className="tcg-price">
+                        Est. ${Number(card.marketPriceUsd).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* TCG Holographic Card Inspection Modal */}
+      {inspectTcgCard && (
+        <div
+          className="tcg-modal-backdrop"
+          onClick={() => setInspectTcgCard(null)}
+        >
+          <div
+            className="tcg-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="tcg-modal-close"
+              onClick={() => setInspectTcgCard(null)}
+              aria-label="Close modal"
+            >
+              ✕
+            </button>
+            <div className="tcg-modal-grid">
+              <div className="tcg-modal-holo-wrap">
+                <img
+                  src={inspectTcgCard.imageLarge || inspectTcgCard.imageSmall}
+                  alt={inspectTcgCard.name}
+                  className="tcg-large-holo-card"
+                />
+                <div className="tcg-holo-glare"></div>
+              </div>
+              <div className="tcg-modal-details">
+                <span className="tcg-card-set-tag">
+                  {inspectTcgCard.series} • {inspectTcgCard.setName}
+                </span>
+                <h2>{inspectTcgCard.name}</h2>
+                <div className="tcg-detail-badges">
+                  <span className="badge-rarity">{inspectTcgCard.rarity}</span>
+                  {inspectTcgCard.hp && (
+                    <span className="badge-hp">HP {inspectTcgCard.hp}</span>
+                  )}
+                  {inspectTcgCard.types?.map((t) => (
+                    <span key={t} className="badge-type">{t}</span>
+                  ))}
+                </div>
+
+                <div className="tcg-metadata-table">
+                  <div className="meta-row">
+                    <span>Card ID:</span>
+                    <strong>{inspectTcgCard.id}</strong>
+                  </div>
+                  <div className="meta-row">
+                    <span>Illustrator:</span>
+                    <strong>{inspectTcgCard.artist}</strong>
+                  </div>
+                  <div className="meta-row">
+                    <span>Release Date:</span>
+                    <strong>{inspectTcgCard.releaseDate}</strong>
+                  </div>
+                  {inspectTcgCard.marketPriceUsd && (
+                    <div className="meta-row meta-highlight">
+                      <span>Market Value:</span>
+                      <strong>${Number(inspectTcgCard.marketPriceUsd).toFixed(2)} USD</strong>
+                    </div>
+                  )}
+                </div>
+
+                <div className="tcg-inspect-hint">
+                  ✨ Interactive holographic preview from Pokémon TCG official archives.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
