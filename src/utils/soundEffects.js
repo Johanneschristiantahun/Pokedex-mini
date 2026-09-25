@@ -295,4 +295,43 @@ export function playBattleStartSound() {
   });
 }
 
+// 19. Mega Evolution Resonance Chime (High octave harmonic wave)
+export function playMegaEvolutionSound() {
+  if (isMasterMuted) return;
+  const arpeggio = [523.25, 659.25, 783.99, 1046.5, 1318.51, 1567.98, 2093.0];
+  arpeggio.forEach((freq, idx) => {
+    playTone({
+      freq,
+      type: "sine",
+      duration: 0.2,
+      startTime: idx * 0.06,
+      gain: 0.2,
+    });
+  });
+  playTone({ freq: 130.81, type: "sawtooth", duration: 0.5, startTime: 0.25, gain: 0.25 });
+}
+
+// 20. Legendary Mythical Roar (Deep resonant rumble)
+export function playLegendaryRoar() {
+  if (isMasterMuted) return;
+  playTone({ freq: 80, type: "sawtooth", duration: 0.6, startTime: 0.0, gain: 0.25 });
+  playTone({ freq: 110, type: "triangle", duration: 0.5, startTime: 0.1, gain: 0.22 });
+  playTone({ freq: 70, type: "sawtooth", duration: 0.7, startTime: 0.2, gain: 0.2 });
+}
+
+// 21. Battle Tower Fanfare (Fast triumphant chiptune brass)
+export function playTowerFanfare() {
+  if (isMasterMuted) return;
+  const brass = [
+    { freq: 440, time: 0.0, dur: 0.1 },
+    { freq: 440, time: 0.1, dur: 0.1 },
+    { freq: 440, time: 0.2, dur: 0.1 },
+    { freq: 587.33, time: 0.3, dur: 0.35 },
+  ];
+  brass.forEach((n) => {
+    playTone({ freq: n.freq, type: "square", duration: n.dur, startTime: n.time, gain: 0.2 });
+  });
+}
+
+
 

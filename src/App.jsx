@@ -9,6 +9,8 @@ import WildernessPage from "./pages/WildernessPage.jsx";
 import GymPage from "./pages/GymPage.jsx";
 import LeaguePage from "./pages/LeaguePage.jsx";
 import ComparePage from "./pages/ComparePage.jsx";
+import DungeonPage from "./pages/DungeonPage.jsx";
+import BattleTowerPage from "./pages/BattleTowerPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import StarterModal from "./components/StarterModal.jsx";
 import EvolutionModal from "./components/EvolutionModal.jsx";
@@ -35,6 +37,8 @@ function App() {
           <Route path="/battle" element={<GymPage />} />
           <Route path="/league" element={<LeaguePage />} />
           <Route path="/championship" element={<LeaguePage />} />
+          <Route path="/dungeons" element={<DungeonPage />} />
+          <Route path="/tower" element={<BattleTowerPage />} />
           <Route path="/compare" element={<ComparePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

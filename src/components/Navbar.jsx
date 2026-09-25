@@ -11,6 +11,8 @@ import {
   IconCoin,
   IconVolume,
   IconVolumeMute,
+  IconDungeon,
+  IconTower,
 } from "./Icons.jsx";
 
 function Navbar() {
@@ -97,6 +99,28 @@ function Navbar() {
             <IconCrown size={17} />
             <span className="nav-label">League</span>
             <span className="nav-badge nav-badge-champ">Elite 4</span>
+          </NavLink>
+
+          <NavLink
+            to="/dungeons"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "nav-item-active" : ""}`
+            }
+          >
+            <IconDungeon size={17} />
+            <span className="nav-label">Dungeons</span>
+            <span className="nav-badge nav-badge-dungeon">Raids</span>
+          </NavLink>
+
+          <NavLink
+            to="/tower"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "nav-item-active" : ""}`
+            }
+          >
+            <IconTower size={17} />
+            <span className="nav-label">Tower</span>
+            <span className="nav-badge nav-badge-tower">Endless</span>
           </NavLink>
 
           <NavLink

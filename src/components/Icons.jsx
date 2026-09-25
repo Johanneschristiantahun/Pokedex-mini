@@ -733,6 +733,45 @@ export function IconShield({ size = 18, className = "" }) {
   );
 }
 
+export function IconDungeon({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <path d="M3 21h18" />
+      <path d="M5 21V7l7-4 7 4v14" />
+      <path d="M9 21v-6a3 3 0 0 1 6 0v6" />
+      <circle cx="12" cy="9" r="1" fill="currentColor" />
+    </svg>
+  );
+}
 
-
-
+export function IconTower({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <path d="M6 22h12" />
+      <path d="M7 22l1-14h8l1 14" />
+      <path d="M7 8V4h2v2h2V4h2v2h2V4h2v4" />
+      <path d="M11 12h2" />
+      <path d="M11 16h2" />
+    </svg>
+  );
+}

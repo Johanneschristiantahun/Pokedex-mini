@@ -1,0 +1,18 @@
+{
+  "name": "PokéSphere — Epic 2.5D Pokémon RPG & Pokédex",
+  "short_name": "PokéSphere",
+  "description": "Epic 2.5D Pokémon RPG with Gym Leaders, League Championship, Mega Evolution, Legendary Raids, and Battle Tower.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b101b",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
