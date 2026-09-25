@@ -58,7 +58,6 @@ const STORAGE_KEY_TOWER = "pokesphere_tower_record";
 
 export default function BattleTowerPage() {
   const {
-    trainer,
     team,
     updatePokemonHp,
     givePartyExp,
@@ -425,6 +424,18 @@ export default function BattleTowerPage() {
     }, 1200);
   }
 
+  function handleCashOut() {
+    const cashoutBonus = currentStreak * 500;
+    addMoney(cashoutBonus);
+    setTowerRecord((prev) => ({
+      bestStreak: Math.max(prev.bestStreak, currentStreak),
+      totalWins: prev.totalWins,
+    }));
+    healAllPokemon();
+    setCurrentStreak(0);
+    setMode("LOBBY");
+  }
+
   // ========================================================
   // RENDER: STREAK VICTORY / INTERMISSION
   // ========================================================
@@ -466,13 +477,10 @@ export default function BattleTowerPage() {
 
             <button
               type="button"
-              onClick={() => {
-                healAllPokemon();
-                setMode("LOBBY");
-              }}
+              onClick={handleCashOut}
               className="btn-tower-cashout"
             >
-              <span>Cash Out & Return to Lobby</span>
+              <span>Cash Out (+₽{currentStreak * 500}) & Return to Lobby</span>
             </button>
           </div>
         </div>

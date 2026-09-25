@@ -1,4 +1,3 @@
-import SearchForm from "../components/SearchForm.jsx";
 import PokemonList from "../components/PokemonList.jsx";
 
 function ListPage() {
@@ -12,7 +11,6 @@ function ListPage() {
         </p>
       </div>
 
-      <SearchForm />
       <PokemonList />
     </div>
   );

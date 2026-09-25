@@ -138,7 +138,19 @@ function WildernessPage() {
       alert("You need at least 1 Pokémon in your party before entering the tall grass!");
       return;
     }
+    const aliveMon = team.find((p) => (p.currentHp || 0) > 0);
+    if (!aliveMon) {
+      alert("All Pokémon in your party have fainted! Visit the Pokémon Center in Town to heal your team before exploring.");
+      return;
+    }
     if (activeEncounter) return;
+
+    // If current leader is fainted, auto-switch to the first living team member
+    let currentBattler = leaderPokemon;
+    if ((leaderPokemon.currentHp || 0) <= 0) {
+      setTeamLeader(aliveMon.instanceId);
+      currentBattler = aliveMon;
+    }
 
     playGrassRustleSound();
     setIsSearchingGrass(true);
@@ -154,7 +166,7 @@ function WildernessPage() {
       if (roll < 0.7) {
         const wild = rollWildEncounter(selectedBiome.id);
         setActiveEncounter(wild);
-        setPlayerMoves(getPokemonMoves(leaderPokemon));
+        setPlayerMoves(getPokemonMoves(currentBattler));
         setBattleState("MENU");
         setBattleDialogue(`Wild ${capitalize(wild.name)} appeared!`);
         setBattleHistory([`Wild ${capitalize(wild.name)} (Lv. ${wild.level}) emerged from the brush!`]);
@@ -410,8 +422,19 @@ function WildernessPage() {
             setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} fainted!`);
             pushLog(`${leaderPokemon.nickname} fainted!`);
 
+            // Check if another party member is still alive
+            const hasAliveTeammate = team.some(
+              (p) => p.instanceId !== leaderPokemon.instanceId && (p.currentHp || 0) > 0
+            );
+
             setTimeout(() => {
-              setBattleState("DEFEATED");
+              if (hasAliveTeammate) {
+                setBattleDialogue(`${leaderPokemon.nickname.toUpperCase()} fainted! Choose your next Pokémon!`);
+                setBattleState("PARTY");
+              } else {
+                setBattleDialogue("All your Pokémon have fainted!");
+                setBattleState("DEFEATED");
+              }
             }, 850);
           } else {
             if (onComplete) onComplete();
@@ -547,21 +570,33 @@ function WildernessPage() {
       return;
     }
 
+    const previousWasFainted = (leaderPokemon?.currentHp || 0) <= 0;
+
     setTeamLeader(targetPokemon.instanceId);
     setPlayerMoves(getPokemonMoves(targetPokemon));
     playPokemonCry(targetPokemon.id);
 
-    setBattleDialogue(`Come back, ${leaderPokemon?.nickname}! Go, ${targetPokemon.nickname}!`);
+    setBattleDialogue(
+      previousWasFainted
+        ? `Go, ${targetPokemon.nickname}!`
+        : `Come back, ${leaderPokemon?.nickname}! Go, ${targetPokemon.nickname}!`
+    );
     pushLog(`Switched out to ${targetPokemon.nickname}!`);
 
-    // Wild Pokémon takes opportunity turn upon switch
-    setBattleState("ANIMATING");
-    setTimeout(() => {
-      executeWildAttack(() => {
-        setBattleDialogue(`What will ${targetPokemon.nickname.toUpperCase()} do?`);
-        setBattleState("MENU");
-      });
-    }, 850);
+    if (previousWasFainted) {
+      // Clean switch after faint: player can immediately select their action
+      setBattleState("MENU");
+      setBattleDialogue(`What will ${targetPokemon.nickname.toUpperCase()} do?`);
+    } else {
+      // Wild Pokémon takes opportunity turn upon mid-battle tactical switch
+      setBattleState("ANIMATING");
+      setTimeout(() => {
+        executeWildAttack(() => {
+          setBattleDialogue(`What will ${targetPokemon.nickname.toUpperCase()} do?`);
+          setBattleState("MENU");
+        });
+      }, 850);
+    }
   }
 
   // 6. Run Away Action
@@ -1270,14 +1305,20 @@ function WildernessPage() {
               {battleState === "PARTY" && (
                 <div className="rpg-party-drawer">
                   <div className="party-drawer-header">
-                    <span>Select Pokémon Partner to Switch:</span>
-                    <button
-                      type="button"
-                      onClick={() => setBattleState("MENU")}
-                      className="btn-close-subdrawer"
-                    >
-                      <IconX size={16} />
-                    </button>
+                    <span>
+                      {(leaderPokemon?.currentHp || 0) <= 0
+                        ? "Your Pokémon fainted! Select a teammate:"
+                        : "Select Pokémon Partner to Switch:"}
+                    </span>
+                    {(!leaderPokemon || (leaderPokemon.currentHp || 0) > 0) && (
+                      <button
+                        type="button"
+                        onClick={() => setBattleState("MENU")}
+                        className="btn-close-subdrawer"
+                      >
+                        <IconX size={16} />
+                      </button>
+                    )}
                   </div>
                   <div className="party-members-grid">
                     {team.map((pokemon, idx) => {

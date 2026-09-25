@@ -60,6 +60,7 @@ export default function DungeonPage() {
   const {
     team,
     addToTeam,
+    addToBox,
     inventory,
     addLoot,
     applyItemToPokemon,
@@ -67,6 +68,8 @@ export default function DungeonPage() {
     updatePokemonHp,
     healAllPokemon,
   } = useGame();
+
+  const [storedLocation, setStoredLocation] = useState("TEAM");
 
   // Cleared Dungeons tracking
   const [clearedDungeons, setClearedDungeons] = useState(() => {
@@ -403,8 +406,7 @@ export default function DungeonPage() {
 
   // Capture Success
   function handleCaptureSuccess() {
-    setBattleDialogue(`Gotcha! ${bossMon.name.toUpperCase()} was caught!`);
-    addToTeam({
+    const legendaryData = {
       id: bossMon.id,
       name: bossMon.name,
       level: bossMon.level,
@@ -415,7 +417,17 @@ export default function DungeonPage() {
       defense: 85,
       speed: 85,
       moves: bossMon.moves,
-    });
+    };
+
+    if (team.length < 6) {
+      addToTeam(legendaryData);
+      setStoredLocation("TEAM");
+      setBattleDialogue(`Gotcha! ${bossMon.name.toUpperCase()} joined your active party!`);
+    } else {
+      addToBox(legendaryData, bossMon.level);
+      setStoredLocation("BOX");
+      setBattleDialogue(`Party is full! ${bossMon.name.toUpperCase()} was transferred to PC Storage Box!`);
+    }
 
     if (!clearedDungeons.includes(selectedDungeon.id)) {
       setClearedDungeons((prev) => [...prev, selectedDungeon.id]);
@@ -499,6 +511,15 @@ export default function DungeonPage() {
           <h1 className="catch-title">LEGENDARY POKÉMON CAUGHT!</h1>
           <p className="catch-subtitle">
             You successfully subdued and captured the mythical <strong>{capitalize(bossMon.name)}</strong>!
+            {storedLocation === "BOX" ? (
+              <span style={{ display: "block", marginTop: "10px", color: "#38bdf8", fontWeight: 600, fontSize: "0.95rem" }}>
+                📦 Active Party is full (6/6). {capitalize(bossMon.name)} was transferred safely to your PC Storage Box!
+              </span>
+            ) : (
+              <span style={{ display: "block", marginTop: "10px", color: "#4ade80", fontWeight: 600, fontSize: "0.95rem" }}>
+                ✨ {capitalize(bossMon.name)} joined your active battle party!
+              </span>
+            )}
           </p>
 
           <div className="captured-mon-showcase">

@@ -68,6 +68,11 @@ export default function LinkBattlePage() {
   const [slashVfxFlash, setSlashVfxFlash] = useState(false);
 
   const handleReceiveOpponentMoveRef = useRef(null);
+  const activeDuelPeerRef = useRef(activeDuelPeer);
+
+  useEffect(() => {
+    activeDuelPeerRef.current = activeDuelPeer;
+  }, [activeDuelPeer]);
 
   // Initialize BroadcastChannel
   useEffect(() => {
@@ -148,7 +153,34 @@ export default function LinkBattlePage() {
         // Receive opponent move
         handleReceiveOpponentMoveRef.current?.(data.move, data.damage);
       }
+
+      if (data.type === "PEER_DISCONNECT") {
+        setRemotePeers((prev) => prev.filter((p) => p.id !== data.senderId));
+        if (activeDuelPeerRef.current && activeDuelPeerRef.current.id === data.senderId) {
+          setBattleDialogue("Opponent disconnected from the Link Cable session!");
+          setTimeout(() => {
+            alert("Opponent closed their tab or disconnected. Returning to lobby.");
+            setMode("LOBBY");
+            setActiveDuelPeer(null);
+          }, 1000);
+        }
+      }
+
+      if (data.type === "BATTLE_FORFEIT" && data.targetId === peerId) {
+        setBattleDialogue(`${data.trainerName || "Opponent"} has forfeited the match!`);
+        setTimeout(() => {
+          setMode("VICTORY");
+        }, 1200);
+      }
     };
+
+    function handleBeforeUnload() {
+      bc.postMessage({
+        type: "PEER_DISCONNECT",
+        senderId: peerId,
+      });
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     // Periodic heartbeat every 4 seconds
     const interval = setInterval(() => {
@@ -163,6 +195,8 @@ export default function LinkBattlePage() {
     }, 4000);
 
     return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      handleBeforeUnload();
       clearInterval(interval);
       bc.close();
     };
@@ -343,6 +377,21 @@ export default function LinkBattlePage() {
     handleReceiveOpponentMoveRef.current = handleReceiveOpponentMove;
   });
 
+  function handleForfeit() {
+    if (window.confirm("Are you sure you want to forfeit this Link Battle and return to the lobby?")) {
+      if (channel && activeDuelPeer) {
+        channel.postMessage({
+          type: "BATTLE_FORFEIT",
+          senderId: peerId,
+          targetId: activeDuelPeer.id,
+          trainerName: trainer.name || "Challenger",
+        });
+      }
+      setMode("LOBBY");
+      setActiveDuelPeer(null);
+    }
+  }
+
   // ========================================================
   // RENDER: LOBBY
   // ========================================================
@@ -466,10 +515,27 @@ export default function LinkBattlePage() {
               <IconSwords size={16} style={{ marginRight: 6 }} />
               <span>Link Duel VS {activeDuelPeer.name}</span>
             </div>
-            <div className="hud-actions-right">
+            <div className="hud-actions-right" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span className={`turn-turn-indicator ${isMyTurn ? "indicator-my-turn" : "indicator-waiting"}`}>
                 {isMyTurn ? "🟢 YOUR TURN" : "⏳ OPPONENT'S TURN"}
               </span>
+              <button
+                type="button"
+                onClick={handleForfeit}
+                style={{
+                  padding: "4px 10px",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  borderRadius: "6px",
+                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                  background: "rgba(239, 68, 68, 0.15)",
+                  color: "#f87171",
+                  cursor: "pointer",
+                }}
+                title="Forfeit duel and return to lobby"
+              >
+                Forfeit
+              </button>
             </div>
           </div>
 

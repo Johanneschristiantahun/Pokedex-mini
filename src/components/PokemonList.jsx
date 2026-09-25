@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import PokemonCard from "./PokemonCard.jsx";
 import { API_BASE_URL, GENERATIONS } from "../config.js";
 import {
@@ -13,6 +14,7 @@ import { IconSparkles, IconX, IconAlertTriangle } from "./Icons.jsx";
 const BATCH_SIZE = 24;
 
 function PokemonList() {
+  const navigate = useNavigate();
   // Restore previously selected generation from session if available
   const savedGenId = sessionStorage.getItem("pokedex_last_gen_id");
   const initialGen =
@@ -237,6 +239,19 @@ function PokemonList() {
     return 0;
   });
 
+  function handleInputKeyDown(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const q = liveQuery.trim().toLowerCase();
+      if (!q) return;
+      if (sortedPokemons.length > 0) {
+        navigate(`/pokemon/${sortedPokemons[0].name}`);
+      } else {
+        navigate(`/pokemon/${q}`);
+      }
+    }
+  }
+
   const maxOffset = selectedGen.offset + selectedGen.limit;
   const hasMore = offset < maxOffset;
 
@@ -292,7 +307,8 @@ function PokemonList() {
             type="text"
             value={liveQuery}
             onChange={(e) => setLiveQuery(e.target.value)}
-            placeholder={`Filter ${selectedGen.region} list (e.g. "pika", "025")…`}
+            onKeyDown={handleInputKeyDown}
+            placeholder={`Search ${selectedGen.region} by name or # (Press Enter to open)…`}
             className="live-filter-input"
           />
           {liveQuery && (
@@ -333,6 +349,23 @@ function PokemonList() {
         </div>
       </div>
 
+      {/* Trending Quick Jump Chips */}
+      <div className="quick-search-chips" style={{ marginBottom: "1.25rem" }}>
+        <span className="quick-label">Trending:</span>
+        {["Pikachu", "Charizard", "Gengar", "Lucario", "Mewtwo", "Eevee", "Rayquaza", "Greninja"].map(
+          (name) => (
+            <button
+              key={name}
+              type="button"
+              onClick={() => navigate(`/pokemon/${name.toLowerCase()}`)}
+              className="chip-btn"
+            >
+              {name}
+            </button>
+          )
+        )}
+      </div>
+
       {/* Loading Skeletons */}
       {isLoading && (
         <div className="pokemon-grid">
@@ -370,15 +403,27 @@ function PokemonList() {
               <p>
                 No Pokémon match your filter criteria in {selectedGen.name}.
               </p>
-              <button
-                onClick={() => {
-                  setSelectedType("all");
-                  setLiveQuery("");
-                }}
-                className="btn-secondary"
-              >
-                Reset All Filters
-              </button>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginTop: "12px" }}>
+                {liveQuery.trim() && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/pokemon/${liveQuery.trim().toLowerCase()}`)}
+                    className="btn-primary"
+                  >
+                    Search "{liveQuery}" Globally in PokéDex →
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedType("all");
+                    setLiveQuery("");
+                  }}
+                  className="btn-secondary"
+                >
+                  Reset All Filters
+                </button>
+              </div>
             </div>
           ) : (
             <div className="pokemon-grid">

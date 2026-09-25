@@ -137,6 +137,29 @@ export function GameProvider({ children }) {
     setMasterMute(next);
   }
 
+  // Auto-unlock Web Audio API on first user touch/click (resolves mobile Safari/Chrome autoplay lock)
+  useEffect(() => {
+    function unlockAudio() {
+      if (typeof window !== "undefined") {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const tempCtx = new AudioCtx();
+          if (tempCtx.state === "suspended") {
+            tempCtx.resume();
+          }
+        }
+      }
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    }
+    window.addEventListener("click", unlockAudio, { once: true });
+    window.addEventListener("touchstart", unlockAudio, { once: true });
+    return () => {
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    };
+  }, []);
+
   // Synchronize state with localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.TRAINER, JSON.stringify(trainer));
@@ -192,6 +215,21 @@ export function GameProvider({ children }) {
       success: true,
       message: `${newInstance.nickname} joined your active team!`,
       isDuplicate: isAlreadyInTeam,
+    };
+  }
+
+  // Action: Add Pokemon directly to PC Storage Box
+  function addToBox(pokemonData, level = 5) {
+    const isAlreadyInBox = box.some((p) => p.name === pokemonData.name.toLowerCase());
+    const newInstance = createPokemonInstance(pokemonData, level);
+
+    setBox((prev) => [...prev, newInstance]);
+    playPokemonCry(pokemonData.id);
+
+    return {
+      success: true,
+      message: `${newInstance.nickname} was stored safely in PC Storage Box!`,
+      isDuplicate: isAlreadyInBox,
     };
   }
 
@@ -371,6 +409,14 @@ export function GameProvider({ children }) {
       }));
 
       playPokemonCry(target.id);
+
+      // Check if Rare Candy triggered level evolution!
+      const evoTarget = checkLevelEvolution(updatedPokemon);
+      if (evoTarget) {
+        setTimeout(() => {
+          triggerEvolution(updatedPokemon, evoTarget, "level");
+        }, 1200);
+      }
 
       return {
         success: true,
@@ -995,6 +1041,7 @@ export function GameProvider({ children }) {
     toggleSound,
     chooseStarter,
     addToTeam,
+    addToBox,
     removeFromTeam,
     healAllPokemon,
     getItemCount,

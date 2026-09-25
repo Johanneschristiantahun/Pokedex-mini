@@ -86,7 +86,7 @@ function parseEvolutionChain(chain) {
 
 function DetailPage() {
   const { name } = useParams();
-  const { team, addToTeam } = useGame();
+  const { team, addToTeam, addToBox } = useGame();
 
   const [pokemon, setPokemon] = useState(
     () => pokemonDetailCache[name.toLowerCase()] || null
@@ -230,6 +230,14 @@ function DetailPage() {
     setTimeout(() => setTeamNotice(null), 4000);
   }
 
+  // Direct PC Box Deposit handler
+  function handleAddToBoxClick() {
+    if (!pokemon) return;
+    const result = addToBox(pokemon, 5);
+    setTeamNotice(result);
+    setTimeout(() => setTeamNotice(null), 4000);
+  }
+
   if (isLoading) {
     return (
       <div className="detail-loading-box">
@@ -341,23 +349,39 @@ function DetailPage() {
           <span>Back to PokéDex</span>
         </Link>
         <div className="detail-header-actions">
-          <button
-            type="button"
-            onClick={handleAddToTeamClick}
-            className={`btn-add-team-active ${isAlreadyInTeam ? "already-in-team" : ""}`}
-          >
-            {isAlreadyInTeam ? (
-              <>
-                <IconCheck size={16} />
-                <span>In Party (Add Copy)</span>
-              </>
-            ) : (
-              <>
-                <IconParty size={16} />
-                <span>Add to My Team</span>
-              </>
-            )}
-          </button>
+          {team.length < 6 ? (
+            <button
+              type="button"
+              onClick={handleAddToTeamClick}
+              className={`btn-add-team-active ${isAlreadyInTeam ? "already-in-team" : ""}`}
+            >
+              {isAlreadyInTeam ? (
+                <>
+                  <IconCheck size={16} />
+                  <span>In Party (Add Copy)</span>
+                </>
+              ) : (
+                <>
+                  <IconParty size={16} />
+                  <span>Add to My Team</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleAddToBoxClick}
+              className="btn-add-team-active"
+              style={{
+                background: "linear-gradient(135deg, #0284c7, #2563eb)",
+                borderColor: "#38bdf8",
+              }}
+              title="Party is full (6/6). Send directly to PC Storage Box"
+            >
+              <IconParty size={16} />
+              <span>Deposit to PC Box</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => playPokemonCry(pokemon.id)}
