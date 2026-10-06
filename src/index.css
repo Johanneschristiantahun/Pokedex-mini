@@ -3,15 +3,15 @@
    ======================================================== */
 
 :root {
-  --primary-red: #e53935;
-  --primary-dark: #b71c1c;
+  --primary-red: #ff3b30;
+  --primary-dark: #d70015;
   --pokeball-white: #ffffff;
-  --bg-main: #f8fafc;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-light: #e2e8f0;
+  --bg-main: #f5f5f7;
+  --text-main: #1d1d1f;
+  --text-muted: #86868b;
+  --border-light: rgba(0, 0, 0, 0.08);
   --card-radius: 14px;
-  --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 * {
@@ -21,11 +21,12 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
   background-color: var(--bg-main);
   color: var(--text-main);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
 }
 
@@ -5835,9 +5836,9 @@ body {
 
 .pc-box-card {
   background: #ffffff;
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
-  padding: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 14px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5846,8 +5847,8 @@ body {
 
 .pc-box-card:hover {
   transform: translateY(-2px);
-  border-color: var(--box-card-accent, var(--poke-red));
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .pc-card-header {
@@ -5855,14 +5856,14 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
 
 .pc-card-sprite-box {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -5876,8 +5877,9 @@ body {
 }
 
 .pc-card-name {
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.2px;
   color: var(--text-main);
   margin: 2px 0 0 0;
 }
@@ -5898,65 +5900,69 @@ body {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #64748b;
-  background: #f8fafc;
-  padding: 4px;
-  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.03);
+  padding: 4px 6px;
+  border-radius: 8px;
   margin-bottom: 10px;
 }
 
 .pc-card-actions {
   width: 100%;
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
 }
 
 .btn-pc-withdraw {
-  flex: 1;
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid #bfdbfe;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 0.72rem;
-  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 113, 227, 0.2);
+  background: #0071e3;
+  color: #ffffff;
+  font-size: 0.76rem;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
 .btn-pc-withdraw:hover:not(:disabled) {
-  background: #dbeafe;
+  background: #0077ed;
 }
 
 .btn-pc-withdraw:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
+  background: #e5e5ea;
+  color: #86868b;
+  border-color: transparent;
   cursor: not-allowed;
 }
 
 .btn-pc-release {
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 8px;
+  padding: 4px 6px;
   border-radius: 6px;
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #dc2626;
+  border: none;
+  background: transparent;
+  color: #ff3b30;
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 500;
   cursor: pointer;
   transition: var(--transition-smooth);
 }
 
 .btn-pc-release:hover {
-  background: #fee2e2;
+  background: rgba(255, 59, 48, 0.08);
 }
 
 .empty-slot-btn-group {

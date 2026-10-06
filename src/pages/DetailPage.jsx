@@ -22,7 +22,6 @@ import {
   IconAlertTriangle,
   IconArrowLeft,
   IconArrowRight,
-  IconParty,
   IconCheck,
   IconVolume,
   IconSparkles,
@@ -304,7 +303,7 @@ function DetailPage() {
       <div className="detail-top-nav">
         <Link to="/" className="back-link">
           <IconArrowLeft size={16} />
-          <span>Back to PokéDex</span>
+          <span>PokéDex</span>
         </Link>
 
         <div className="detail-nav-pager">
@@ -389,14 +388,11 @@ function DetailPage() {
               >
                 {isAlreadyInTeam ? (
                   <>
-                    <IconCheck size={16} />
+                    <IconCheck size={14} />
                     <span>In Party ({team.filter((p) => p.name === pokemon.name).length}/6)</span>
                   </>
                 ) : (
-                  <>
-                    <IconParty size={16} />
-                    <span>Add to Party</span>
-                  </>
+                  <span>Add to Party</span>
                 )}
               </button>
             ) : (
@@ -404,19 +400,18 @@ function DetailPage() {
                 type="button"
                 onClick={handleAddToBoxClick}
                 className="btn-team-action btn-team-box"
-                title="Party is full (6/6). Send to PC Storage Box"
+                title="Party is full (6/6). Send to Storage Box"
               >
-                <IconParty size={16} />
-                <span>Deposit to PC Box</span>
+                Deposit to Box
               </button>
             )}
             <button
               type="button"
               onClick={() => playPokemonCry(pokemon.id)}
               className="btn-cry-action"
-              title="Play Pokémon cry sound"
+              title="Play sound cry"
             >
-              <IconVolume size={16} />
+              <IconVolume size={15} />
               <span>Play Cry</span>
             </button>
           </div>
@@ -521,8 +516,7 @@ function DetailPage() {
         {/* Evolution Chain Visualizer */}
         <div className="detail-evolution-section">
           <div className="section-title-wrap">
-            <h3>Evolutionary Line</h3>
-            <span className="section-hint">Click any stage to view Pokédex data</span>
+            <h3>Evolution</h3>
           </div>
 
           {evoChain.length <= 1 ? (
@@ -579,8 +573,7 @@ function DetailPage() {
         {/* Defensive Type Matchups */}
         <div className="detail-matchups-section">
           <div className="section-title-wrap">
-            <h3>Defensive Type Matchups</h3>
-            <span className="section-hint">Damage multipliers taken from attacking move types</span>
+            <h3>Type Matchups</h3>
           </div>
 
           <div className="matchups-container">
@@ -659,7 +652,7 @@ function DetailPage() {
         {/* Base Stats Breakdown */}
         <div className="detail-stats-section">
           <div className="stats-header">
-            <h3>Base Combat Stats</h3>
+            <h3>Base Stats</h3>
             <span className="stats-total">
               BST: <strong>{totalStats}</strong>
             </span>
@@ -700,12 +693,11 @@ function DetailPage() {
         <div className="detail-tcg-section">
           <div className="tcg-header">
             <div>
-              <h3>Official Trading Cards</h3>
+              <h3>Trading Cards</h3>
               <p className="tcg-subtitle">
-                Collectible cards sourced live from Pokémon TCG API (pokemontcg.io)
+                Official Pokémon TCG collectibles
               </p>
             </div>
-            <span className="tcg-badge">TCG Live Data</span>
           </div>
 
           {isLoadingTcg ? (

@@ -4,21 +4,10 @@ import { useGame } from "../context/GameContext.jsx";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
   IconPokeball,
-  IconCross,
-  IconHeart,
-  IconPotion,
-  IconCrown,
-  IconTrophy,
   IconPencil,
   IconCheck,
-  IconBackpack,
-  IconPlus,
-  IconSparkles,
-  IconRefresh,
   IconChevronUp,
   IconChevronDown,
-  IconTrees,
-  IconParty,
 } from "../components/Icons.jsx";
 import { playHealingJingle } from "../utils/soundEffects.js";
 import { capitalize, getTypeColor, formatPokemonId, getAnimatedSpriteUrl } from "../utils.js";
@@ -137,7 +126,7 @@ function TeamPage() {
       <div className="team-page-header">
         <div className="team-header-identity">
           <div className="team-title-row">
-            <h1 className="team-page-title">My Pokémon Team</h1>
+            <h1 className="team-page-title">Party & Storage</h1>
             {isEditingTrainerName ? (
               <div className="trainer-name-inline-edit">
                 <input
@@ -175,7 +164,7 @@ function TeamPage() {
             )}
           </div>
           <p className="team-page-subtitle">
-            Manage your battle roster, monitor party condition, and organize Pokémon PC storage.
+            Manage your active roster and Pokémon storage.
           </p>
         </div>
 
@@ -185,20 +174,17 @@ function TeamPage() {
             onClick={handleHealCenter}
             disabled={isHealing || team.length === 0}
             className={`btn-heal-team ${isHealing ? "healing" : ""}`}
-            title="Restore all 6 party members to full HP"
+            title="Restore party to full health"
           >
-            <IconHeart size={15} />
-            <span>{isHealing ? "Restoring…" : "Heal Party (Free)"}</span>
+            {isHealing ? "Restoring…" : "Heal Party"}
           </button>
 
-          <span className="potion-stock-badge" title="Potions available in Bag">
-            <IconPotion size={14} />
-            <span>Potions: <strong>{potionCount}</strong></span>
+          <span className="potion-stock-badge">
+            Potions: <strong>{potionCount}</strong>
           </span>
 
-          <Link to="/bag" className="btn-team-header-bag" title="Open Trainer Bag">
-            <IconBackpack size={14} />
-            <span>Bag</span>
+          <Link to="/bag" className="btn-team-header-bag">
+            Bag
           </Link>
         </div>
       </div>
@@ -210,16 +196,14 @@ function TeamPage() {
           onClick={() => setActiveTab("party")}
           className={`storage-tab-btn ${activeTab === "party" ? "active" : ""}`}
         >
-          <IconParty size={15} />
-          <span>Active Party ({team.length}/6)</span>
+          Active Party ({team.length}/6)
         </button>
         <button
           type="button"
           onClick={() => setActiveTab("box")}
           className={`storage-tab-btn ${activeTab === "box" ? "active" : ""}`}
         >
-          <IconPokeball size={15} />
-          <span>PC Storage Box ({box.length})</span>
+          Storage Box ({box.length})
         </button>
       </div>
 
@@ -234,18 +218,16 @@ function TeamPage() {
                 return (
                   <div key={`empty-${slotIndex}`} className="empty-party-slot">
                     <div className="empty-slot-icon">
-                      <IconPokeball size={32} />
+                      <IconPokeball size={28} />
                     </div>
-                    <h4>Slot #{slotIndex + 1}: Empty</h4>
-                    <p>Add Pokémon from PokéDex, catch in Wilderness, or withdraw from PC Box.</p>
+                    <h4>Empty Slot</h4>
+                    <p>Select Pokémon from PokéDex or catch in Wilderness.</p>
                     <div className="empty-slot-btn-group">
                       <Link to="/" className="btn-browse-dex">
-                        <IconPlus size={14} />
-                        <span>PokéDex</span>
+                        Add from PokéDex
                       </Link>
                       <Link to="/wilderness" className="btn-browse-wilderness">
-                        <IconTrees size={14} />
-                        <span>Wilderness</span>
+                        Wilderness
                       </Link>
                     </div>
                   </div>
@@ -282,19 +264,11 @@ function TeamPage() {
                   <div className="party-card-top">
                     <div className="slot-pill-group">
                       <div className="slot-pill">
-                        {isLeader ? (
-                          <>
-                            <IconCrown size={14} />
-                            <span>Leader (#1)</span>
-                          </>
-                        ) : (
-                          <span>Slot #{slotIndex + 1}</span>
-                        )}
+                        {isLeader ? "Leader" : `Slot #${slotIndex + 1}`}
                       </div>
                       {pokemon.isStarter && (
-                        <span className="starter-partner-pill" title="Your first companion from Professor Oak">
-                          <IconSparkles size={11} />
-                          <span>Partner</span>
+                        <span className="starter-partner-pill">
+                          Partner
                         </span>
                       )}
                     </div>
@@ -472,8 +446,7 @@ function TeamPage() {
                       className="btn-action-potion"
                       title="Restore 20 HP with Potion"
                     >
-                      <IconPotion size={14} />
-                      <span>Potion (+20)</span>
+                      Potion (+20)
                     </button>
 
                     {!isLeader && (
@@ -483,8 +456,7 @@ function TeamPage() {
                         className="btn-action-leader"
                         title="Set as party leader"
                       >
-                        <IconCrown size={14} />
-                        <span>Leader</span>
+                        Set Leader
                       </button>
                     )}
 
@@ -496,9 +468,9 @@ function TeamPage() {
                           if (res.success) showToast(res.message);
                         }}
                         className="btn-action-deposit"
-                        title="Move to PC Storage Box"
+                        title="Move to Storage Box"
                       >
-                        <span>To PC Box</span>
+                        To Box
                       </button>
                     )}
 
@@ -522,10 +494,10 @@ function TeamPage() {
           <div className="trainer-league-summary-card">
             <div className="trainer-summary-header">
               <span className="case-title">
-                Official Kanto League Badges ({trainer.badges?.length || 0}/8)
+                Gym Badges ({trainer.badges?.length || 0}/8)
               </span>
               <Link to="/gym" className="case-gym-link">
-                Challenge Gym Leaders &rarr;
+                Challenge Gyms &rarr;
               </Link>
             </div>
             <div className="badge-case-slots-grid">
@@ -550,9 +522,8 @@ function TeamPage() {
             <div className="trainer-hof-panel">
               <div className="hof-panel-header">
                 <div className="hof-header-left">
-                  <IconTrophy size={16} className="hof-trophy-svg" />
                   <span className="case-title">
-                    Hall of Fame Inductions ({hallOfFame.length} Titles)
+                    Hall of Fame ({hallOfFame.length})
                   </span>
                 </div>
                 <Link to="/league" className="case-gym-link">
@@ -564,7 +535,6 @@ function TeamPage() {
                   <div key={entry.id} className="hof-record-card">
                     <div className="hof-record-meta">
                       <span className="hof-record-date">
-                        <IconTrophy size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4, color: "#facc15" }} />
                         {entry.date}
                       </span>
                       <span className="hof-record-champ">Champion: <strong>{entry.trainerName}</strong></span>
@@ -593,27 +563,23 @@ function TeamPage() {
         </div>
       )}
 
-      {/* TAB 2: PC STORAGE BOX (BILL'S PC) */}
+      {/* TAB 2: PC STORAGE BOX */}
       {activeTab === "box" && (
         <div className="pc-box-container">
           <div className="pc-box-header">
             <div>
-              <h3>Bill's PC — Pokémon Storage Box</h3>
-              <p>Reserve Pokémon caught from Wilderness expeditions or saved from the party.</p>
+              <h3>Storage Box</h3>
+              <p>{box.length} Pokémon stored</p>
             </div>
-            <span className="pc-box-count-badge">
-              <strong>{box.length}</strong> Stored
-            </span>
           </div>
 
           {box.length === 0 ? (
             <div className="pc-box-empty-box">
-              <IconPokeball size={44} className="pc-empty-icon" />
-              <h4>PC Storage Box is Empty!</h4>
+              <IconPokeball size={36} className="pc-empty-icon" />
+              <h4>Storage Box is Empty</h4>
               <p>Catch wild Pokémon in the Wilderness or deposit party members to store them here.</p>
               <Link to="/wilderness" className="btn-primary">
-                <IconTrees size={16} />
-                <span>Go to Wilderness</span>
+                Wilderness
               </Link>
             </div>
           ) : (
@@ -632,7 +598,7 @@ function TeamPage() {
                     }}
                   >
                     <div className="pc-card-header">
-                      <span className="pc-card-id">{formatPokemonId(p.id)}</span>
+                      <span className="pc-card-id">#{formatPokemonId(p.id)}</span>
                       <span className="pc-card-level">Lv. {p.level}</span>
                     </div>
 
@@ -659,8 +625,8 @@ function TeamPage() {
                     </div>
 
                     <div className="pc-card-stats-mini">
-                      <span>HP: {p.currentHp}/{p.maxHp}</span>
-                      <span>Atk: {p.attack}</span>
+                      <span>HP {p.currentHp}/{p.maxHp}</span>
+                      <span>Atk {p.attack}</span>
                     </div>
 
                     <div className="pc-card-actions">
@@ -672,10 +638,8 @@ function TeamPage() {
                         }}
                         disabled={team.length >= 6}
                         className="btn-pc-withdraw"
-                        title={team.length >= 6 ? "Party Full (6/6)" : "Withdraw to Active Party"}
                       >
-                        <IconPlus size={14} />
-                        <span>Withdraw</span>
+                        {team.length >= 6 ? "Party Full" : "Withdraw"}
                       </button>
 
                       <button
@@ -683,7 +647,7 @@ function TeamPage() {
                         onClick={() => {
                           if (
                             window.confirm(
-                              `Are you sure you want to release ${p.nickname} back into the wild?`
+                              `Are you sure you want to release ${p.nickname}?`
                             )
                           ) {
                             const res = releaseFromBox(p.instanceId);
@@ -691,10 +655,8 @@ function TeamPage() {
                           }
                         }}
                         className="btn-pc-release"
-                        title="Release Pokémon"
                       >
-                        <IconCross size={14} />
-                        <span>Release</span>
+                        Release
                       </button>
                     </div>
                   </div>
@@ -713,8 +675,7 @@ function TeamPage() {
           className="btn-reset-journey"
           title="Restart game session from the beginning"
         >
-          <IconRefresh size={14} />
-          <span>New Journey / Reset Save Data</span>
+          Reset Save Data
         </button>
       </div>
     </div>

@@ -66,8 +66,7 @@ function Navbar() {
             <div className="pokeball-bottom"></div>
           </div>
           <div className="brand-text">
-            <span className="brand-title">PokéDex Mini</span>
-            <span className="brand-tag">Pro Edition</span>
+            <span className="brand-title">PokéDex</span>
           </div>
         </Link>
 

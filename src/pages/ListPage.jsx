@@ -4,10 +4,9 @@ function ListPage() {
   return (
     <div className="list-page">
       <div className="hero-banner">
-        <h1 className="hero-title">PokéDex Encyclopedia</h1>
+        <h1 className="hero-title">PokéDex</h1>
         <p className="hero-subtitle">
-          Explore animated sprites, authentic stats, sound effects, and all 9
-          generations from the Pokémon universe.
+          Explore complete data, animated sprites, and stats across all 9 generations.
         </p>
       </div>
 
