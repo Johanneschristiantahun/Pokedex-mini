@@ -3,7 +3,7 @@ import { useGame } from "../context/GameContext.jsx";
 import { STARTER_POKEMON } from "../utils/pokemonFactory.js";
 import TypeBadge from "./TypeBadge.jsx";
 import { IconPokeball, IconSparkles } from "./Icons.jsx";
-import { capitalize, getTypeColor } from "../utils.js";
+import { capitalize } from "../utils.js";
 
 function StarterModal() {
   const { hasStarter, chooseStarter } = useGame();
@@ -18,20 +18,18 @@ function StarterModal() {
     setIsOpen(false);
   }
 
-  const theme = getTypeColor(selectedStarter.type);
-
   return (
     <div className="modal-backdrop">
       <div className="starter-modal">
         {/* Header */}
         <div className="starter-modal-header">
           <div className="oak-badge">
-            <IconPokeball size={15} />
-            <span>Professor Oak's Lab</span>
+            <IconPokeball size={14} />
+            <span>Professor Oak's Laboratory</span>
           </div>
-          <h2>Choose Your Starter Pokémon!</h2>
+          <h2>Choose Your Starter Pokémon</h2>
           <p className="starter-subtitle">
-            Every great journey begins with a trusted partner. Select your first companion to lead your team!
+            Select your initial companion to begin your journey.
           </p>
         </div>
 
@@ -39,20 +37,17 @@ function StarterModal() {
         <div className="starter-grid">
           {STARTER_POKEMON.map((starter) => {
             const isSelected = selectedStarter.id === starter.id;
-            const cardTheme = getTypeColor(starter.type);
 
             return (
-              <div
+              <button
+                type="button"
                 key={starter.id}
                 onClick={() => {
                   setSelectedStarter(starter);
                   setNickname("");
                 }}
                 className={`starter-card ${isSelected ? "starter-card-selected" : ""}`}
-                style={{
-                  "--type-color": cardTheme.primary,
-                  "--type-bg": cardTheme.bg,
-                }}
+                aria-pressed={isSelected}
               >
                 <div className="starter-sprite-box">
                   <img
@@ -68,26 +63,23 @@ function StarterModal() {
                     <TypeBadge key={t} type={t} size="sm" />
                   ))}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
 
         {/* Selected Starter Preview & Nickname */}
         <div className="starter-customization-box">
-          <div className="starter-preview-info">
-            <p className="starter-desc">"{selectedStarter.description}"</p>
-            <div className="starter-stat-summary">
-              <span>HP: <strong>{selectedStarter.baseStats.hp}</strong></span>
-              <span>Atk: <strong>{selectedStarter.baseStats.attack}</strong></span>
-              <span>Def: <strong>{selectedStarter.baseStats.defense}</strong></span>
-              <span>Speed: <strong>{selectedStarter.baseStats.speed}</strong></span>
-            </div>
+          <div className="starter-stat-summary">
+            <span>HP: <strong>{selectedStarter.baseStats.hp}</strong></span>
+            <span>Atk: <strong>{selectedStarter.baseStats.attack}</strong></span>
+            <span>Def: <strong>{selectedStarter.baseStats.defense}</strong></span>
+            <span>Speed: <strong>{selectedStarter.baseStats.speed}</strong></span>
           </div>
 
           <div className="starter-nickname-input-box">
             <label htmlFor="starter-nickname">
-              Give <strong>{capitalize(selectedStarter.name)}</strong> a Nickname (Optional):
+              Give <strong>{capitalize(selectedStarter.name)}</strong> a nickname (optional):
             </label>
             <input
               id="starter-nickname"
@@ -106,19 +98,16 @@ function StarterModal() {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="btn-skip"
+            className="btn-secondary btn-skip"
           >
-            Explore PokéDex First
+            Explore Pokédex First
           </button>
           <button
             type="button"
             onClick={handleConfirm}
-            className="btn-choose-starter"
-            style={{
-              backgroundColor: theme.primary,
-            }}
+            className="btn-primary btn-choose-starter"
           >
-            <span>I Choose You, {nickname.trim() || capitalize(selectedStarter.name)}!</span>
+            <span>Choose {nickname.trim() || capitalize(selectedStarter.name)}</span>
             <IconSparkles size={16} />
           </button>
         </div>

@@ -301,95 +301,47 @@ function DetailPage() {
         "--type-bg": theme.bg,
       }}
     >
-      {/* Quick Prev / Next Pager Bar */}
-      <div className="detail-pager-bar">
-        {pokemon.id > 1 ? (
-          <Link
-            to={`/pokemon/${pokemon.id - 1}`}
-            className="pager-btn pager-prev"
-            title={`Go to #${(pokemon.id - 1).toString().padStart(3, "0")}`}
-          >
-            <IconArrowLeft size={15} />
-            <span className="pager-num">#{formatPokemonId(pokemon.id - 1)}</span>
-            <span className="pager-text">Prev</span>
-          </Link>
-        ) : (
-          <div className="pager-btn pager-disabled">
-            <IconArrowLeft size={15} />
-            <span>Start</span>
-          </div>
-        )}
-
-        <div className="pager-current-pill">
-          <span className="pager-current-id">{formatPokemonId(pokemon.id)}</span>
-          <span className="pager-current-name">{capitalize(pokemon.name)}</span>
-        </div>
-
-        {pokemon.id < 1025 ? (
-          <Link
-            to={`/pokemon/${pokemon.id + 1}`}
-            className="pager-btn pager-next"
-            title={`Go to #${(pokemon.id + 1).toString().padStart(3, "0")}`}
-          >
-            <span className="pager-text">Next</span>
-            <span className="pager-num">#{formatPokemonId(pokemon.id + 1)}</span>
-            <IconArrowRight size={15} />
-          </Link>
-        ) : (
-          <div className="pager-btn pager-disabled">
-            <span>End</span>
-            <IconArrowRight size={15} />
-          </div>
-        )}
-      </div>
-
-      <div className="detail-header-nav">
+      {/* Top Navigation Bar: Back & Prev/Next Pager */}
+      <div className="detail-top-nav">
         <Link to="/" className="back-link">
           <IconArrowLeft size={16} />
           <span>Back to PokéDex</span>
         </Link>
-        <div className="detail-header-actions">
-          {team.length < 6 ? (
-            <button
-              type="button"
-              onClick={handleAddToTeamClick}
-              className={`btn-add-team-active ${isAlreadyInTeam ? "already-in-team" : ""}`}
+
+        <div className="detail-nav-pager">
+          {pokemon.id > 1 ? (
+            <Link
+              to={`/pokemon/${pokemon.id - 1}`}
+              className="pager-nav-btn"
+              title={`Previous Pokémon: #${(pokemon.id - 1).toString().padStart(3, "0")}`}
             >
-              {isAlreadyInTeam ? (
-                <>
-                  <IconCheck size={16} />
-                  <span>In Party (Add Copy)</span>
-                </>
-              ) : (
-                <>
-                  <IconParty size={16} />
-                  <span>Add to My Team</span>
-                </>
-              )}
-            </button>
+              <IconArrowLeft size={14} />
+              <span>#{formatPokemonId(pokemon.id - 1)}</span>
+            </Link>
           ) : (
-            <button
-              type="button"
-              onClick={handleAddToBoxClick}
-              className="btn-add-team-active"
-              style={{
-                background: "linear-gradient(135deg, #0284c7, #2563eb)",
-                borderColor: "#38bdf8",
-              }}
-              title="Party is full (6/6). Send directly to PC Storage Box"
-            >
-              <IconParty size={16} />
-              <span>Deposit to PC Box</span>
-            </button>
+            <span className="pager-nav-btn pager-nav-disabled">
+              <IconArrowLeft size={14} />
+              <span>Start</span>
+            </span>
           )}
-          <button
-            type="button"
-            onClick={() => playPokemonCry(pokemon.id)}
-            className="btn-cry-audio"
-          >
-            <IconVolume size={16} />
-            <span>Play Cry</span>
-          </button>
+
+          <span className="pager-nav-divider">/</span>
+
+          {pokemon.id < 1025 ? (
+            <Link
+              to={`/pokemon/${pokemon.id + 1}`}
+              className="pager-nav-btn"
+              title={`Next Pokémon: #${(pokemon.id + 1).toString().padStart(3, "0")}`}
+            >
+              <span>#{formatPokemonId(pokemon.id + 1)}</span>
+              <IconArrowRight size={14} />
+            </Link>
+          ) : (
+            <span className="pager-nav-btn pager-nav-disabled">
+              <span>End</span>
+              <IconArrowRight size={14} />
+            </span>
+          )}
         </div>
       </div>
 
@@ -415,16 +367,59 @@ function DetailPage() {
       )}
 
       <div className="detail-card">
-        {/* Top Identification */}
-        <div className="detail-identity">
-          <span className="detail-id">{formatPokemonId(pokemon.id)}</span>
-          <h2 className="detail-name">{capitalize(pokemon.name)}</h2>
-          <span className="detail-genus">{genus}</span>
+        {/* Top Header: Identification & Primary Actions */}
+        <div className="detail-header-section">
+          <div className="detail-identity">
+            <span className="detail-id">#{formatPokemonId(pokemon.id)}</span>
+            <h1 className="detail-name">{capitalize(pokemon.name)}</h1>
+            <span className="detail-genus">{genus}</span>
 
-          <div className="detail-types">
-            {pokemon.types.map((t) => (
-              <TypeBadge key={t.type.name} type={t.type.name} size="lg" />
-            ))}
+            <div className="detail-types">
+              {pokemon.types.map((t) => (
+                <TypeBadge key={t.type.name} type={t.type.name} size="md" />
+              ))}
+            </div>
+          </div>
+
+          <div className="detail-header-actions">
+            {team.length < 6 ? (
+              <button
+                type="button"
+                onClick={handleAddToTeamClick}
+                className={`btn-team-action ${isAlreadyInTeam ? "btn-team-in-party" : "btn-team-add"}`}
+              >
+                {isAlreadyInTeam ? (
+                  <>
+                    <IconCheck size={16} />
+                    <span>In Party ({team.filter((p) => p.name === pokemon.name).length}/6)</span>
+                  </>
+                ) : (
+                  <>
+                    <IconParty size={16} />
+                    <span>Add to Party</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleAddToBoxClick}
+                className="btn-team-action btn-team-box"
+                title="Party is full (6/6). Send to PC Storage Box"
+              >
+                <IconParty size={16} />
+                <span>Deposit to PC Box</span>
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => playPokemonCry(pokemon.id)}
+              className="btn-cry-action"
+              title="Play Pokémon cry sound"
+            >
+              <IconVolume size={16} />
+              <span>Play Cry</span>
+            </button>
           </div>
         </div>
 
@@ -437,7 +432,7 @@ function DetailPage() {
                 onClick={() => setUseArtwork(true)}
                 className={`toggle-btn ${useArtwork ? "active" : ""}`}
               >
-                <IconPalette size={15} />
+                <IconPalette size={14} />
                 <span>Official Artwork</span>
               </button>
               <button
@@ -445,7 +440,7 @@ function DetailPage() {
                 onClick={() => setUseArtwork(false)}
                 className={`toggle-btn ${!useArtwork ? "active" : ""}`}
               >
-                <IconSparkles size={15} />
+                <IconSparkles size={14} />
                 <span>Animated Showdown</span>
               </button>
             </div>
@@ -454,9 +449,9 @@ function DetailPage() {
               type="button"
               onClick={() => setIsShiny((prev) => !prev)}
               className={`toggle-btn btn-shiny-toggle ${isShiny ? "shiny-active" : ""}`}
-              title={isShiny ? "Click to switch to Normal Color" : "Click to view Shiny Color Variant"}
+              title={isShiny ? "Switch to Normal form" : "View Shiny form"}
             >
-              <IconSparkles size={15} className="shiny-spark-icon" />
+              <IconSparkles size={14} className="shiny-spark-icon" />
               <span>{isShiny ? "Shiny Variant Active" : "View Shiny Form"}</span>
             </button>
           </div>
@@ -483,7 +478,7 @@ function DetailPage() {
         {flavorText && (
           <div className="detail-lore-box">
             <div className="lore-header">
-              <h3>Pokédex Lore</h3>
+              <span className="lore-title">Pokédex Entry</span>
               <button
                 type="button"
                 onClick={handleSpeakDex}
@@ -492,18 +487,18 @@ function DetailPage() {
               >
                 {isSpeaking ? (
                   <>
-                    <IconSquare size={16} />
+                    <IconSquare size={14} />
                     <span>Stop Voice</span>
                   </>
                 ) : (
                   <>
-                    <IconMic size={16} />
-                    <span>Listen Pokédex Voice</span>
+                    <IconMic size={14} />
+                    <span>Listen Voice</span>
                   </>
                 )}
               </button>
             </div>
-            <p className="lore-text">"{flavorText}"</p>
+            <p className="lore-text">{flavorText}</p>
           </div>
         )}
 
