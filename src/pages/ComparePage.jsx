@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Pro Comparison Tool (/compare)
+// PokéDex Mini Pro Comparison Tool (/compare)
 // Head-to-Head Side-by-Side Dual Pokémon Analyzer
 // Interactive Stats Diffs, Type Matchup Matrix, & Movepools
 // ========================================================

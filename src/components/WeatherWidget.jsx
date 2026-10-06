@@ -9,7 +9,8 @@ import {
   fetchLiveWeather,
   POKEMON_WEATHER_STATES,
 } from "../utils/weatherApi.js";
-import { IconSparkles, IconRefresh } from "./Icons.jsx";
+import { IconSparkles, IconRefresh, IconGps, WeatherIcon } from "./Icons.jsx";
+
 
 export default function WeatherWidget({ onWeatherChange, className = "" }) {
   const [selectedPresetId, setSelectedPresetId] = useState("pallet");
@@ -65,7 +66,11 @@ export default function WeatherWidget({ onWeatherChange, className = "" }) {
           <span className="live-pulse-dot"></span>
           <span>LIVE WEATHER API</span>
         </span>
-        {isGpsActive && <span className="weather-gps-indicator">🛰️ GPS</span>}
+        {isGpsActive && (
+          <span className="weather-gps-indicator">
+            <IconGps size={13} /> GPS
+          </span>
+        )}
 
         <select
           value={selectedPresetId}
@@ -96,10 +101,13 @@ export default function WeatherWidget({ onWeatherChange, className = "" }) {
         ) : (
           <div className="weather-stats-cluster">
             <span className="weather-condition-pill" style={{ borderColor: pWeather.color }}>
-              <span className="weather-icon">{pWeather.icon}</span>
+              <span className="weather-icon">
+                <WeatherIcon id={pWeather.id} size={15} />
+              </span>
               <span className="weather-temp">{weatherData?.tempC}°C</span>
               <strong className="weather-name">{pWeather.label}</strong>
             </span>
+
 
             <span className="weather-tactical-tag">
               <IconSparkles size={12} style={{ marginRight: 4 }} />

@@ -56,6 +56,11 @@ import { triggerHaptic, HAPTIC_PATTERNS } from "../utils/haptics.js";
 
 const STORAGE_KEY_TOWER = "pokesphere_tower_record";
 
+function getRandomTowerMove(moves) {
+  if (!moves || moves.length === 0) return null;
+  return moves[Math.floor(Math.random() * moves.length)];
+}
+
 export default function BattleTowerPage() {
   const {
     team,
@@ -172,7 +177,7 @@ export default function BattleTowerPage() {
     triggerHaptic(HAPTIC_PATTERNS.MEGA_EVOLUTION);
 
     const megaData = getMegaEvolutionData(basePlayerMon);
-    setBattleDialogue(`✨ ${basePlayerMon.nickname.toUpperCase()} Mega Evolved into ${megaData.formName.toUpperCase()}!`);
+    setBattleDialogue(`${basePlayerMon.nickname.toUpperCase()} Mega Evolved into ${megaData.formName.toUpperCase()}!`);
 
     setTimeout(() => {
       setMegaBurstAnim(false);
@@ -279,7 +284,7 @@ export default function BattleTowerPage() {
 
   function executeOppAttack(onComplete) {
     if (!activeOppMon || !activePlayerMon) return;
-    const chosenMove = activeOppMon.moves[Math.floor(Math.random() * activeOppMon.moves.length)] || activeOppMon.moves[0];
+    const chosenMove = getRandomTowerMove(activeOppMon.moves) || activeOppMon.moves[0];
 
     setBattleDialogue(`Foe's ${activeOppMon.nickname} used ${chosenMove.name.toUpperCase()}!`);
     setOppAnim(cameraMode === "isometric" ? "anim-isometric-wild-lunge" : "anim-wild-lunge");
@@ -457,7 +462,7 @@ export default function BattleTowerPage() {
             <div className="tower-milestone-reward-box">
               <IconSparkles size={24} className="milestone-icon" />
               <div>
-                <h4 className="milestone-title">🎉 Milestone Bonus Earned!</h4>
+                <h4 className="milestone-title">Milestone Bonus Earned!</h4>
                 <p className="milestone-desc">
                   +1 Master Ball & +3 Rare Candies deposited directly into your Bag!
                 </p>

@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Official Kanto Gym Badge Vector SVG Icons
+// PokéDex Mini Official Kanto Gym Badge Vector SVG Icons
 // 8 Authentic Gym Badges with metallic gradients,
 // bevel highlights, and locked silhouette states
 // ========================================================

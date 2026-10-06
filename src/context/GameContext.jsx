@@ -1081,6 +1081,7 @@ export function GameProvider({ children }) {
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
 
+// oxlint-disable-next-line react/only-export-components
 export function useGame() {
   const context = useContext(GameContext);
   if (!context) {

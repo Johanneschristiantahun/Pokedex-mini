@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Live Real-World Weather Engine
+// PokéDex Mini Live Real-World Weather Engine
 // Powered by Open-Meteo Public Meteorological API
 // Connects real-world atmospheric conditions to Pokémon battle mechanics
 // ========================================================
@@ -17,7 +17,7 @@ export const POKEMON_WEATHER_STATES = {
   CLEAR: {
     id: "clear",
     label: "Clear Skies",
-    icon: "☀️",
+    icon: "clear",
     color: "#f59e0b",
     bgClass: "weather-clear",
     description: "Standard atmospheric conditions. Normal elemental effectiveness.",
@@ -27,7 +27,7 @@ export const POKEMON_WEATHER_STATES = {
   SUNNY: {
     id: "sunny",
     label: "Harsh Sunlight",
-    icon: "🔥",
+    icon: "sunny",
     color: "#ef4444",
     bgClass: "weather-sunny",
     description: "Intense solar rays! Fire moves deal +50% damage; Water moves deal -50%.",
@@ -37,7 +37,7 @@ export const POKEMON_WEATHER_STATES = {
   RAIN: {
     id: "rain",
     label: "Heavy Rain",
-    icon: "🌧️",
+    icon: "rain",
     color: "#3b82f6",
     bgClass: "weather-rain",
     description: "Pouring rainstorm! Water moves deal +50% damage; Fire moves deal -50%.",
@@ -47,7 +47,7 @@ export const POKEMON_WEATHER_STATES = {
   SNOW: {
     id: "snow",
     label: "Hail & Blizzard",
-    icon: "❄️",
+    icon: "snow",
     color: "#06b6d4",
     bgClass: "weather-snow",
     description: "Freezing blizzard! Ice Pokémon gain +50% Defense.",
@@ -57,7 +57,7 @@ export const POKEMON_WEATHER_STATES = {
   SANDSTORM: {
     id: "sandstorm",
     label: "Swirling Sandstorm",
-    icon: "🌪️",
+    icon: "sandstorm",
     color: "#d97706",
     bgClass: "weather-sandstorm",
     description: "Fierce desert sands! Rock Pokémon gain +50% Sp. Def.",
@@ -67,7 +67,7 @@ export const POKEMON_WEATHER_STATES = {
   THUNDERSTORM: {
     id: "thunderstorm",
     label: "Thunderstorm Surge",
-    icon: "⚡",
+    icon: "thunderstorm",
     color: "#eab308",
     bgClass: "weather-thunder",
     description: "Atmospheric lightning charge! Electric moves deal +50% damage.",

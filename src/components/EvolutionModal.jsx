@@ -1,10 +1,10 @@
 // ========================================================
-// PokéSphere Authentic Cinematic Evolution Cutscene
+// PokéDex Mini Authentic Cinematic Evolution Cutscene
 // Pulsing Silhouette Transformation, Cancel [B] Mechanism,
 // Official Web Audio Chimes, and Stat Boost Preview
 // ========================================================
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { evolvePokemonInstance } from "../utils/pokemonFactory.js";
 import {
   capitalize,
@@ -54,7 +54,10 @@ function EvolutionCutscene({ pendingEvolution, onComplete, onCancel }) {
     speed: pokemon.speed,
   };
 
-  const evolvedInst = evolvePokemonInstance(pokemon, targetEvo);
+  const evolvedInst = useMemo(
+    () => evolvePokemonInstance(pokemon, targetEvo),
+    [pokemon, targetEvo]
+  );
 
   const statDiffs = {
     hp: evolvedInst.maxHp - preStats.hp,
@@ -65,13 +68,18 @@ function EvolutionCutscene({ pendingEvolution, onComplete, onCancel }) {
     speed: evolvedInst.speed - preStats.speed,
   };
 
+  const targetId = targetEvo.targetId;
+
   useEffect(() => {
     let speedMs = 380;
     let flip = 0;
+    let activePulseTimer = null;
+    let activeEvolutionTimeout = null;
 
     // Start pulsating loop
     const runPulse = () => {
-      pulseTimerRef.current = setTimeout(() => {
+      activePulseTimer = setTimeout(() => {
+        pulseTimerRef.current = activePulseTimer;
         flip = flip === 0 ? 1 : 0;
         setDisplaySilhouette(flip);
         playEvolutionPulseSound();
@@ -80,14 +88,14 @@ function EvolutionCutscene({ pendingEvolution, onComplete, onCancel }) {
         speedMs = Math.max(90, speedMs * 0.88);
         runPulse();
       }, speedMs);
+      pulseTimerRef.current = activePulseTimer;
     };
 
     runPulse();
 
     // 4.2 seconds evolution duration
-    evolutionTimeoutRef.current = setTimeout(() => {
-      clearTimeout(pulseTimerRef.current);
-      clearInterval(soundIntervalRef.current);
+    activeEvolutionTimeout = setTimeout(() => {
+      clearTimeout(activePulseTimer);
 
       // Trigger white flash
       setPhase("FLASH");
@@ -98,16 +106,16 @@ function EvolutionCutscene({ pendingEvolution, onComplete, onCancel }) {
         setPhase("COMPLETE");
         setEvolvedResult(evolvedInst);
         playEvolutionJingle();
-        playPokemonCry(targetEvo.targetId);
+        playPokemonCry(targetId);
       }, 500);
     }, 4200);
+    evolutionTimeoutRef.current = activeEvolutionTimeout;
 
     return () => {
-      clearTimeout(pulseTimerRef.current);
-      clearInterval(soundIntervalRef.current);
-      clearTimeout(evolutionTimeoutRef.current);
+      clearTimeout(activePulseTimer);
+      clearTimeout(activeEvolutionTimeout);
     };
-  }, []);
+  }, [evolvedInst, targetId]);
 
   function handleCancelEvolution() {
     clearTimeout(pulseTimerRef.current);

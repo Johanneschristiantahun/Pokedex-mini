@@ -172,7 +172,7 @@ function WildernessPage() {
         setBattleHistory([`Wild ${capitalize(wild.name)} (Lv. ${wild.level}) emerged from the brush!`]);
 
         if (wild.isShiny) {
-          pushLog("✨ A rare and glittering SHINY Pokémon appeared!");
+          pushLog("A rare and glittering SHINY Pokémon appeared!");
         }
 
         playPokemonCry(wild.id);

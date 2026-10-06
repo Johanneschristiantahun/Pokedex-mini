@@ -457,7 +457,7 @@ function DetailPage() {
               title={isShiny ? "Click to switch to Normal Color" : "Click to view Shiny Color Variant"}
             >
               <IconSparkles size={15} className="shiny-spark-icon" />
-              <span>{isShiny ? "✨ Shiny Variant" : "Shiny Form"}</span>
+              <span>{isShiny ? "Shiny Variant Active" : "View Shiny Form"}</span>
             </button>
           </div>
 
@@ -827,7 +827,7 @@ function DetailPage() {
                 </div>
 
                 <div className="tcg-inspect-hint">
-                  ✨ Interactive holographic preview from Pokémon TCG official archives.
+                  Interactive holographic preview from Pokémon TCG official archives.
                 </div>
               </div>
             </div>

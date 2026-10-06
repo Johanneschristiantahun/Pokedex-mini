@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import TypeBadge from "./TypeBadge.jsx";
-import { IconVolume } from "./Icons.jsx";
+import { IconVolume2 } from "./Icons.jsx";
 import {
   getIdFromUrl,
   formatPokemonId,
@@ -9,14 +9,12 @@ import {
   getAnimatedSpriteUrl,
   getSpriteUrl,
   playPokemonCry,
-  getTypeColor,
 } from "../utils.js";
 
 function PokemonCard({ pokemon, details, genId }) {
   const id = pokemon.id || getIdFromUrl(pokemon.url);
-  const types = details?.types?.map((t) => t.type.name) || pokemon.types || [];
-  const primaryType = types[0] || "normal";
-  const theme = getTypeColor(primaryType);
+  const types =
+    details?.types?.map((t) => t.type?.name || t) || pokemon.types || [];
 
   const [imgSrc, setImgSrc] = useState(getAnimatedSpriteUrl(id));
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -46,21 +44,17 @@ function PokemonCard({ pokemon, details, genId }) {
       to={`/pokemon/${pokemon.name}`}
       onClick={handleCardClick}
       className="pokemon-card"
-      style={{
-        "--type-accent": theme.primary,
-        "--type-bg": theme.bg,
-      }}
     >
-      <div className="card-top">
+      <div className="card-header">
         <span className="card-id">{formatPokemonId(id)}</span>
         <button
           type="button"
           onClick={handlePlayCry}
-          className={`cry-button ${isPlayingAudio ? "playing" : ""}`}
+          className={`card-audio-btn ${isPlayingAudio ? "playing" : ""}`}
           title="Play Pokémon Cry"
           aria-label={`Play ${pokemon.name} cry sound`}
         >
-          <IconVolume size={14} />
+          <IconVolume2 size={15} />
         </button>
       </div>
 

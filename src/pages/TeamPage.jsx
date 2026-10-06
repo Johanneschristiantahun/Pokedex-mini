@@ -249,7 +249,10 @@ function TeamPage() {
               {hallOfFame.map((entry) => (
                 <div key={entry.id} className="hof-record-card">
                   <div className="hof-record-meta">
-                    <span className="hof-record-date">🏆 {entry.date}</span>
+                    <span className="hof-record-date">
+                      <IconTrophy size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4, color: "#facc15" }} />
+                      {entry.date}
+                    </span>
                     <span className="hof-record-champ">Champion: <strong>{entry.trainerName}</strong></span>
                   </div>
                   <div className="hof-record-sprites">

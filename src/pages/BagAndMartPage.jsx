@@ -636,7 +636,8 @@ function BagAndMartPage() {
                       if (evoTarget) {
                         compatBadge = (
                           <span className="compat-badge-evolve">
-                            ✨ Evolves to {capitalize(evoTarget.name)}!
+                            <IconSparkles size={12} style={{ marginRight: 4, display: "inline-block", verticalAlign: "middle" }} />
+                            Evolves to {capitalize(evoTarget.name)}!
                           </span>
                         );
                       } else {

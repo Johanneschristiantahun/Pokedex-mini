@@ -11,7 +11,7 @@ function Layout() {
       <footer className="app-footer">
         <div className="footer-content">
           <p>
-            <strong>PokéSphere</strong> • Web & Mobile Application Development Project
+            <strong>PokéDex Mini</strong> • Web & Mobile Application Development Project
           </p>
           <p className="footer-sub">
             Built with React, Vite & PokéAPI. Sprites & Pokémon are copyright of Nintendo / Game Freak.

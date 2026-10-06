@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Indigo Plateau & Pokémon League Championship
+// PokéDex Mini Indigo Plateau & Pokémon League Championship
 // 5-Chamber Gauntlet: Lorelei, Bruno, Agatha, Lance, & Champion Blue
 // 8-Badge Victory Road Gatekeeper & Hall of Fame Induction
 // ========================================================

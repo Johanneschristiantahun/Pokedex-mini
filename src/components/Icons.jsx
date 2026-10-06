@@ -271,6 +271,8 @@ export function IconVolume({ size = 18, className = "" }) {
   );
 }
 
+export const IconVolume2 = IconVolume;
+
 export function IconVolumeMute({ size = 18, className = "" }) {
   return (
     <svg
@@ -775,3 +777,257 @@ export function IconTower({ size = 18, className = "" }) {
     </svg>
   );
 }
+
+export function IconInfo({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+  );
+}
+
+export function IconGps({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+export function IconCalendar({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+  );
+}
+
+export function IconSkull({ size = 18, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`svg-icon ${className}`}
+    >
+      <circle cx="9" cy="12" r="1" fill="currentColor" />
+      <circle cx="15" cy="12" r="1" fill="currentColor" />
+      <path d="M8 20v2h8v-2" />
+      <path d="M12.5 17l-.5-1-.5 1h1z" />
+      <path d="M16 20a3 3 0 0 0 1.9-5.3A7.5 7.5 0 1 0 6.1 14.7 3 3 0 0 0 8 20h8z" />
+    </svg>
+  );
+}
+
+export function ParticleFlame({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#f97316" className={className}>
+      <path d="M12 2c1 3 4 5 4 9a6 6 0 1 1-12 0c0-3 2-6 4-8 1 2 2 3 4-1z" />
+    </svg>
+  );
+}
+
+export function ParticleWaterDrop({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#38bdf8" className={className}>
+      <path d="M12 2.7L6 13a7 7 0 1 0 12 0L12 2.7z" />
+    </svg>
+  );
+}
+
+export function ParticleLeaf({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#22c55e" className={className}>
+      <path d="M6 3c8 0 12 4 12 12 0 6-6 6-12 6 0-8 4-12 12-12" />
+    </svg>
+  );
+}
+
+export function ParticleLightning({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#eab308" className={className}>
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  );
+}
+
+export function ParticleRock({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#a8a29e" className={className}>
+      <polygon points="12 3 19 8 21 16 14 21 5 19 3 11 8 4" />
+    </svg>
+  );
+}
+
+export function ParticleOrb({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#c084fc" className={className}>
+      <circle cx="12" cy="12" r="9" opacity="0.8" />
+      <circle cx="9" cy="9" r="3" fill="#ffffff" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function ParticleSnowflake({ size = 20, className = "" }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#7dd3fc"
+      strokeWidth="2"
+      strokeLinecap="round"
+      className={className}
+    >
+      <line x1="12" y1="2" x2="12" y2="22" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <line x1="5" y1="5" x2="19" y2="19" />
+      <line x1="5" y1="19" x2="19" y2="5" />
+    </svg>
+  );
+}
+
+export function ParticleBurst({ size = 20, className = "" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#fb923c" className={className}>
+      <polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9" />
+    </svg>
+  );
+}
+
+export function WeatherIcon({ id, size = 16, className = "" }) {
+  if (id === "sunny" || id === "clear") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#f59e0b"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        <circle cx="12" cy="12" r="4" fill="#f59e0b" />
+        <line x1="12" y1="2" x2="12" y2="4" />
+        <line x1="12" y1="20" x2="12" y2="22" />
+        <line x1="4.93" y1="4.93" x2="6.34" y2="6.34" />
+        <line x1="17.66" y1="17.66" x2="19.07" y2="19.07" />
+        <line x1="2" y1="12" x2="4" y2="12" />
+        <line x1="20" y1="12" x2="22" y2="12" />
+        <line x1="4.93" y1="19.07" x2="6.34" y2="17.66" />
+        <line x1="17.66" y1="6.34" x2="19.07" y2="4.93" />
+      </svg>
+    );
+  }
+  if (id === "rain") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#3b82f6"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        <path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25" />
+        <line x1="8" y1="19" x2="8" y2="21" />
+        <line x1="16" y1="19" x2="16" y2="21" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+      </svg>
+    );
+  }
+  if (id === "snow") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#06b6d4"
+        strokeWidth="2"
+        strokeLinecap="round"
+        className={className}
+      >
+        <line x1="12" y1="2" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <line x1="5" y1="5" x2="19" y2="19" />
+        <line x1="5" y1="19" x2="19" y2="5" />
+      </svg>
+    );
+  }
+  if (id === "thunderstorm") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="#eab308" className={className}>
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+      </svg>
+    );
+  }
+  if (id === "sandstorm") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#d97706"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+      >
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />
+      </svg>
+    );
+  }
+  return null;
+}
+
+
+

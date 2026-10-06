@@ -1,5 +1,16 @@
+import {
+  ParticleFlame,
+  ParticleWaterDrop,
+  ParticleLeaf,
+  ParticleLightning,
+  ParticleRock,
+  ParticleOrb,
+  ParticleSnowflake,
+  ParticleBurst,
+} from "./Icons";
+
 // ========================================================
-// PokéSphere RPG Battle Environment Component
+// PokéDex Mini RPG Battle Environment Component
 // Multi-layered, biome-specific scenic backdrops,
 // atmospheric animated particles, and authentic 3D battle pedestals
 // ========================================================
@@ -12,36 +23,36 @@ export function ElementalVfxOverlay({ type }) {
   if (t === "fire") {
     return (
       <div className="elemental-vfx fire-vfx" aria-hidden="true">
-        <span className="vfx-particle flame-1">🔥</span>
-        <span className="vfx-particle flame-2">💥</span>
-        <span className="vfx-particle flame-3">🔥</span>
+        <span className="vfx-particle flame-1"><ParticleFlame size={28} /></span>
+        <span className="vfx-particle flame-2"><ParticleBurst size={28} /></span>
+        <span className="vfx-particle flame-3"><ParticleFlame size={28} /></span>
       </div>
     );
   }
   if (t === "water") {
     return (
       <div className="elemental-vfx water-vfx" aria-hidden="true">
-        <span className="vfx-particle water-1">🌊</span>
-        <span className="vfx-particle water-2">💧</span>
-        <span className="vfx-particle water-3">🌊</span>
+        <span className="vfx-particle water-1"><ParticleWaterDrop size={28} /></span>
+        <span className="vfx-particle water-2"><ParticleWaterDrop size={22} /></span>
+        <span className="vfx-particle water-3"><ParticleWaterDrop size={28} /></span>
       </div>
     );
   }
   if (t === "electric") {
     return (
       <div className="elemental-vfx electric-vfx" aria-hidden="true">
-        <span className="vfx-particle spark-1">⚡</span>
-        <span className="vfx-particle spark-2">⚡</span>
-        <span className="vfx-particle spark-3">⚡</span>
+        <span className="vfx-particle spark-1"><ParticleLightning size={26} /></span>
+        <span className="vfx-particle spark-2"><ParticleLightning size={26} /></span>
+        <span className="vfx-particle spark-3"><ParticleLightning size={26} /></span>
       </div>
     );
   }
   if (t === "grass" || t === "bug") {
     return (
       <div className="elemental-vfx grass-vfx" aria-hidden="true">
-        <span className="vfx-particle leaf-1">🍃</span>
-        <span className="vfx-particle leaf-2">🌿</span>
-        <span className="vfx-particle leaf-3">🍃</span>
+        <span className="vfx-particle leaf-1"><ParticleLeaf size={26} /></span>
+        <span className="vfx-particle leaf-2"><ParticleLeaf size={22} /></span>
+        <span className="vfx-particle leaf-3"><ParticleLeaf size={26} /></span>
       </div>
     );
   }
@@ -50,28 +61,29 @@ export function ElementalVfxOverlay({ type }) {
       <div className="elemental-vfx psychic-vfx" aria-hidden="true">
         <div className="psychic-ring ring-1"></div>
         <div className="psychic-ring ring-2"></div>
-        <span className="vfx-particle psychic-orb">🔮</span>
+        <span className="vfx-particle psychic-orb"><ParticleOrb size={28} /></span>
       </div>
     );
   }
   if (t === "rock" || t === "ground") {
     return (
       <div className="elemental-vfx rock-vfx" aria-hidden="true">
-        <span className="vfx-particle rock-1">🪨</span>
-        <span className="vfx-particle rock-2">💥</span>
-        <span className="vfx-particle rock-3">🪨</span>
+        <span className="vfx-particle rock-1"><ParticleRock size={26} /></span>
+        <span className="vfx-particle rock-2"><ParticleBurst size={26} /></span>
+        <span className="vfx-particle rock-3"><ParticleRock size={26} /></span>
       </div>
     );
   }
   if (t === "ice") {
     return (
       <div className="elemental-vfx ice-vfx" aria-hidden="true">
-        <span className="vfx-particle ice-1">❄️</span>
-        <span className="vfx-particle ice-2">✨</span>
-        <span className="vfx-particle ice-3">❄️</span>
+        <span className="vfx-particle ice-1"><ParticleSnowflake size={26} /></span>
+        <span className="vfx-particle ice-2"><ParticleSnowflake size={20} /></span>
+        <span className="vfx-particle ice-3"><ParticleSnowflake size={26} /></span>
       </div>
     );
   }
+
   return (
     <div className="elemental-vfx normal-vfx" aria-hidden="true">
       <div className="vfx-slash-blade"></div>
@@ -526,11 +538,11 @@ function PowerPlantBackdrop() {
 function ForestLeavesParticles() {
   return (
     <div className="env-particles-container">
-      <span className="particle particle-leaf leaf-1">🍃</span>
-      <span className="particle particle-leaf leaf-2">🌿</span>
-      <span className="particle particle-leaf leaf-3">🍃</span>
-      <span className="particle particle-leaf leaf-4">🌿</span>
-      <span className="particle particle-leaf leaf-5">🍃</span>
+      <span className="particle particle-leaf leaf-1"><ParticleLeaf size={14} /></span>
+      <span className="particle particle-leaf leaf-2"><ParticleLeaf size={12} /></span>
+      <span className="particle particle-leaf leaf-3"><ParticleLeaf size={14} /></span>
+      <span className="particle particle-leaf leaf-4"><ParticleLeaf size={12} /></span>
+      <span className="particle particle-leaf leaf-5"><ParticleLeaf size={14} /></span>
     </div>
   );
 }
@@ -572,9 +584,9 @@ function VolcanoEmbersParticles() {
 function PowerPlantSparksParticles() {
   return (
     <div className="env-particles-container">
-      <span className="particle particle-spark spark-1">⚡</span>
-      <span className="particle particle-spark spark-2">⚡</span>
-      <span className="particle particle-spark spark-3">⚡</span>
+      <span className="particle particle-spark spark-1"><ParticleLightning size={14} /></span>
+      <span className="particle particle-spark spark-2"><ParticleLightning size={14} /></span>
+      <span className="particle particle-spark spark-3"><ParticleLightning size={14} /></span>
     </div>
   );
 }

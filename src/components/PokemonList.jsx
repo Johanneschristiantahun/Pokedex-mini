@@ -9,21 +9,31 @@ import {
   pokemonDetailCache,
   formatPokemonId,
 } from "../utils.js";
-import { IconSparkles, IconX, IconAlertTriangle } from "./Icons.jsx";
+import { IconSearch, IconX, IconAlertTriangle } from "./Icons.jsx";
 
 const BATCH_SIZE = 24;
+
+const ALL_GEN = {
+  id: "all",
+  name: "All Generations",
+  offset: 0,
+  limit: 1025,
+  region: "National Dex",
+};
 
 function PokemonList() {
   const navigate = useNavigate();
   // Restore previously selected generation from session if available
   const savedGenId = sessionStorage.getItem("pokedex_last_gen_id");
   const initialGen =
-    GENERATIONS.find((g) => g.id.toString() === savedGenId) || GENERATIONS[0];
+    savedGenId === "all"
+      ? ALL_GEN
+      : GENERATIONS.find((g) => g.id.toString() === savedGenId) || GENERATIONS[0];
 
   const [selectedGen, setSelectedGen] = useState(initialGen);
   const [selectedType, setSelectedType] = useState("all");
   const [liveQuery, setLiveQuery] = useState("");
-  const [sortBy, setSortBy] = useState("id_asc");
+  const [sortBy, setSortBy] = useState("id-asc");
   const [pokemons, setPokemons] = useState(
     () => genDataCache[initialGen.id]?.pokemons || []
   );
@@ -59,11 +69,17 @@ function PokemonList() {
 
     // Check cache first for 0ms instant load
     if (genDataCache[selectedGen.id]) {
-      setPokemons(genDataCache[selectedGen.id].pokemons);
-      setOffset(genDataCache[selectedGen.id].offset);
-      setIsLoading(false);
-      setError(null);
-      return;
+      const cached = genDataCache[selectedGen.id];
+      queueMicrotask(() => {
+        if (!isCurrent) return;
+        setPokemons(cached.pokemons);
+        setOffset(cached.offset);
+        setIsLoading(false);
+        setError(null);
+      });
+      return () => {
+        isCurrent = false;
+      };
     }
 
     async function fetchGenInitial() {
@@ -182,8 +198,22 @@ function PokemonList() {
     }
   }
 
+  function handleGenChange(e) {
+    const value = e.target.value;
+    sessionStorage.setItem("pokedex_last_gen_id", value);
+    if (value === "all") {
+      setSelectedGen(ALL_GEN);
+    } else {
+      const found = GENERATIONS.find((g) => g.id.toString() === value);
+      if (found) setSelectedGen(found);
+    }
+    setSelectedType("all");
+    setLiveQuery("");
+  }
+
   // Filter by Type & Live Query (Name or ID)
   const cleanQuery = liveQuery.trim().toLowerCase();
+  const queryDigitsOnly = cleanQuery.replace(/^#/, "").replace(/^0+/, "");
 
   const filteredPokemons = pokemons.filter((p) => {
     // 1. Type filter
@@ -192,11 +222,13 @@ function PokemonList() {
       if (!types.includes(selectedType)) return false;
     }
 
-    // 2. Live text filter
+    // 2. Live text filter (Name or ID)
     if (cleanQuery !== "") {
       const nameMatches = p.name.toLowerCase().includes(cleanQuery);
+      const pIdStr = p.id ? p.id.toString() : "";
       const idMatches =
-        p.id?.toString() === cleanQuery ||
+        pIdStr === cleanQuery ||
+        (queryDigitsOnly !== "" && pIdStr === queryDigitsOnly) ||
         formatPokemonId(p.id).toLowerCase().includes(cleanQuery);
       return nameMatches || idMatches;
     }
@@ -206,30 +238,33 @@ function PokemonList() {
 
   // Sort filtered pokemons based on selected sort criteria
   const sortedPokemons = [...filteredPokemons].sort((a, b) => {
-    if (sortBy === "id_asc") {
+    if (sortBy === "id-asc" || sortBy === "id_asc") {
       return (a.id || 0) - (b.id || 0);
     }
-    if (sortBy === "id_desc") {
+    if (sortBy === "id-desc" || sortBy === "id_desc") {
       return (b.id || 0) - (a.id || 0);
     }
-    if (sortBy === "name_asc") {
+    if (sortBy === "name-asc" || sortBy === "name_asc") {
       return (a.name || "").localeCompare(b.name || "");
     }
-    if (sortBy === "bst_desc") {
+    if (sortBy === "name-desc" || sortBy === "name_desc") {
+      return (b.name || "").localeCompare(a.name || "");
+    }
+    if (sortBy === "bst-desc" || sortBy === "bst_desc") {
       const bstA =
         a.stats?.reduce((sum, s) => sum + (s.base_stat || 0), 0) || 0;
       const bstB =
         b.stats?.reduce((sum, s) => sum + (s.base_stat || 0), 0) || 0;
       return bstB - bstA;
     }
-    if (sortBy === "atk_desc") {
+    if (sortBy === "atk-desc" || sortBy === "atk_desc") {
       const atkA =
         a.stats?.find((s) => s.stat?.name === "attack")?.base_stat || 0;
       const atkB =
         b.stats?.find((s) => s.stat?.name === "attack")?.base_stat || 0;
       return atkB - atkA;
     }
-    if (sortBy === "spd_desc") {
+    if (sortBy === "spd-desc" || sortBy === "spd_desc") {
       const spdA =
         a.stats?.find((s) => s.stat?.name === "speed")?.base_stat || 0;
       const spdB =
@@ -257,113 +292,87 @@ function PokemonList() {
 
   return (
     <section className="pokedex-section">
-      {/* Generation Tabs */}
-      <div className="gen-tabs-container">
-        <div className="gen-tabs-scroll">
-          {GENERATIONS.map((gen) => (
-            <button
-              key={gen.id}
-              onClick={() => {
-                sessionStorage.setItem("pokedex_last_gen_id", gen.id.toString());
-                setSelectedGen(gen);
-                setSelectedType("all");
-                setLiveQuery("");
-              }}
-              className={`gen-tab ${selectedGen.id === gen.id ? "gen-tab-active" : ""}`}
-            >
-              {gen.name}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Consolidated Control Bar */}
+      <section className="pokedex-controls-section pokedex-controls">
+        <div className="control-bar">
+          <div className="search-wrapper">
+            <IconSearch size={16} className="search-input-icon" />
+            <input
+              type="text"
+              id="pokedex-search"
+              value={liveQuery}
+              onChange={(e) => setLiveQuery(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+              placeholder="Search Pokémon by name or #..."
+              aria-label="Search Pokémon by name or ID"
+            />
+            {liveQuery && (
+              <button
+                type="button"
+                onClick={() => setLiveQuery("")}
+                className="search-clear-btn"
+                aria-label="Clear search"
+              >
+                <IconX size={14} />
+              </button>
+            )}
+          </div>
 
-      {/* Type Filter Pills */}
-      <div className="type-filters-container">
-        <button
-          onClick={() => setSelectedType("all")}
-          className={`type-filter-pill ${selectedType === "all" ? "active" : ""}`}
-        >
-          All Types
-        </button>
-        {Object.keys(TYPE_COLORS).map((typeKey) => (
-          <button
-            key={typeKey}
-            onClick={() => setSelectedType(typeKey)}
-            className={`type-filter-pill ${selectedType === typeKey ? "active" : ""}`}
-            style={{
-              "--pill-color": TYPE_COLORS[typeKey].primary,
-            }}
-          >
-            {capitalize(typeKey)}
-          </button>
-        ))}
-      </div>
-
-      {/* Live Grid Filter, Sort & Generation Info Bar */}
-      <div className="grid-controls-bar">
-        <div className="live-filter-wrapper">
-          <IconSparkles size={16} className="live-filter-icon" />
-          <input
-            type="text"
-            value={liveQuery}
-            onChange={(e) => setLiveQuery(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder={`Search ${selectedGen.region} by name or # (Press Enter to open)…`}
-            className="live-filter-input"
-          />
-          {liveQuery && (
-            <button
-              type="button"
-              onClick={() => setLiveQuery("")}
-              className="live-clear-btn"
-              aria-label="Clear filter"
-            >
-              <IconX size={14} />
-            </button>
-          )}
-        </div>
-
-        <div className="grid-right-controls">
-          <div className="sort-control-wrap">
-            <span className="sort-label">Sort:</span>
+          <div className="filter-wrapper">
             <select
+              id="generation-filter"
+              value={selectedGen.id}
+              onChange={handleGenChange}
+              aria-label="Filter by Generation"
+            >
+              <option value="all">All Generations</option>
+              {GENERATIONS.map((gen) => (
+                <option key={gen.id} value={gen.id}>
+                  {gen.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              id="type-filter"
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              aria-label="Filter by Type"
+            >
+              <option value="all">All Types</option>
+              {Object.keys(TYPE_COLORS).map((typeKey) => (
+                <option key={typeKey} value={typeKey}>
+                  {capitalize(typeKey)}
+                </option>
+              ))}
+            </select>
+
+            <select
+              id="sort-filter"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="sort-select-dropdown"
-              aria-label="Sort Pokémon list"
+              aria-label="Sort Pokémon"
             >
-              <option value="id_asc">Pokédex # (Lowest)</option>
-              <option value="id_desc">Pokédex # (Highest)</option>
-              <option value="name_asc">Name (A → Z)</option>
-              <option value="bst_desc">Total Base Stats (BST)</option>
-              <option value="atk_desc">Highest Attack</option>
-              <option value="spd_desc">Highest Speed</option>
+              <option value="id-asc">Pokédex # (Lowest)</option>
+              <option value="id-desc">Pokédex # (Highest)</option>
+              <option value="name-asc">Name (A-Z)</option>
+              <option value="name-desc">Name (Z-A)</option>
+              <option value="bst-desc">Total Base Stats (BST)</option>
+              <option value="atk-desc">Highest Attack</option>
+              <option value="spd-desc">Highest Speed</option>
             </select>
           </div>
-
-          <div className="gen-info-bar">
-            <span>
-              <strong>{sortedPokemons.length}</strong> / {pokemons.length}
-            </span>
-          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Trending Quick Jump Chips */}
-      <div className="quick-search-chips" style={{ marginBottom: "1.25rem" }}>
-        <span className="quick-label">Trending:</span>
-        {["Pikachu", "Charizard", "Gengar", "Lucario", "Mewtwo", "Eevee", "Rayquaza", "Greninja"].map(
-          (name) => (
-            <button
-              key={name}
-              type="button"
-              onClick={() => navigate(`/pokemon/${name.toLowerCase()}`)}
-              className="chip-btn"
-            >
-              {name}
-            </button>
-          )
-        )}
+      {/* Results Count Meta */}
+      <div className="pokedex-meta-bar">
+        <span className="results-count-text">
+          Showing <strong>{sortedPokemons.length}</strong> of{" "}
+          <strong>{pokemons.length}</strong> Pokémon
+          {selectedGen.id !== "all" ? ` in ${selectedGen.name}` : ""}
+          {selectedType !== "all" ? ` (${capitalize(selectedType)} type)` : ""}
+        </span>
       </div>
 
       {/* Loading Skeletons */}
@@ -403,11 +412,21 @@ function PokemonList() {
               <p>
                 No Pokémon match your filter criteria in {selectedGen.name}.
               </p>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap", marginTop: "12px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  marginTop: "12px",
+                }}
+              >
                 {liveQuery.trim() && (
                   <button
                     type="button"
-                    onClick={() => navigate(`/pokemon/${liveQuery.trim().toLowerCase()}`)}
+                    onClick={() =>
+                      navigate(`/pokemon/${liveQuery.trim().toLowerCase()}`)
+                    }
                     className="btn-primary"
                   >
                     Search "{liveQuery}" Globally in PokéDex →
@@ -438,7 +457,7 @@ function PokemonList() {
             </div>
           )}
 
-          {/* Load More Button (Hidden if actively filtering) */}
+          {/* Load More Button */}
           {hasMore && selectedType === "all" && liveQuery === "" && (
             <div className="load-more-container">
               <button
@@ -448,7 +467,9 @@ function PokemonList() {
               >
                 {isLoadingMore
                   ? "Loading more Pokémon…"
-                  : `Load More ${selectedGen.region} Pokémon (${selectedGen.limit - offset} remaining)`}
+                  : `Load More ${selectedGen.region} Pokémon (${
+                      selectedGen.limit - offset
+                    } remaining)`}
               </button>
             </div>
           )}

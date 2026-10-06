@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { NavLink, Link, useLocation } from "react-router-dom";
 import { useGame } from "../context/GameContext.jsx";
 import TrainerPassportModal from "./TrainerPassportModal.jsx";
 import {
@@ -16,12 +16,45 @@ import {
   IconDungeon,
   IconTower,
   IconTrophy,
+  IconChevronDown,
 } from "./Icons.jsx";
 
 function Navbar() {
   const { trainer, team, getTotalItemCount, isMuted, toggleSound } = useGame();
   const [showPassport, setShowPassport] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const location = useLocation();
   const totalItemCount = getTotalItemCount();
+
+  const gameModePaths = [
+    "/wilderness",
+    "/gym",
+    "/battle",
+    "/league",
+    "/championship",
+    "/dungeons",
+    "/tower",
+    "/compare",
+    "/link",
+    "/pvp",
+  ];
+  const isGameModeActive = gameModePaths.some((path) =>
+    location.pathname.startsWith(path)
+  );
+
+
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <header className="navbar">
@@ -33,12 +66,12 @@ function Navbar() {
             <div className="pokeball-bottom"></div>
           </div>
           <div className="brand-text">
-            <span className="brand-title">PokéSphere</span>
-            <span className="brand-tag">RPG & Dex</span>
+            <span className="brand-title">PokéDex Mini</span>
+            <span className="brand-tag">Pro Edition</span>
           </div>
         </Link>
 
-        <nav className="navbar-nav">
+        <nav className="navbar-nav" aria-label="Main Navigation">
           <NavLink
             to="/"
             end
@@ -72,96 +105,178 @@ function Navbar() {
             <span className="nav-bag-count">{totalItemCount}</span>
           </NavLink>
 
-          <NavLink
-            to="/wilderness"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconTrees size={17} />
-            <span className="nav-label">Wilderness</span>
-            <span className="nav-badge nav-badge-live">Live</span>
-          </NavLink>
+          {/* Unified Game Modes Dropdown */}
+          <div className="nav-dropdown" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className={`nav-dropdown-trigger ${
+                isDropdownOpen || isGameModeActive ? "active" : ""
+              }`}
+              aria-expanded={isDropdownOpen}
+              aria-haspopup="true"
+            >
+              <IconSwords size={16} />
+              <span className="nav-label">Game Modes</span>
+              <IconChevronDown
+                size={14}
+                className={`dropdown-chevron ${isDropdownOpen ? "open" : ""}`}
+              />
+            </button>
 
-          <NavLink
-            to="/gym"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconSwords size={17} />
-            <span className="nav-label">Gym Arena</span>
-            <span className="nav-badge nav-badge-live">Live</span>
-          </NavLink>
+            {isDropdownOpen && (
+              <div
+                className="nav-dropdown-menu"
+                role="menu"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                <div className="dropdown-section-header">Challenges & Battle</div>
 
-          <NavLink
-            to="/league"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconCrown size={17} />
-            <span className="nav-label">League</span>
-            <span className="nav-badge nav-badge-champ">Elite 4</span>
-          </NavLink>
+                <NavLink
+                  to="/wilderness"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconTrees size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Wilderness</span>
+                    <span className="dropdown-item-desc">
+                      Catch wild Pokémon across biomes
+                    </span>
+                  </div>
+                </NavLink>
 
-          <NavLink
-            to="/dungeons"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconDungeon size={17} />
-            <span className="nav-label">Dungeons</span>
-            <span className="nav-badge nav-badge-dungeon">Raids</span>
-          </NavLink>
+                <NavLink
+                  to="/gym"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconSwords size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Gym Arena</span>
+                    <span className="dropdown-item-desc">
+                      Battle 8 Regional Gym Leaders
+                    </span>
+                  </div>
+                </NavLink>
 
-          <NavLink
-            to="/tower"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconTower size={17} />
-            <span className="nav-label">Tower</span>
-            <span className="nav-badge nav-badge-tower">Endless</span>
-          </NavLink>
+                <NavLink
+                  to="/league"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconCrown size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Pokémon League</span>
+                    <span className="dropdown-item-desc">
+                      Elite Four & Champion Tournament
+                    </span>
+                  </div>
+                </NavLink>
 
-          <NavLink
-            to="/compare"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconScale size={17} />
-            <span className="nav-label">Compare</span>
-            <span className="nav-badge nav-badge-live">Live</span>
-          </NavLink>
+                <NavLink
+                  to="/dungeons"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconDungeon size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Dungeons & Raids</span>
+                    <span className="dropdown-item-desc">
+                      Boss encounters and ancient relics
+                    </span>
+                  </div>
+                </NavLink>
 
-          <NavLink
-            to="/link"
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
-          >
-            <IconSwords size={17} />
-            <span className="nav-label">PvP Link</span>
-            <span className="nav-badge nav-badge-pvp">Multi-Tab</span>
-          </NavLink>
+                <NavLink
+                  to="/tower"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconTower size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Battle Tower</span>
+                    <span className="dropdown-item-desc">
+                      Endless streak battle challenge
+                    </span>
+                  </div>
+                </NavLink>
 
-          {/* Trainer Passport QR Button */}
-          <button
-            type="button"
-            onClick={() => setShowPassport(true)}
-            className="navbar-passport-btn"
-            title="Open Trainer League Passport & QR Code"
-          >
-            <IconTrophy size={15} />
-            <span className="passport-btn-label">Passport</span>
-          </button>
+                <div className="dropdown-divider"></div>
+                <div className="dropdown-section-header">Tools & Multiplayer</div>
 
+                <NavLink
+                  to="/compare"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconScale size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Stat Comparison</span>
+                    <span className="dropdown-item-desc">
+                      Compare stats and type match-ups
+                    </span>
+                  </div>
+                </NavLink>
+
+                <NavLink
+                  to="/link"
+                  className={({ isActive }) =>
+                    `dropdown-item ${isActive ? "active" : ""}`
+                  }
+                  role="menuitem"
+                >
+                  <IconSwords size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">PvP Link Battle</span>
+                    <span className="dropdown-item-desc">
+                      Multiplayer tab-to-tab battle
+                    </span>
+                  </div>
+                </NavLink>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPassport(true);
+                    setIsDropdownOpen(false);
+                  }}
+                  className="dropdown-item dropdown-btn-item"
+                  role="menuitem"
+                >
+                  <IconTrophy size={16} />
+                  <div className="dropdown-item-text">
+                    <span className="dropdown-item-title">Trainer Passport</span>
+                    <span className="dropdown-item-desc">
+                      Badges, stats & trainer ID
+                    </span>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Right Utility Bar */}
+        <div className="navbar-actions">
           {/* Money Pill Indicator */}
-          <Link to="/bag" className="navbar-money-pill" title="Trainer PokéDollars - Click to open Poké Mart">
+          <Link
+            to="/bag"
+            className="navbar-money-pill"
+            title="Trainer PokéDollars - Click to open Poké Mart"
+          >
             <IconCoin size={15} className="money-coin-svg" />
             <span className="money-amount">
               ₽ {trainer.money.toLocaleString()}
@@ -172,14 +287,19 @@ function Navbar() {
           <button
             type="button"
             onClick={toggleSound}
-            className={`navbar-sound-btn ${isMuted ? "sound-muted" : "sound-active"}`}
-            title={isMuted ? "Sound: Muted (Click to enable retro audio)" : "Sound: Active (Click to mute)"}
+            className={`navbar-sound-btn ${
+              isMuted ? "sound-muted" : "sound-active"
+            }`}
+            title={
+              isMuted
+                ? "Sound: Muted (Click to enable audio)"
+                : "Sound: Active (Click to mute)"
+            }
             aria-label={isMuted ? "Unmute audio" : "Mute audio"}
           >
             {isMuted ? <IconVolumeMute size={16} /> : <IconVolume size={16} />}
-            <span className="sound-btn-tooltip">{isMuted ? "Muted" : "Audio"}</span>
           </button>
-        </nav>
+        </div>
       </div>
 
       <TrainerPassportModal

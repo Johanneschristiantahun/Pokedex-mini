@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Legendary Secret Dungeons & Mythical Raids (/dungeons)
+// PokéDex Mini Legendary Secret Dungeons & Mythical Raids (/dungeons)
 // Seafoam Caverns, Power Plant, Victory Road, & Cerulean Cave
 // Epic Raid Encounters, Mega Evolution, and Master Ball Catches
 // ========================================================
@@ -25,6 +25,7 @@ import {
   IconArrowRight,
   IconPokeball,
   IconShield,
+  IconCrown,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -55,6 +56,11 @@ import {
 import { triggerHaptic, HAPTIC_PATTERNS } from "../utils/haptics.js";
 
 const STORAGE_KEY_DUNGEONS = "pokesphere_dungeons_cleared";
+
+function getRandomBossMove(moves) {
+  if (!moves || moves.length === 0) return null;
+  return moves[Math.floor(Math.random() * moves.length)];
+}
 
 export default function DungeonPage() {
   const {
@@ -179,7 +185,7 @@ export default function DungeonPage() {
     triggerHaptic(HAPTIC_PATTERNS.MEGA_EVOLUTION);
 
     const megaData = getMegaEvolutionData(basePlayerMon);
-    setBattleDialogue(`✨ Resonance Key Stone activated! ${basePlayerMon.nickname.toUpperCase()} Mega Evolved into ${megaData.formName.toUpperCase()}!`);
+    setBattleDialogue(`Resonance Key Stone activated! ${basePlayerMon.nickname.toUpperCase()} Mega Evolved into ${megaData.formName.toUpperCase()}!`);
 
     setTimeout(() => {
       setMegaBurstAnim(false);
@@ -286,7 +292,7 @@ export default function DungeonPage() {
   // Boss Attack
   function executeBossAttack(onComplete) {
     if (!bossMon || !activePlayerMon) return;
-    const chosenMove = bossMon.moves[Math.floor(Math.random() * bossMon.moves.length)] || bossMon.moves[0];
+    const chosenMove = getRandomBossMove(bossMon.moves) || bossMon.moves[0];
 
     setBattleDialogue(`The Legendary ${bossMon.name.toUpperCase()} used ${chosenMove.name.toUpperCase()}!`);
     setBossAnim(cameraMode === "isometric" ? "anim-isometric-wild-lunge" : "anim-wild-lunge");
@@ -513,11 +519,11 @@ export default function DungeonPage() {
             You successfully subdued and captured the mythical <strong>{capitalize(bossMon.name)}</strong>!
             {storedLocation === "BOX" ? (
               <span style={{ display: "block", marginTop: "10px", color: "#38bdf8", fontWeight: 600, fontSize: "0.95rem" }}>
-                📦 Active Party is full (6/6). {capitalize(bossMon.name)} was transferred safely to your PC Storage Box!
+                Active Party is full (6/6). {capitalize(bossMon.name)} was transferred safely to your PC Storage Box!
               </span>
             ) : (
               <span style={{ display: "block", marginTop: "10px", color: "#4ade80", fontWeight: 600, fontSize: "0.95rem" }}>
-                ✨ {capitalize(bossMon.name)} joined your active battle party!
+                {capitalize(bossMon.name)} joined your active battle party!
               </span>
             )}
           </p>
@@ -633,7 +639,10 @@ export default function DungeonPage() {
               {/* Boss Raid Bar */}
               <div className="battle-status-card status-opponent boss-raid-bar">
                 <div className="status-header">
-                  <span className="battler-name">👑 {bossMon.name.toUpperCase()}</span>
+                  <span className="battler-name">
+                    <IconCrown size={14} style={{ display: "inline-block", verticalAlign: "text-bottom", marginRight: 4 }} />
+                    {bossMon.name.toUpperCase()}
+                  </span>
                   <span className="battler-level">Lv. {bossMon.level}</span>
                 </div>
                 <div className="status-hp-bar raid-hp-bar">

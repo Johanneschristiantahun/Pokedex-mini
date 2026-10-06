@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Official Trainer Passport & QR Code Card
+// PokéDex Mini Official Trainer Passport & QR Code Card
 // Generates official Kanto League Trainer Card with QR sharing
 // Powered by QR Server Public API
 // ========================================================

@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Game Boy Link Cable PvP Arena & Trade Station (/link)
+// PokéDex Mini Game Boy Link Cable PvP Arena & Trade Station (/link)
 // Real-time peer communication across browser tabs using BroadcastChannel API
 // ========================================================
 
@@ -16,6 +16,7 @@ import {
   IconSparkles,
   IconRefresh,
   IconCheck,
+  IconInfo,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -43,7 +44,7 @@ export default function LinkBattlePage() {
   const [peerId] = useState(() => `peer_${Math.random().toString(36).slice(2, 8)}`);
 
   // Channel & Connected Peers
-  const [channel, setChannel] = useState(null);
+  const channelRef = useRef(null);
   const [remotePeers, setRemotePeers] = useState([]);
   const [activeDuelPeer, setActiveDuelPeer] = useState(null);
 
@@ -79,7 +80,7 @@ export default function LinkBattlePage() {
     if (typeof window === "undefined" || !("BroadcastChannel" in window)) return;
 
     const bc = new BroadcastChannel(LINK_CHANNEL_NAME);
-    setChannel(bc);
+    channelRef.current = bc;
 
     // Announce presence
     bc.postMessage({
@@ -199,12 +200,13 @@ export default function LinkBattlePage() {
       handleBeforeUnload();
       clearInterval(interval);
       bc.close();
+      channelRef.current = null;
     };
   }, [peerId, trainer.name, team]);
 
   // Handle Initiating Challenge
   function handleSendChallenge(remotePeer) {
-    if (!channel) return;
+    if (!channelRef.current) return;
     const battleTeam = team.slice(0, 3).map((p) => ({
       id: p.id,
       name: p.name,
@@ -222,7 +224,7 @@ export default function LinkBattlePage() {
     setMyRoster(battleTeam);
     setMyActiveIdx(0);
 
-    channel.postMessage({
+    channelRef.current.postMessage({
       type: "CHALLENGE_INVITE",
       senderId: peerId,
       targetId: remotePeer.id,
@@ -235,7 +237,7 @@ export default function LinkBattlePage() {
 
   // Handle Accepting Challenge
   function handleAcceptChallenge() {
-    if (!channel || !incomingChallenge) return;
+    if (!channelRef.current || !incomingChallenge) return;
 
     const battleTeam = team.slice(0, 3).map((p) => ({
       id: p.id,
@@ -259,7 +261,7 @@ export default function LinkBattlePage() {
 
     setActiveDuelPeer({ id: incomingChallenge.senderId, name: incomingChallenge.trainerName });
 
-    channel.postMessage({
+    channelRef.current.postMessage({
       type: "CHALLENGE_ACCEPTED",
       senderId: peerId,
       targetId: incomingChallenge.senderId,
@@ -280,7 +282,7 @@ export default function LinkBattlePage() {
 
   // Send Attack
   function handleExecuteMove(move) {
-    if (!isMyTurn || !myMon || !oppMon || !channel || !activeDuelPeer) return;
+    if (!isMyTurn || !myMon || !oppMon || !channelRef.current || !activeDuelPeer) return;
 
     setIsMyTurn(false);
     setBattleDialogue(`${myMon.nickname.toUpperCase()} used ${move.name.toUpperCase()}!`);
@@ -310,7 +312,7 @@ export default function LinkBattlePage() {
       setOppRoster(nextOppRoster);
 
       // Broadcast move to remote tab
-      channel.postMessage({
+      channelRef.current.postMessage({
         type: "BATTLE_MOVE",
         senderId: peerId,
         targetId: activeDuelPeer.id,
@@ -379,8 +381,8 @@ export default function LinkBattlePage() {
 
   function handleForfeit() {
     if (window.confirm("Are you sure you want to forfeit this Link Battle and return to the lobby?")) {
-      if (channel && activeDuelPeer) {
-        channel.postMessage({
+      if (channelRef.current && activeDuelPeer) {
+        channelRef.current.postMessage({
           type: "BATTLE_FORFEIT",
           senderId: peerId,
           targetId: activeDuelPeer.id,
@@ -410,7 +412,10 @@ export default function LinkBattlePage() {
 
         {/* Multi-Tab Testing Helper Banner */}
         <div className="link-instructions-box">
-          <h4 className="instructions-title">💡 How to Test Multi-Tab PvP Duel:</h4>
+          <h4 className="instructions-title">
+            <IconInfo size={16} style={{ display: "inline-block", verticalAlign: "text-bottom", marginRight: 6 }} />
+            How to Test Multi-Tab PvP Duel:
+          </h4>
           <ol className="instructions-list">
             <li>Duplicate this tab or open <code>/#/link</code> in a second browser window side-by-side.</li>
             <li>Both tabs will automatically discover each other via Link Cable heartbeat.</li>
@@ -517,7 +522,17 @@ export default function LinkBattlePage() {
             </div>
             <div className="hud-actions-right" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span className={`turn-turn-indicator ${isMyTurn ? "indicator-my-turn" : "indicator-waiting"}`}>
-                {isMyTurn ? "🟢 YOUR TURN" : "⏳ OPPONENT'S TURN"}
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: 7,
+                    height: 7,
+                    borderRadius: "50%",
+                    backgroundColor: isMyTurn ? "#22c55e" : "#f59e0b",
+                    marginRight: 6,
+                  }}
+                />
+                {isMyTurn ? "YOUR TURN" : "OPPONENT'S TURN"}
               </span>
               <button
                 type="button"

@@ -1,5 +1,5 @@
 // ========================================================
-// PokéSphere Official Kanto Gym Leader Arena & Challenge Hub
+// PokéDex Mini Official Kanto Gym Leader Arena & Challenge Hub
 // Face-to-Face POV Multi-Pokémon Trainer Battles,
 // 8 Official Gym Leaders, Kanto Badges, and Victory Ceremonies
 // ========================================================
@@ -21,6 +21,7 @@ import {
   IconCheck,
   IconX,
   IconCamera,
+  ParticleLightning,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -798,12 +799,16 @@ export default function GymPage() {
           <div className="vs-center-emblem">
             <div className="vs-lightning-divider"></div>
             <div className="vs-clash-core">
-              <span className="vs-lightning-spark spark-left">⚡</span>
+              <span className="vs-lightning-spark spark-left">
+                <ParticleLightning size={24} />
+              </span>
               <div className="vs-letters-wrap">
                 <span className="vs-letter-v">V</span>
                 <span className="vs-letter-s">S</span>
               </div>
-              <span className="vs-lightning-spark spark-right">⚡</span>
+              <span className="vs-lightning-spark spark-right">
+                <ParticleLightning size={24} />
+              </span>
             </div>
             <div className="vs-arena-location-pill">
               <span>{selectedLeader.city.toUpperCase()} GYM</span>
