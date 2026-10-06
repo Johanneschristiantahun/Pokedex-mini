@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGame } from "../context/GameContext.jsx";
 import { STARTER_POKEMON } from "../utils/pokemonFactory.js";
 import TypeBadge from "./TypeBadge.jsx";
-import { IconPokeball, IconSparkles } from "./Icons.jsx";
+import { IconPokeball } from "./Icons.jsx";
 import { capitalize } from "../utils.js";
 
 function StarterModal() {
@@ -107,8 +107,7 @@ function StarterModal() {
             onClick={handleConfirm}
             className="btn-primary btn-choose-starter"
           >
-            <span>Choose {nickname.trim() || capitalize(selectedStarter.name)}</span>
-            <IconSparkles size={16} />
+            Choose {nickname.trim() || capitalize(selectedStarter.name)}
           </button>
         </div>
       </div>

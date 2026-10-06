@@ -133,15 +133,13 @@ function TeamPage() {
       {/* Toast Notification */}
       {notification && <div className="toast-notification">{notification}</div>}
 
-      {/* Trainer Dashboard Header */}
-      <div className="trainer-dashboard-card">
-        <div className="trainer-profile">
-          <div className="trainer-avatar-box">
-            <IconPokeball size={26} className="trainer-avatar-icon" />
-          </div>
-          <div className="trainer-meta">
+      {/* Clean Top Header & Utility Bar */}
+      <div className="team-page-header">
+        <div className="team-header-identity">
+          <div className="team-title-row">
+            <h1 className="team-page-title">My Pokémon Team</h1>
             {isEditingTrainerName ? (
-              <div className="trainer-name-edit-box">
+              <div className="trainer-name-inline-edit">
                 <input
                   type="text"
                   value={trainerNameInput}
@@ -154,14 +152,14 @@ function TeamPage() {
                   type="button"
                   onClick={handleSaveTrainerName}
                   className="btn-save-trainer-name"
-                  title="Save Trainer Name"
+                  title="Save Name"
                 >
-                  <IconCheck size={14} />
+                  <IconCheck size={13} />
                 </button>
               </div>
             ) : (
-              <div className="trainer-name-display-row">
-                <h2 className="trainer-name">{trainer.name}</h2>
+              <span className="trainer-name-pill">
+                <span>Trainer {trainer.name}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -169,113 +167,40 @@ function TeamPage() {
                     setIsEditingTrainerName(true);
                   }}
                   className="btn-rename-trainer-icon"
-                  title="Change Trainer Name"
+                  title="Edit Trainer Name"
                 >
-                  <IconPencil size={13} />
+                  <IconPencil size={11} />
                 </button>
-              </div>
-            )}
-            <div className="trainer-badges-row">
-              <span className="trainer-title-badge">Pokémon Trainer</span>
-              <span className="trainer-money-badge">
-                ₽ {trainer.money.toLocaleString()}
               </span>
-            </div>
+            )}
           </div>
+          <p className="team-page-subtitle">
+            Manage your battle roster, monitor party condition, and organize Pokémon PC storage.
+          </p>
         </div>
 
-        {/* Pokémon Center Healing Station */}
-        <div className="pokemon-center-box">
-          <div className="center-info">
-            <div className="center-header-row">
-              <IconCross size={18} className="center-cross-icon" />
-              <h4>Pokémon Center Station</h4>
-            </div>
-            <p>Restore full HP and cure status conditions for all 6 party members.</p>
-          </div>
+        <div className="team-header-utilities">
           <button
             type="button"
             onClick={handleHealCenter}
             disabled={isHealing || team.length === 0}
-            className={`btn-heal-all ${isHealing ? "healing-pulse" : ""}`}
+            className={`btn-heal-team ${isHealing ? "healing" : ""}`}
+            title="Restore all 6 party members to full HP"
           >
-            <IconHeart size={16} />
-            <span>{isHealing ? "Restoring HP…" : "Heal All Team (Free)"}</span>
+            <IconHeart size={15} />
+            <span>{isHealing ? "Restoring…" : "Heal Party (Free)"}</span>
           </button>
-        </div>
 
-        {/* Kanto Gym Badges Showcase Case */}
-        <div className="trainer-badge-case-panel">
-          <div className="badge-case-header">
-            <span className="case-title">
-              Official Kanto League Badges ({trainer.badges?.length || 0}/8)
-            </span>
-            <Link to="/gym" className="case-gym-link">
-              Challenge Gym Leaders &rarr;
-            </Link>
-          </div>
-          <div className="badge-case-slots-grid">
-            {KANTO_BADGES.map((b) => {
-              const isOwned = (trainer.badges || []).includes(b.id);
-              return (
-                <div
-                  key={b.id}
-                  className={`badge-slot-cell ${isOwned ? "slot-unlocked" : "slot-locked"}`}
-                  title={`${b.name} - ${isOwned ? "Earned!" : "Defeat " + b.leader + " to earn"}`}
-                >
-                  <GymBadgeIcon badgeId={b.id} size={32} isLocked={!isOwned} />
-                  <span className="badge-slot-caption">{b.name.replace(" Badge", "")}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          <span className="potion-stock-badge" title="Potions available in Bag">
+            <IconPotion size={14} />
+            <span>Potions: <strong>{potionCount}</strong></span>
+          </span>
 
-        {/* Hall of Fame Inductions Showcase Panel */}
-        {hallOfFame && hallOfFame.length > 0 && (
-          <div className="trainer-hof-panel">
-            <div className="hof-panel-header">
-              <div className="hof-header-left">
-                <IconTrophy size={18} className="hof-trophy-svg" />
-                <span className="case-title">
-                  Hall of Fame Inductions ({hallOfFame.length} Titles)
-                </span>
-              </div>
-              <Link to="/league" className="case-gym-link">
-                Indigo Plateau &rarr;
-              </Link>
-            </div>
-            <div className="hof-entries-list">
-              {hallOfFame.map((entry) => (
-                <div key={entry.id} className="hof-record-card">
-                  <div className="hof-record-meta">
-                    <span className="hof-record-date">
-                      <IconTrophy size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4, color: "#facc15" }} />
-                      {entry.date}
-                    </span>
-                    <span className="hof-record-champ">Champion: <strong>{entry.trainerName}</strong></span>
-                  </div>
-                  <div className="hof-record-sprites">
-                    {entry.team?.map((mon, mIdx) => (
-                      <div
-                        key={mIdx}
-                        className="hof-mon-thumbnail"
-                        title={`${mon.nickname} (Lv. ${mon.level})`}
-                      >
-                        <img
-                          src={getAnimatedSpriteUrl(mon.id)}
-                          alt={mon.name}
-                          className="hof-thumb-img"
-                        />
-                        <span className="hof-thumb-lvl">Lv.{mon.level}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          <Link to="/bag" className="btn-team-header-bag" title="Open Trainer Bag">
+            <IconBackpack size={14} />
+            <span>Bag</span>
+          </Link>
+        </div>
       </div>
 
       {/* Team vs PC Storage Box Tab Switcher */}
@@ -285,7 +210,7 @@ function TeamPage() {
           onClick={() => setActiveTab("party")}
           className={`storage-tab-btn ${activeTab === "party" ? "active" : ""}`}
         >
-          <IconParty size={16} />
+          <IconParty size={15} />
           <span>Active Party ({team.length}/6)</span>
         </button>
         <button
@@ -293,31 +218,14 @@ function TeamPage() {
           onClick={() => setActiveTab("box")}
           className={`storage-tab-btn ${activeTab === "box" ? "active" : ""}`}
         >
-          <IconPokeball size={16} />
-          <span>PC Storage Box ({box.length} stored)</span>
+          <IconPokeball size={15} />
+          <span>PC Storage Box ({box.length})</span>
         </button>
       </div>
 
       {/* TAB 1: ACTIVE PARTY (6 SLOTS) */}
       {activeTab === "party" && (
-        <>
-          {/* Party Status Bar */}
-          <div className="party-header-bar">
-            <h3>
-              Active Party <span>({team.length} / 6 Pokémon)</span>
-            </h3>
-            <div className="party-header-actions">
-              <span className="potion-stock-badge">
-                <IconPotion size={15} />
-                <span>Potions: <strong>{potionCount}</strong></span>
-              </span>
-              <Link to="/bag" className="btn-open-bag" title="Open Bag to use other medicine or candies">
-                <IconBackpack size={15} />
-                <span>Trainer Bag</span>
-              </Link>
-            </div>
-          </div>
-
+        <div className="party-tab-content">
           {/* 6 Party Slots Grid */}
           <div className="party-grid">
             {partySlots.map((pokemon, slotIndex) => {
@@ -609,7 +517,80 @@ function TeamPage() {
               );
             })}
           </div>
-        </>
+
+          {/* Trainer Badges & League Progress Showcase Panel */}
+          <div className="trainer-league-summary-card">
+            <div className="trainer-summary-header">
+              <span className="case-title">
+                Official Kanto League Badges ({trainer.badges?.length || 0}/8)
+              </span>
+              <Link to="/gym" className="case-gym-link">
+                Challenge Gym Leaders &rarr;
+              </Link>
+            </div>
+            <div className="badge-case-slots-grid">
+              {KANTO_BADGES.map((b) => {
+                const isOwned = (trainer.badges || []).includes(b.id);
+                return (
+                  <div
+                    key={b.id}
+                    className={`badge-slot-cell ${isOwned ? "slot-unlocked" : "slot-locked"}`}
+                    title={`${b.name} - ${isOwned ? "Earned!" : "Defeat " + b.leader + " to earn"}`}
+                  >
+                    <GymBadgeIcon badgeId={b.id} size={28} isLocked={!isOwned} />
+                    <span className="badge-slot-caption">{b.name.replace(" Badge", "")}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Hall of Fame Inductions Showcase Panel */}
+          {hallOfFame && hallOfFame.length > 0 && (
+            <div className="trainer-hof-panel">
+              <div className="hof-panel-header">
+                <div className="hof-header-left">
+                  <IconTrophy size={16} className="hof-trophy-svg" />
+                  <span className="case-title">
+                    Hall of Fame Inductions ({hallOfFame.length} Titles)
+                  </span>
+                </div>
+                <Link to="/league" className="case-gym-link">
+                  Indigo Plateau &rarr;
+                </Link>
+              </div>
+              <div className="hof-entries-list">
+                {hallOfFame.map((entry) => (
+                  <div key={entry.id} className="hof-record-card">
+                    <div className="hof-record-meta">
+                      <span className="hof-record-date">
+                        <IconTrophy size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4, color: "#facc15" }} />
+                        {entry.date}
+                      </span>
+                      <span className="hof-record-champ">Champion: <strong>{entry.trainerName}</strong></span>
+                    </div>
+                    <div className="hof-record-sprites">
+                      {entry.team?.map((mon, mIdx) => (
+                        <div
+                          key={mIdx}
+                          className="hof-mon-thumbnail"
+                          title={`${mon.nickname} (Lv. ${mon.level})`}
+                        >
+                          <img
+                            src={getAnimatedSpriteUrl(mon.id)}
+                            alt={mon.name}
+                            className="hof-thumb-img"
+                          />
+                          <span className="hof-thumb-lvl">Lv.{mon.level}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* TAB 2: PC STORAGE BOX (BILL'S PC) */}

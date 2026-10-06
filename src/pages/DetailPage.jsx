@@ -26,7 +26,6 @@ import {
   IconCheck,
   IconVolume,
   IconSparkles,
-  IconPalette,
   IconMic,
   IconSquare,
 } from "../components/Icons.jsx";
@@ -423,7 +422,7 @@ function DetailPage() {
           </div>
         </div>
 
-        {/* Visual Showcase with Artwork / Showdown & Shiny Mode */}
+        {/* Visual Showcase with Artwork / Animated & Shiny Mode */}
         <div className="detail-visual-wrapper">
           <div className="image-toggle-bar">
             <div className="toggle-group-left">
@@ -432,16 +431,14 @@ function DetailPage() {
                 onClick={() => setUseArtwork(true)}
                 className={`toggle-btn ${useArtwork ? "active" : ""}`}
               >
-                <IconPalette size={14} />
-                <span>Official Artwork</span>
+                Artwork
               </button>
               <button
                 type="button"
                 onClick={() => setUseArtwork(false)}
                 className={`toggle-btn ${!useArtwork ? "active" : ""}`}
               >
-                <IconSparkles size={14} />
-                <span>Animated Showdown</span>
+                Animated
               </button>
             </div>
 
@@ -449,14 +446,14 @@ function DetailPage() {
               type="button"
               onClick={() => setIsShiny((prev) => !prev)}
               className={`toggle-btn btn-shiny-toggle ${isShiny ? "shiny-active" : ""}`}
-              title={isShiny ? "Switch to Normal form" : "View Shiny form"}
+              aria-pressed={isShiny}
+              title={isShiny ? "Show normal form" : "Show shiny form"}
             >
-              <IconSparkles size={14} className="shiny-spark-icon" />
-              <span>{isShiny ? "Shiny Variant Active" : "View Shiny Form"}</span>
+              {isShiny ? "★ Shiny" : "Shiny"}
             </button>
           </div>
 
-          <div className={`detail-image-box ${isShiny ? "image-box-shiny" : ""}`}>
+          <div className="detail-image-box">
             <img
               key={`${pokemon.id}-${useArtwork}-${isShiny}`}
               src={displayImgUrl}
@@ -466,11 +463,6 @@ function DetailPage() {
                 e.target.src = fallbackImgUrl;
               }}
             />
-            {isShiny && (
-              <span className="shiny-pill-overlay">
-                <IconSparkles size={13} /> Shiny Variant
-              </span>
-            )}
           </div>
         </div>
 
