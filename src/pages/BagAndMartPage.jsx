@@ -4,9 +4,6 @@ import { useGame } from "../context/GameContext.jsx";
 import { ITEM_POCKETS, ITEM_CATALOG } from "../data/itemCatalog.js";
 import {
   IconBackpack,
-  IconShop,
-  IconCoin,
-  IconSparkles,
   IconCheck,
   IconAlertTriangle,
   IconPlus,
@@ -170,21 +167,20 @@ function BagAndMartPage() {
         </div>
       )}
 
-      {/* Hero Header & Mode Switcher */}
+      {/* Hero Header */}
       <div className="bag-mart-hero">
         <div className="hero-text-group">
-          <h1 className="hero-title">Trainer Hub & Poké Mart</h1>
+          <h1 className="hero-title">Bag & Mart</h1>
           <p className="hero-subtitle">
-            Manage your items across 5 dedicated pockets, use battle medicines on your team, or shop at the Silph Co. Poké Mart vendor.
+            Manage your inventory, use items on your party, and purchase supplies.
           </p>
         </div>
 
         {/* Trainer Wallet Balance */}
-        <div className="trainer-wallet-badge" title="Your current PokéDollars">
-          <IconCoin size={24} className="wallet-coin-icon" />
+        <div className="trainer-wallet-badge" title="PokéDollars">
           <div className="wallet-meta">
-            <span className="wallet-label">Trainer Balance</span>
-            <span className="wallet-amount">₽ {trainer.money.toLocaleString()}</span>
+            <span className="wallet-label">Balance</span>
+            <span className="wallet-amount">₽{trainer.money.toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -196,9 +192,8 @@ function BagAndMartPage() {
           onClick={() => setActiveTab("bag")}
           className={`tab-btn ${activeTab === "bag" ? "tab-btn-active" : ""}`}
         >
-          <IconBackpack size={20} />
-          <span>Trainer Bag</span>
-          <span className="tab-count-pill">{allInventoryItems.length} items</span>
+          <span>Bag</span>
+          <span className="tab-count-pill">{allInventoryItems.length}</span>
         </button>
 
         <button
@@ -206,9 +201,7 @@ function BagAndMartPage() {
           onClick={() => setActiveTab("mart")}
           className={`tab-btn ${activeTab === "mart" ? "tab-btn-active" : ""}`}
         >
-          <IconShop size={20} />
-          <span>Poké Mart Vendor</span>
-          <span className="tab-badge-pill">Shop Open</span>
+          <span>Mart</span>
         </button>
       </div>
 
@@ -266,14 +259,12 @@ function BagAndMartPage() {
           {/* Bag Items Grid */}
           {filteredBagItems.length === 0 ? (
             <div className="bag-empty-state">
-              <div className="empty-icon-box">
-                <IconBackpack size={48} />
-              </div>
-              <h3>No items in this pocket</h3>
+              <IconBackpack size={36} className="empty-icon-box" />
+              <h3>No items found</h3>
               <p>
                 {allInventoryItems.length === 0
-                  ? "Your bag is completely empty. Visit the Poké Mart tab to purchase supplies!"
-                  : "No items match your active pocket or search filter."}
+                  ? "Your bag is empty. Visit the Mart to purchase supplies."
+                  : "No items match your active pocket or search."}
               </p>
               <button
                 type="button"
@@ -283,7 +274,7 @@ function BagAndMartPage() {
                 }}
                 className="btn-primary"
               >
-                Go to Poké Mart Shop →
+                Go to Mart
               </button>
             </div>
           ) : (
@@ -292,7 +283,7 @@ function BagAndMartPage() {
                 <div key={item.id} className="bag-item-card">
                   <div className="item-card-header">
                     <span className="item-pocket-tag">{item.pocket}</span>
-                    <span className="item-qty-badge">x{item.count}</span>
+                    <span className="item-qty-badge">×{item.count}</span>
                   </div>
 
                   <div className="item-sprite-box">
@@ -318,8 +309,7 @@ function BagAndMartPage() {
                         onClick={() => setActiveUseItem(item)}
                         className="btn-use-item"
                       >
-                        <IconSparkles size={16} />
-                        <span>Use on Party</span>
+                        Use
                       </button>
                     ) : (
                       <span className="item-unusable-tag">
@@ -353,7 +343,7 @@ function BagAndMartPage() {
                   martSubMode === "buy" ? "submode-btn-active" : ""
                 }`}
               >
-                Buy Supplies
+                Buy
               </button>
               <button
                 type="button"
@@ -362,7 +352,7 @@ function BagAndMartPage() {
                   martSubMode === "sell" ? "submode-btn-active" : ""
                 }`}
               >
-                Sell Surplus Loot
+                Sell
               </button>
             </div>
 
@@ -370,7 +360,7 @@ function BagAndMartPage() {
             {martSubMode === "buy" && (
               <div className="mart-category-chips">
                 {[
-                  { id: "all", name: "All Goods" },
+                  { id: "all", name: "All" },
                   { id: "pokeballs", name: "Poké Balls" },
                   { id: "medicine", name: "Medicine" },
                   { id: "berries", name: "Berries" },
@@ -413,8 +403,7 @@ function BagAndMartPage() {
                         <h4 className="mart-item-name">{item.name}</h4>
                         <span className="mart-item-pocket">{item.pocket}</span>
                         <div className="mart-price-tag">
-                          <IconCoin size={15} />
-                          <span>₽ {item.price.toLocaleString()}</span>
+                          <span>₽{item.price.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
@@ -431,7 +420,7 @@ function BagAndMartPage() {
                           className="stepper-btn"
                           aria-label="Decrease quantity"
                         >
-                          <IconMinus size={14} />
+                          <IconMinus size={13} />
                         </button>
                         <input
                           type="number"
@@ -447,7 +436,7 @@ function BagAndMartPage() {
                           className="stepper-btn"
                           aria-label="Increase quantity"
                         >
-                          <IconPlus size={14} />
+                          <IconPlus size={13} />
                         </button>
                         <button
                           type="button"
@@ -467,8 +456,7 @@ function BagAndMartPage() {
                           !canAfford ? "btn-disabled" : ""
                         }`}
                       >
-                        <span>Buy ({qty})</span>
-                        <span className="buy-total">₽{totalCost.toLocaleString()}</span>
+                        <span>Buy • ₽{totalCost.toLocaleString()}</span>
                       </button>
                     </div>
                   </div>
@@ -482,11 +470,9 @@ function BagAndMartPage() {
             <div className="mart-sell-container">
               {allInventoryItems.length === 0 ? (
                 <div className="bag-empty-state">
-                  <div className="empty-icon-box">
-                    <IconCoin size={48} />
-                  </div>
+                  <IconBackpack size={36} className="empty-icon-box" />
                   <h3>No items to sell</h3>
-                  <p>You do not have any items in your Bag currently.</p>
+                  <p>Your Bag is currently empty.</p>
                 </div>
               ) : (
                 <div className="mart-sell-grid">
@@ -506,9 +492,9 @@ function BagAndMartPage() {
                           </div>
                           <div className="mart-item-meta">
                             <h4 className="mart-item-name">{item.name}</h4>
-                            <span className="mart-stock-tag">In Bag: x{item.count}</span>
+                            <span className="mart-stock-tag">In Bag: ×{item.count}</span>
                             <div className="mart-sell-price-tag">
-                              <span>Unit Value: ₽{item.sellPrice.toLocaleString()}</span>
+                              <span>₽{item.sellPrice.toLocaleString()} each</span>
                             </div>
                           </div>
                         </div>
@@ -521,7 +507,7 @@ function BagAndMartPage() {
                               disabled={sellQty <= 1}
                               className="stepper-btn"
                             >
-                              <IconMinus size={14} />
+                              <IconMinus size={13} />
                             </button>
                             <input
                               type="number"
@@ -539,7 +525,7 @@ function BagAndMartPage() {
                               disabled={sellQty >= item.count}
                               className="stepper-btn"
                             >
-                              <IconPlus size={14} />
+                              <IconPlus size={13} />
                             </button>
                             <button
                               type="button"
@@ -555,8 +541,7 @@ function BagAndMartPage() {
                             onClick={() => handleSell(item)}
                             className="btn-mart-sell"
                           >
-                            <span>Sell ({sellQty})</span>
-                            <span className="sell-reward">+₽{totalReward.toLocaleString()}</span>
+                            <span>Sell • +₽{totalReward.toLocaleString()}</span>
                           </button>
                         </div>
                       </div>
@@ -588,7 +573,7 @@ function BagAndMartPage() {
                 <div>
                   <h3>Use {activeUseItem.name}</h3>
                   <p className="modal-item-desc">
-                    Remaining in Bag: <strong>x{activeUseItem.count}</strong> • {activeUseItem.description}
+                    In Bag: <strong>×{activeUseItem.count}</strong> • {activeUseItem.description}
                   </p>
                 </div>
               </div>
@@ -597,20 +582,20 @@ function BagAndMartPage() {
                 onClick={() => setActiveUseItem(null)}
                 className="btn-modal-close"
               >
-                <IconX size={20} />
+                <IconX size={18} />
               </button>
             </div>
 
             <div className="modal-body">
               <p className="picker-prompt">
-                Select a Pokémon from your active party to apply this item:
+                Select a Pokémon from your party:
               </p>
 
               {team.length === 0 ? (
                 <div className="modal-empty-party">
-                  <p>You have no Pokémon in your active team!</p>
+                  <p>You have no Pokémon in your active team.</p>
                   <Link to="/" className="btn-primary">
-                    Browse PokéDex to catch some
+                    PokéDex
                   </Link>
                 </div>
               ) : (
@@ -636,8 +621,7 @@ function BagAndMartPage() {
                       if (evoTarget) {
                         compatBadge = (
                           <span className="compat-badge-evolve">
-                            <IconSparkles size={12} style={{ marginRight: 4, display: "inline-block", verticalAlign: "middle" }} />
-                            Evolves to {capitalize(evoTarget.name)}!
+                            Evolves to {capitalize(evoTarget.name)}
                           </span>
                         );
                       } else {
@@ -645,7 +629,7 @@ function BagAndMartPage() {
                       }
                     } else if (effect?.type === "heal_hp" || effect?.type === "heal_full") {
                       if (isFainted) {
-                        compatBadge = <span className="compat-badge-warning">Fainted (Needs Revive)</span>;
+                        compatBadge = <span className="compat-badge-warning">Fainted</span>;
                       } else if (pokemon.currentHp >= pokemon.maxHp) {
                         compatBadge = <span className="compat-badge-disabled">Full HP</span>;
                       } else {
@@ -653,7 +637,7 @@ function BagAndMartPage() {
                       }
                     } else if (effect?.type === "revive") {
                       if (isFainted) {
-                        compatBadge = <span className="compat-badge-revive">Fainted (Can Revive)</span>;
+                        compatBadge = <span className="compat-badge-revive">Can Revive</span>;
                       } else {
                         compatBadge = <span className="compat-badge-disabled">Healthy</span>;
                       }
@@ -734,7 +718,7 @@ function BagAndMartPage() {
                 onClick={() => setActiveUseItem(null)}
                 className="btn-secondary"
               >
-                Close Bag Window
+                Done
               </button>
             </div>
           </div>
