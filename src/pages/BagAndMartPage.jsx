@@ -177,10 +177,11 @@ function BagAndMartPage() {
         </div>
 
         {/* Trainer Wallet Balance */}
-        <div className="trainer-wallet-badge" title="PokéDollars">
+        <div className="trainer-wallet-badge" title="Trainer Balance">
+          <div className="wallet-chip-icon">₽</div>
           <div className="wallet-meta">
             <span className="wallet-label">Balance</span>
-            <span className="wallet-amount">₽{trainer.money.toLocaleString()}</span>
+            <span className="wallet-amount">{trainer.money.toLocaleString()}</span>
           </div>
         </div>
       </div>

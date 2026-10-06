@@ -148,11 +148,11 @@ function TeamPage() {
               </div>
             ) : (
               <span className="trainer-name-pill">
-                <span>Trainer {trainer.name}</span>
+                <span>Trainer: <strong>{trainer.name.replace(/^Trainer\s+/i, "") || trainer.name}</strong></span>
                 <button
                   type="button"
                   onClick={() => {
-                    setTrainerNameInput(trainer.name);
+                    setTrainerNameInput(trainer.name.replace(/^Trainer\s+/i, "") || trainer.name);
                     setIsEditingTrainerName(true);
                   }}
                   className="btn-rename-trainer-icon"

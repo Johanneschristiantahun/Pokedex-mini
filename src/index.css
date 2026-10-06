@@ -316,47 +316,56 @@ body {
 .navbar-money-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-weight: 700;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid transparent;
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 600;
   font-size: 0.84rem;
+  font-feature-settings: "tnum";
   text-decoration: none;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .navbar-money-pill:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.navbar-money-currency {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-muted);
 }
 
 .navbar-sound-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #64748b;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-main);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   padding: 0;
 }
 
 .navbar-sound-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .navbar-sound-btn.sound-muted {
-  color: #94a3b8;
-  background: #f8fafc;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.navbar-sound-btn.sound-active {
+  color: var(--text-main);
 }
 
 .svg-icon {
@@ -403,10 +412,10 @@ body {
   gap: 12px;
   flex-wrap: wrap;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
   padding: 10px 14px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
 }
 
 .search-wrapper {
@@ -418,28 +427,38 @@ body {
 
 .search-wrapper .search-input-icon {
   position: absolute;
-  left: 11px;
-  color: #64748b;
+  left: 12px;
+  color: var(--text-muted);
   pointer-events: none;
 }
 
 .search-wrapper input,
 #pokedex-search {
   width: 100%;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  padding: 8px 32px 8px 36px;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #0f172a;
+  height: 38px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 0 32px 0 36px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--text-main);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease;
+}
+
+.search-wrapper input::placeholder,
+#pokedex-search::placeholder {
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.86rem;
 }
 
 .search-wrapper input:focus,
 #pokedex-search:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  background-color: #ffffff;
+  border-color: rgba(0, 113, 227, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.12);
 }
 
 .search-wrapper .search-clear-btn {
@@ -447,18 +466,19 @@ body {
   right: 8px;
   background: transparent;
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: var(--transition-smooth);
 }
 
 .search-wrapper .search-clear-btn:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .filter-wrapper {
@@ -468,7 +488,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* Custom Dropdown Styling (Strict Anti-AI Slop) */
+/* Custom Dropdown Styling (Apple Minimalist) */
 .filter-wrapper select,
 .pokedex-select,
 #generation-filter,
@@ -477,20 +497,22 @@ body {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  border: 1px solid #cbd5e1;
-  background-color: #ffffff;
-  padding: 8px 32px 8px 12px;
-  border-radius: 6px;
-  font-size: 14px;
+  height: 38px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 0 32px 0 12px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.86rem;
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-main);
   cursor: pointer;
   outline: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 14px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s ease;
   min-width: 140px;
 }
 
@@ -499,7 +521,8 @@ body {
 #generation-filter:hover,
 #type-filter:hover,
 #sort-filter:hover {
-  border-color: #94a3b8;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.16);
 }
 
 .filter-wrapper select:focus,
@@ -507,8 +530,9 @@ body {
 #generation-filter:focus,
 #type-filter:focus,
 #sort-filter:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  background-color: #ffffff;
+  border-color: rgba(0, 113, 227, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.12);
 }
 
 .pokedex-meta-bar {
@@ -1515,53 +1539,72 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 0.8rem;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.trainer-name-pill strong {
+  color: var(--text-main);
   font-weight: 600;
-  color: #475569;
 }
 
 .trainer-name-inline-edit {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .trainer-name-input {
-  padding: 3px 8px;
+  height: 28px;
+  padding: 0 10px;
+  font-family: inherit;
   font-size: 0.8rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
+  border: 1px solid rgba(0, 113, 227, 0.5);
+  border-radius: 8px;
   outline: none;
-  width: 130px;
+  width: 140px;
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.12);
 }
 
 .btn-save-trainer-name {
-  background: #10b981;
+  height: 28px;
+  background: #0071e3;
   color: white;
   border: none;
-  border-radius: 4px;
-  padding: 3px 8px;
+  border-radius: 8px;
+  padding: 0 10px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: var(--transition-smooth);
+}
+
+.btn-save-trainer-name:hover {
+  background: #0077ed;
 }
 
 .btn-rename-trainer-icon {
   background: none;
   border: none;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
 .btn-rename-trainer-icon:hover {
-  color: #0f172a;
+  color: var(--text-main);
 }
 
 .team-page-subtitle {
@@ -2386,38 +2429,54 @@ body {
   max-width: 600px;
 }
 
-/* Trainer Wallet Badge */
+/* Trainer Wallet Badge (Apple Cash Style) */
 .trainer-wallet-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 10px 18px;
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+}
+
+.wallet-chip-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-main);
   flex-shrink: 0;
 }
 
 .wallet-meta {
   display: flex;
   flex-direction: column;
-  text-align: right;
+  text-align: left;
 }
 
 .wallet-label {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
   color: var(--text-muted);
   font-weight: 600;
 }
 
 .wallet-amount {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-main);
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
   font-feature-settings: "tnum";
+  line-height: 1.15;
 }
 
 /* Top Tab Navigator (Apple Segmented Control) */
@@ -2847,20 +2906,29 @@ body {
 
 .mart-item-meta {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .mart-item-name {
   font-size: 0.96rem;
   font-weight: 600;
   color: var(--text-main);
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .mart-item-pocket {
-  font-size: 0.7rem;
+  display: inline-block;
+  font-size: 0.68rem;
   text-transform: uppercase;
   color: var(--text-muted);
   font-weight: 600;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 7px;
+  border-radius: 5px;
+  margin: 4px 0 6px 0;
+  letter-spacing: 0.3px;
 }
 
 .mart-price-tag {
@@ -2869,8 +2937,7 @@ body {
   gap: 2px;
   color: var(--text-main);
   font-weight: 600;
-  font-size: 0.9rem;
-  margin-top: 2px;
+  font-size: 0.92rem;
   font-feature-settings: "tnum";
 }
 
@@ -3004,16 +3071,20 @@ body {
 }
 
 .mart-stock-tag {
-  font-size: 0.76rem;
+  display: inline-block;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 7px;
+  border-radius: 5px;
+  margin: 4px 0 6px 0;
 }
 
 .mart-sell-price-tag {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
   color: #34c759;
-  margin-top: 2px;
   font-feature-settings: "tnum";
 }
 
@@ -5297,7 +5368,7 @@ body {
   padding: 4px;
 }
 
-.bag-items-grid {
+.battle-subdrawer .bag-items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 8px;
@@ -5305,7 +5376,7 @@ body {
   overflow-y: auto;
 }
 
-.bag-item-card {
+.battle-subdrawer .bag-item-card {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -5318,7 +5389,7 @@ body {
   transition: var(--transition-smooth);
 }
 
-.bag-item-card:hover {
+.battle-subdrawer .bag-item-card:hover {
   background: #334155;
   border-color: #38bdf8;
 }

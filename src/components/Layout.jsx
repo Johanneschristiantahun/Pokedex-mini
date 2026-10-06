@@ -10,11 +10,8 @@ function Layout() {
       </main>
       <footer className="app-footer">
         <div className="footer-content">
-          <p>
-            <strong>PokéDex Mini</strong> • Web & Mobile Application Development Project
-          </p>
           <p className="footer-sub">
-            Built with React, Vite & PokéAPI. Sprites & Pokémon are copyright of Nintendo / Game Freak.
+            PokéDex • Powered by PokéAPI. Pokémon and Pokémon character names are trademarks of Nintendo.
           </p>
         </div>
       </footer>

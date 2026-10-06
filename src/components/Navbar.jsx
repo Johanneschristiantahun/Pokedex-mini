@@ -10,7 +10,6 @@ import {
   IconScale,
   IconSwords,
   IconCrown,
-  IconCoin,
   IconVolume,
   IconVolumeMute,
   IconDungeon,
@@ -274,11 +273,11 @@ function Navbar() {
           <Link
             to="/bag"
             className="navbar-money-pill"
-            title="Trainer PokéDollars - Click to open Poké Mart"
+            title="Trainer Balance"
           >
-            <IconCoin size={15} className="money-coin-svg" />
+            <span className="navbar-money-currency">₽</span>
             <span className="money-amount">
-              ₽ {trainer.money.toLocaleString()}
+              {trainer.money.toLocaleString()}
             </span>
           </Link>
 
@@ -289,11 +288,7 @@ function Navbar() {
             className={`navbar-sound-btn ${
               isMuted ? "sound-muted" : "sound-active"
             }`}
-            title={
-              isMuted
-                ? "Sound: Muted (Click to enable audio)"
-                : "Sound: Active (Click to mute)"
-            }
+            title={isMuted ? "Unmute audio" : "Mute audio"}
             aria-label={isMuted ? "Unmute audio" : "Mute audio"}
           >
             {isMuted ? <IconVolumeMute size={16} /> : <IconVolume size={16} />}
