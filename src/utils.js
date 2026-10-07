@@ -88,20 +88,6 @@ export function getArtworkShinyUrl(id) {
   return `${OFFICIAL_ARTWORK_URL}/shiny/${id}.png`;
 }
 
-// 3D GLB Models (Draco-compressed from Pokemon-3D-api)
-export const MODEL_3D_BASE_URL =
-  "https://cdn.jsdelivr.net/gh/Pokemon-3D-api/assets@main/models/opt/regular";
-export const MODEL_3D_SHINY_URL =
-  "https://cdn.jsdelivr.net/gh/Pokemon-3D-api/assets@main/models/opt/shiny";
-
-export function getModel3dUrl(id) {
-  return `${MODEL_3D_BASE_URL}/${id}.glb`;
-}
-
-export function getModel3dShinyUrl(id) {
-  return `${MODEL_3D_SHINY_URL}/${id}.glb`;
-}
-
 // Official cry audio URL
 export function getCryUrl(id) {
   return `${CRIES_BASE_URL}/${id}.ogg`;

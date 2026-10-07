@@ -1175,164 +1175,33 @@ body {
 
 .detail-image-box {
   background: #f8fafc;
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
-  height: 310px;
+  min-height: 250px;
+  height: 260px;
   border: 1px solid #e2e8f0;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .artwork-img {
-  max-width: 230px;
-  max-height: 230px;
+  max-width: 220px;
+  max-height: 220px;
   object-fit: contain;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
-  transition: transform 0.2s ease;
+  filter: none;
 }
 
 .animated-img {
-  max-width: 175px;
-  max-height: 175px;
+  max-width: 170px;
+  max-height: 170px;
   object-fit: contain;
   filter: none;
   image-rendering: pixelated;
-  transform: scale(1.6);
+  transform: scale(1.45);
   transform-origin: center;
-}
-
-/* 3D Model & 180 Sprite Stages */
-.model-3d-stage,
-.sprite-180-stage,
-.artwork-stage {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  user-select: none;
-}
-
-.sprite-180-stage {
-  cursor: grab;
-  touch-action: pan-y;
-}
-
-.sprite-180-stage:active {
-  cursor: grabbing;
-}
-
-.sprite-3d-turntable {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.rotator-control-bar {
-  position: absolute;
-  bottom: 8px;
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  z-index: 10;
-  pointer-events: none;
-}
-
-.rotator-hint {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted, #64748b);
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  padding: 3px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  pointer-events: auto;
-}
-
-.rotator-angle-pills,
-.rotator-action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  pointer-events: auto;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.btn-angle-pill,
-.btn-rotator-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid var(--border-light, #e2e8f0);
-  color: var(--text-main, #0f172a);
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.btn-angle-pill:hover,
-.btn-rotator-toggle:hover {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-
-.btn-angle-pill.active,
-.btn-rotator-toggle.active {
-  background: #0071e3;
-  color: #ffffff;
-  border-color: #0071e3;
-  box-shadow: 0 2px 8px rgba(0, 113, 227, 0.3);
-}
-
-.btn-spin-pill {
-  color: #0071e3;
-  font-weight: 800;
-}
-
-.model-poster-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.model-loading-pill {
-  position: absolute;
-  bottom: 24px;
-  background: rgba(15, 23, 42, 0.82);
-  color: #ffffff;
-  font-size: 0.74rem;
-  font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 999px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Lore Box & TTS */
