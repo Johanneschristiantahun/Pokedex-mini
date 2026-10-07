@@ -3,7 +3,7 @@
 // Procedural Scaling Trainers, Win Streaks, & Milestone Rewards
 // ========================================================
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useGame } from "../context/GameContext.jsx";
 import {
   generateTowerChallenger,
@@ -17,11 +17,8 @@ import {
 } from "../components/BattleEnvironment.jsx";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
-  IconSwords,
   IconTrophy,
   IconCrown,
-  IconBackpack,
-  IconParty,
   IconSparkles,
   IconCamera,
   IconArrowRight,
@@ -87,9 +84,15 @@ export default function BattleTowerPage() {
     localStorage.setItem(STORAGE_KEY_TOWER, JSON.stringify(towerRecord));
   }, [towerRecord]);
 
-  // Tower Run States: "LOBBY" | "VS_INTRO" | "BATTLE" | "STREAK_VICTORY" | "DEFEAT"
+  // Tower Run States: "LOBBY" | "BATTLE" | "STREAK_VICTORY" | "DEFEAT"
   const [mode, setMode] = useState("LOBBY");
   const [currentStreak, setCurrentStreak] = useState(0);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  function showToast(msg) {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  }
 
   // Active Challenger & Battlers
   const [challenger, setChallenger] = useState(null);
@@ -119,8 +122,6 @@ export default function BattleTowerPage() {
   const [oppDamagePopup, setOppDamagePopup] = useState(null);
   const [playerDamagePopup, setPlayerDamagePopup] = useState(null);
 
-  const introTimerRef = useRef(null);
-
   const basePlayerMon = team[activePartyIndex] || team[0];
   const activePlayerMon = playerIsMega ? applyMegaEvolution(basePlayerMon) : basePlayerMon;
   const canMega = !playerIsMega && Boolean(getMegaEvolutionData(basePlayerMon));
@@ -128,18 +129,18 @@ export default function BattleTowerPage() {
   const activeOppMon = challenger?.team?.[activeChallengerIndex];
   const currentRank = getTowerRank(currentStreak);
 
-  useEffect(() => {
-    return () => {
-      if (introTimerRef.current) clearTimeout(introTimerRef.current);
-    };
-  }, []);
-
   // Start / Continue Tower Run
   function handleStartTowerChallenge() {
-    const firstAliveIndex = team.findIndex((p) => (p.currentHp || 0) > 0);
-    if (firstAliveIndex === -1) {
-      alert("All your Pokémon have fainted! Heal your party before entering the Tower!");
+    if (team.length === 0) {
+      showToast("You need at least 1 Pokémon in your party to enter the Battle Tower!");
       return;
+    }
+
+    let firstAliveIndex = team.findIndex((p) => (p.currentHp || 0) > 0);
+    if (firstAliveIndex === -1) {
+      healAllPokemon();
+      firstAliveIndex = 0;
+      showToast("Party restored to full health for the Battle Tower!");
     }
 
     const nextStreak = currentStreak + 1;
@@ -152,20 +153,13 @@ export default function BattleTowerPage() {
     setActiveChallengerIndex(0);
     setTurnNumber(1);
 
-    setMode("VS_INTRO");
+    // Instant battle start (no ghost delay)
+    setMode("BATTLE");
+    setBattleSubMenu("MENU");
+    setBattleDialogue(`${generated.name}: "${generated.quote}"`);
     playBattleStartSound();
     triggerHaptic(HAPTIC_PATTERNS.MEDIUM);
-
-    introTimerRef.current = setTimeout(() => {
-      setMode("BATTLE");
-      setBattleDialogue(`${generated.name}: "${generated.quote}"`);
-      playPokemonCry(generated.team[0].id);
-
-      setTimeout(() => {
-        setBattleDialogue(`What will ${team[firstAliveIndex].nickname.toUpperCase()} do?`);
-        setBattleSubMenu("MENU");
-      }, 2200);
-    }, 2600);
+    playPokemonCry(generated.team[0].id);
   }
 
   // Mega Evolution trigger
@@ -665,8 +659,7 @@ export default function BattleTowerPage() {
                   onClick={() => setBattleSubMenu("FIGHT")}
                   className="btn-cmd btn-cmd-fight"
                 >
-                  <IconSwords size={20} />
-                  <span>FIGHT</span>
+                  FIGHT
                 </button>
 
                 <button
@@ -674,8 +667,7 @@ export default function BattleTowerPage() {
                   onClick={() => setBattleSubMenu("BAG")}
                   className="btn-cmd btn-cmd-bag"
                 >
-                  <IconBackpack size={20} />
-                  <span>BAG</span>
+                  BAG
                 </button>
 
                 <button
@@ -683,8 +675,7 @@ export default function BattleTowerPage() {
                   onClick={() => setBattleSubMenu("SWITCH")}
                   className="btn-cmd btn-cmd-switch"
                 >
-                  <IconParty size={20} />
-                  <span>POKÉMON</span>
+                  POKÉMON
                 </button>
 
                 {canMega && (
@@ -693,8 +684,7 @@ export default function BattleTowerPage() {
                     onClick={handleTriggerMega}
                     className="btn-cmd btn-cmd-mega-trigger"
                   >
-                    <IconSparkles size={20} />
-                    <span>MEGA EVOLVE</span>
+                    MEGA EVOLVE
                   </button>
                 )}
               </div>
@@ -751,8 +741,9 @@ export default function BattleTowerPage() {
                         type="button"
                         onClick={() => {
                           const res = applyItemToPokemon(key, activePlayerMon.instanceId);
-                          if (!res.success) alert(res.message);
-                          else {
+                          if (!res.success) {
+                            setBattleDialogue(res.message);
+                          } else {
                             setBattleSubMenu("BUSY");
                             setBattleDialogue(`Used ${key.toUpperCase()}! ${res.message}`);
                             setTimeout(() => executeOppAttack(() => setBattleSubMenu("MENU")), 1200);
@@ -820,14 +811,15 @@ export default function BattleTowerPage() {
   // ========================================================
   return (
     <div className="tower-page-container">
+      {toastMessage && <div className="game-toast-pill">{toastMessage}</div>}
+
       <div className="tower-lobby-header">
         <div className="tower-header-text">
           <div className="tower-title-row">
-            <IconTrophy size={30} className="tower-trophy-gold" />
-            <h1 className="tower-title">Battle Tower Gauntlet</h1>
+            <h1 className="tower-title">Battle Tower</h1>
           </div>
           <p className="tower-subtitle">
-            The endless survival proving ground — test your tactical endurance against endless trainers!
+            Endless survival challenge. Test your party against consecutive trainers.
           </p>
         </div>
 
@@ -855,7 +847,7 @@ export default function BattleTowerPage() {
         <div className="tower-stat-card">
           <span className="tower-stat-title">Milestone Rewards</span>
           <h2 className="tower-stat-value">Every 5 Wins</h2>
-          <span className="tower-stat-sub">Master Ball & Rare Candies</span>
+          <span className="tower-stat-sub">Master Ball &amp; Rare Candies</span>
         </div>
       </div>
 
@@ -866,8 +858,7 @@ export default function BattleTowerPage() {
           onClick={handleStartTowerChallenge}
           className="btn-start-tower-run"
         >
-          <IconSwords size={22} />
-          <span>Enter Battle Tower Challenge</span>
+          Enter Battle Tower
         </button>
       </div>
 

@@ -12,7 +12,6 @@ import GymBadgeIcon from "../components/GymBadgeIcons.jsx";
 import { BattleEnvironment, BattlePedestal, ElementalVfxOverlay } from "../components/BattleEnvironment.jsx";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
-  IconSwords,
   IconCross,
   IconBackpack,
   IconParty,
@@ -591,22 +590,19 @@ export default function GymPage() {
 
         {/* Hero Header */}
         <div className="gym-hero-banner">
-          <div className="gym-hero-badge-pill">
-            <IconSwords size={16} />
-            <span>Kanto Pokémon League Circuit</span>
+          <div className="gym-hero-left">
+            <h1 className="gym-hero-title">Gym Arena</h1>
+            <p className="gym-hero-subtitle">
+              Challenge 8 Kanto Gym Leaders to earn official League Badges.
+            </p>
           </div>
-          <h1 className="gym-hero-title">Official Gym Leader Challenge</h1>
-          <p className="gym-hero-subtitle">
-            Defeat all 8 Gym Leaders, collect the official Kanto Badges, and qualify
-            for the Pokémon League Championship at the Indigo Plateau!
-          </p>
 
           {/* League Progress Bar */}
           <div className="gym-progress-card">
             <div className="gym-progress-header">
-              <span className="progress-label">Kanto League Badges</span>
+              <span className="progress-label">Badges Collected</span>
               <span className="progress-counter">
-                <strong>{earnedCount}</strong> / 8 Badges Earned
+                <strong>{earnedCount}</strong> / 8
               </span>
             </div>
             <div className="gym-progress-track">
@@ -703,8 +699,7 @@ export default function GymPage() {
                         onClick={() => handleSelectLeader(leader)}
                         className="btn-gym-action btn-gym-rematch"
                       >
-                        <IconSparkles size={16} />
-                        <span>Rematch Gym Leader</span>
+                        Rematch {leader.name}
                       </button>
                     ) : (
                       <button
@@ -712,8 +707,7 @@ export default function GymPage() {
                         onClick={() => handleSelectLeader(leader)}
                         className="btn-gym-action btn-gym-challenge"
                       >
-                        <IconSwords size={16} />
-                        <span>Challenge {leader.name}</span>
+                        Challenge {leader.name}
                       </button>
                     )}
                   </div>

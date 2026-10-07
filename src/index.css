@@ -4355,10 +4355,42 @@ body {
    WILDERNESS EXPEDITION & CATCHING MECHANICS (STAGE 4)
    ======================================================== */
 
-.wilderness-page {
+.wilderness-page,
+.wilderness-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding-bottom: 50px;
+  padding: 0 16px 50px;
+}
+
+/* Global Game Toast Pill */
+.game-toast-pill {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.95);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 /* Wilderness Header Banner */
@@ -4406,14 +4438,16 @@ body {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .party-status-pill,
-.box-status-pill {
+.box-status-pill,
+.encounter-status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 999px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -4423,7 +4457,8 @@ body {
 }
 
 .party-status-pill strong,
-.box-status-pill strong {
+.box-status-pill strong,
+.encounter-status-pill strong {
   color: #ffffff;
 }
 
@@ -4546,58 +4581,67 @@ body {
 }
 
 /* Meadow Zone (Tall Grass) */
-.wilderness-meadow-zone {
+.wilderness-meadow-zone,
+.meadow-zone-card {
   background: #ffffff;
   border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
 }
 
 .meadow-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
 .meadow-title-group h3 {
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: var(--text-main);
   margin: 0 0 4px 0;
 }
 
 .meadow-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
+}
+
+.meadow-action-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 14px;
 }
 
 .btn-explore-grass {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  background: #0071e3;
   color: #ffffff;
   border: none;
-  padding: 10px 22px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 800;
+  padding: 13px 34px;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-  transition: var(--transition-smooth);
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-explore-grass:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+  background: #0077ed;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 113, 227, 0.35);
 }
 
 .btn-explore-grass.searching {
-  opacity: 0.8;
+  opacity: 0.75;
   cursor: wait;
 }
 
@@ -5736,6 +5780,27 @@ body {
 }
 
 /* 4. Result Cards (Victory, Caught, Defeated) */
+.battle-result-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.battle-result-overlay .rpg-result-card {
+  max-width: 420px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
 .rpg-result-card {
   width: 100%;
   text-align: center;

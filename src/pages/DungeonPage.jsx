@@ -4,7 +4,7 @@
 // Epic Raid Encounters, Mega Evolution, and Master Ball Catches
 // ========================================================
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useGame } from "../context/GameContext.jsx";
 import { LEGENDARY_DUNGEONS } from "../data/legendaryRaids.js";
@@ -15,17 +15,13 @@ import {
 } from "../components/BattleEnvironment.jsx";
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
-  IconSwords,
-  IconCross,
-  IconBackpack,
-  IconParty,
-  IconSparkles,
-  IconCheck,
   IconCamera,
-  IconArrowRight,
-  IconPokeball,
   IconShield,
   IconCrown,
+  IconSparkles,
+  IconParty,
+  IconArrowRight,
+  IconPokeball,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -91,9 +87,15 @@ export default function DungeonPage() {
     localStorage.setItem(STORAGE_KEY_DUNGEONS, JSON.stringify(clearedDungeons));
   }, [clearedDungeons]);
 
-  // Mode: "HUB" | "INTRO" | "BATTLE" | "CATCH_SUCCESS"
+  // Mode: "HUB" | "BATTLE" | "CATCH_SUCCESS"
   const [mode, setMode] = useState("HUB");
   const [activeDungeonIndex, setActiveDungeonIndex] = useState(0);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  function showToast(msg) {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  }
 
   // Active Battlers
   const selectedDungeon = LEGENDARY_DUNGEONS[activeDungeonIndex] || LEGENDARY_DUNGEONS[0];
@@ -126,25 +128,22 @@ export default function DungeonPage() {
   // Catching ball animation state
   const [thrownBall, setThrownBall] = useState(null); // { type, shakes: 0..3, success: bool }
 
-  const introTimerRef = useRef(null);
-
   // Derive active player Pokémon (apply temporary Mega Evolution if activated)
   const basePlayerMon = team[activePartyIndex] || team[0];
   const activePlayerMon = playerIsMega ? applyMegaEvolution(basePlayerMon) : basePlayerMon;
   const canMega = !playerIsMega && Boolean(getMegaEvolutionData(basePlayerMon));
 
-  useEffect(() => {
-    return () => {
-      if (introTimerRef.current) clearTimeout(introTimerRef.current);
-    };
-  }, []);
-
   // Enter Dungeon Raid
   function handleEnterDungeon(index) {
-    const firstAliveIndex = team.findIndex((p) => (p.currentHp || 0) > 0);
-    if (firstAliveIndex === -1) {
-      alert("All Pokémon in your party have fainted! Restore them at the Pokémon Center first!");
+    if (team.length === 0) {
+      showToast("You need at least 1 Pokémon in your party to enter a raid!");
       return;
+    }
+    let firstAliveIndex = team.findIndex((p) => (p.currentHp || 0) > 0);
+    if (firstAliveIndex === -1) {
+      healAllPokemon();
+      firstAliveIndex = 0;
+      showToast("Party restored to full health for the expedition!");
     }
 
     setActiveDungeonIndex(index);
@@ -159,21 +158,14 @@ export default function DungeonPage() {
     setBossMon(initialBoss);
     setTurnNumber(1);
 
-    setMode("INTRO");
+    // Instant, seamless entry into battle
+    setMode("BATTLE");
+    setBattleSubMenu("MENU");
+    setBattleDialogue(`Legendary Boss ${initialBoss.name} appeared! What will ${team[firstAliveIndex]?.nickname || team[firstAliveIndex]?.name} do?`);
     playBattleStartSound();
     playLegendaryRoar();
     triggerHaptic(HAPTIC_PATTERNS.HEAVY);
-
-    introTimerRef.current = setTimeout(() => {
-      setMode("BATTLE");
-      setBattleDialogue(dung.boss.introQuote);
-      playPokemonCry(initialBoss.id);
-
-      setTimeout(() => {
-        setBattleDialogue(`What will ${team[firstAliveIndex].nickname.toUpperCase()} do against ${dung.boss.name.toUpperCase()}?`);
-        setBattleSubMenu("MENU");
-      }, 2400);
-    }, 2800);
+    playPokemonCry(initialBoss.id);
   }
 
   // Trigger Mega Evolution in Battle
@@ -347,7 +339,7 @@ export default function DungeonPage() {
   // Throw Pokéball at Legendary Boss
   function handleThrowBall(ballType) {
     if ((inventory[ballType] || 0) <= 0) {
-      alert(`You have no ${ballType.replace(/-/g, " ")} left in your Bag!`);
+      setBattleDialogue(`No ${ballType.replace(/-/g, " ")} left in your Bag!`);
       return;
     }
 
@@ -713,8 +705,7 @@ export default function DungeonPage() {
                   onClick={() => setBattleSubMenu("FIGHT")}
                   className="btn-cmd btn-cmd-fight"
                 >
-                  <IconSwords size={20} />
-                  <span>FIGHT</span>
+                  FIGHT
                 </button>
 
                 <button
@@ -722,8 +713,7 @@ export default function DungeonPage() {
                   onClick={() => setBattleSubMenu("BALL")}
                   className="btn-cmd btn-cmd-ball"
                 >
-                  <IconPokeball size={20} />
-                  <span>CATCH</span>
+                  CATCH
                 </button>
 
                 <button
@@ -731,8 +721,7 @@ export default function DungeonPage() {
                   onClick={() => setBattleSubMenu("BAG")}
                   className="btn-cmd btn-cmd-bag"
                 >
-                  <IconBackpack size={20} />
-                  <span>BAG</span>
+                  BAG
                 </button>
 
                 <button
@@ -740,8 +729,7 @@ export default function DungeonPage() {
                   onClick={() => setBattleSubMenu("SWITCH")}
                   className="btn-cmd btn-cmd-switch"
                 >
-                  <IconParty size={20} />
-                  <span>POKÉMON</span>
+                  POKÉMON
                 </button>
 
                 {/* MEGA EVOLUTION TRIGGER */}
@@ -750,10 +738,9 @@ export default function DungeonPage() {
                     type="button"
                     onClick={handleTriggerMega}
                     className="btn-cmd btn-cmd-mega-trigger"
-                    title="Awaken Mega Evolution for this battle!"
+                    title="Awaken Mega Evolution for this battle"
                   >
-                    <IconSparkles size={20} />
-                    <span>MEGA EVOLVE</span>
+                    MEGA EVOLVE
                   </button>
                 )}
               </div>
@@ -842,8 +829,9 @@ export default function DungeonPage() {
                         type="button"
                         onClick={() => {
                           const res = applyItemToPokemon(key, activePlayerMon.instanceId);
-                          if (!res.success) alert(res.message);
-                          else {
+                          if (!res.success) {
+                            setBattleDialogue(res.message);
+                          } else {
                             setBattleSubMenu("BUSY");
                             setBattleDialogue(`Used ${key.toUpperCase()}! ${res.message}`);
                             setTimeout(() => executeBossAttack(() => setBattleSubMenu("MENU")), 1200);
@@ -911,14 +899,15 @@ export default function DungeonPage() {
   // ========================================================
   return (
     <div className="dungeon-page-container">
+      {toastMessage && <div className="game-toast-pill">{toastMessage}</div>}
+
       <div className="dungeon-hub-header">
         <div className="dungeon-header-text">
           <div className="dungeon-title-row">
-            <IconSparkles size={28} className="dungeon-header-icon" />
-            <h1 className="dungeon-title">Legendary Secret Dungeons</h1>
+            <h1 className="dungeon-title">Dungeons &amp; Raids</h1>
           </div>
           <p className="dungeon-subtitle">
-            Subterranean sanctuaries and secret facilities housing Kanto's mythical Pokémon.
+            Explore legendary sanctuaries across Kanto and battle mythical Pokémon.
           </p>
         </div>
 
@@ -927,12 +916,11 @@ export default function DungeonPage() {
             type="button"
             onClick={() => {
               healAllPokemon();
-              alert("All party Pokémon have been fully healed!");
+              showToast("Party Pokémon restored to full health.");
             }}
             className="btn-dungeon-heal"
           >
-            <IconCross size={16} />
-            <span>Expedition Healing Kit (Free)</span>
+            Restore Party
           </button>
         </div>
       </div>
@@ -949,10 +937,7 @@ export default function DungeonPage() {
               <div className="dungeon-card-header">
                 <span className="dungeon-region-tag">{dung.region}</span>
                 {isCleared ? (
-                  <span className="tag-cleared">
-                    <IconCheck size={13} style={{ marginRight: 4 }} />
-                    Subdued / Caught
-                  </span>
+                  <span className="tag-cleared">Captured</span>
                 ) : (
                   <span className="tag-recommended">{dung.recommendedLevel}</span>
                 )}
@@ -968,7 +953,9 @@ export default function DungeonPage() {
 
               <div className="dungeon-card-body">
                 <h3 className="dungeon-name">{dung.name}</h3>
-                <span className="dungeon-boss-title">Boss: {capitalize(dung.boss.name)} ({dung.boss.title})</span>
+                <span className="dungeon-boss-title">
+                  Boss: {capitalize(dung.boss.name)} • Lv. {dung.boss.level || 70}
+                </span>
                 <div className="dungeon-types-row">
                   {dung.boss.types.map((t) => (
                     <TypeBadge key={t} type={t} size="sm" />
@@ -983,8 +970,7 @@ export default function DungeonPage() {
                 className="btn-enter-dungeon"
                 style={{ background: dung.color }}
               >
-                <span>Enter Expedition</span>
-                <IconArrowRight size={16} />
+                Enter Expedition
               </button>
             </div>
           );
