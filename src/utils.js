@@ -88,6 +88,19 @@ export function getArtworkShinyUrl(id) {
   return `${OFFICIAL_ARTWORK_URL}/shiny/${id}.png`;
 }
 
+// 3D Pokémon Model GLB (Draco-compressed, web-optimized)
+export function getModel3dUrl(id) {
+  const num = parseInt(id, 10);
+  if (isNaN(num)) return null;
+  return `https://cdn.jsdelivr.net/gh/Pokemon-3D-api/assets@main/models/opt/regular/${num}.glb`;
+}
+
+export function getModel3dShinyUrl(id) {
+  const num = parseInt(id, 10);
+  if (isNaN(num)) return null;
+  return `https://cdn.jsdelivr.net/gh/Pokemon-3D-api/assets@main/models/opt/shiny/${num}.glb`;
+}
+
 // Official cry audio URL
 export function getCryUrl(id) {
   return `${CRIES_BASE_URL}/${id}.ogg`;

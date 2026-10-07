@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import TypeBadge from "../components/TypeBadge.jsx";
 import { API_BASE_URL } from "../config.js";
@@ -10,8 +10,12 @@ import {
   stopPokemonCry,
   getAnimatedSpriteUrl,
   getAnimatedShinySpriteUrl,
+  getAnimatedBackSpriteUrl,
+  getAnimatedBackShinySpriteUrl,
   getArtworkUrl,
   getArtworkShinyUrl,
+  getModel3dUrl,
+  getModel3dShinyUrl,
   getTypeColor,
   pokemonDetailCache,
 } from "../utils.js";
@@ -27,6 +31,7 @@ import {
   IconSparkles,
   IconMic,
   IconSquare,
+  IconRefresh,
 } from "../components/Icons.jsx";
 
 // Memory cache for evolution chains
@@ -90,9 +95,12 @@ function DetailPage() {
     () => pokemonDetailCache[name.toLowerCase()] || null
   );
   const [species, setSpecies] = useState(null);
-  const [evoChain, setEvoChain] = useState([]);
-  const [useArtwork, setUseArtwork] = useState(true);
+  const [viewMode, setViewMode] = useState("3d"); // "3d" | "artwork" | "animated"
   const [isShiny, setIsShiny] = useState(false);
+  const [showBackSprite, setShowBackSprite] = useState(false);
+  const [isAutoRotate3d, setIsAutoRotate3d] = useState(true);
+  const [model3dError, setModel3dError] = useState(false);
+  const modelViewerRef = useRef(null);
   const [isLoading, setIsLoading] = useState(
     () => !pokemonDetailCache[name.toLowerCase()]
   );
@@ -266,7 +274,7 @@ function DetailPage() {
   // Total base stat calculation
   const totalStats = pokemon.stats.reduce((acc, curr) => acc + curr.base_stat, 0);
 
-  // Artwork vs Animated sprite (with Shiny support)
+  // Artwork, Animated & 3D Model URLs (with Shiny support)
   const artworkNormal =
     pokemon.sprites.other?.["official-artwork"]?.front_default ||
     getArtworkUrl(pokemon.id);
@@ -275,14 +283,15 @@ function DetailPage() {
     getArtworkShinyUrl(pokemon.id);
   const animatedNormal = getAnimatedSpriteUrl(pokemon.id);
   const animatedShiny = getAnimatedShinySpriteUrl(pokemon.id);
+  const animatedBackNormal = getAnimatedBackSpriteUrl(pokemon.id);
+  const animatedBackShiny = getAnimatedBackShinySpriteUrl(pokemon.id);
+  const model3dNormal = getModel3dUrl(pokemon.id);
+  const model3dShiny = getModel3dShinyUrl(pokemon.id);
 
-  const displayImgUrl = useArtwork
-    ? isShiny
-      ? artworkShiny
-      : artworkNormal
-    : isShiny
-    ? animatedShiny
-    : animatedNormal;
+  const currentArtworkUrl = isShiny ? artworkShiny : artworkNormal;
+  const currentFrontAnimatedUrl = isShiny ? animatedShiny : animatedNormal;
+  const currentBackAnimatedUrl = isShiny ? animatedBackShiny : animatedBackNormal;
+  const currentModel3dUrl = isShiny ? model3dShiny : model3dNormal;
 
   const fallbackImgUrl = isShiny
     ? pokemon.sprites.front_shiny || artworkNormal
@@ -417,21 +426,29 @@ function DetailPage() {
           </div>
         </div>
 
-        {/* Visual Showcase with Artwork / Animated & Shiny Mode */}
+        {/* Visual Showcase with Artwork, Animated & 3D (360°) Mode */}
         <div className="detail-visual-wrapper">
           <div className="image-toggle-bar">
             <div className="toggle-group-left">
               <button
                 type="button"
-                onClick={() => setUseArtwork(true)}
-                className={`toggle-btn ${useArtwork ? "active" : ""}`}
+                onClick={() => setViewMode("3d")}
+                className={`toggle-btn ${viewMode === "3d" ? "active" : ""}`}
+                title="Interactive 360° 3D Model"
+              >
+                3D (360°)
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("artwork")}
+                className={`toggle-btn ${viewMode === "artwork" ? "active" : ""}`}
               >
                 Artwork
               </button>
               <button
                 type="button"
-                onClick={() => setUseArtwork(false)}
-                className={`toggle-btn ${!useArtwork ? "active" : ""}`}
+                onClick={() => setViewMode("animated")}
+                className={`toggle-btn ${viewMode === "animated" ? "active" : ""}`}
               >
                 Animated
               </button>
@@ -449,15 +466,131 @@ function DetailPage() {
           </div>
 
           <div className="detail-image-box">
-            <img
-              key={`${pokemon.id}-${useArtwork}-${isShiny}`}
-              src={displayImgUrl}
-              alt={`${pokemon.name} ${isShiny ? "shiny" : "regular"}`}
-              className={useArtwork ? "artwork-img" : "animated-img"}
-              onError={(e) => {
-                e.target.src = fallbackImgUrl;
-              }}
-            />
+            {/* 1. 3D 360° ORBIT VIEWER MODE */}
+            {viewMode === "3d" && (
+              <div className="model-3d-stage">
+                <model-viewer
+                  key={`3d-${pokemon.id}-${isShiny}`}
+                  ref={modelViewerRef}
+                  src={currentModel3dUrl}
+                  poster={currentArtworkUrl}
+                  alt={`3D model of ${pokemon.name}`}
+                  camera-controls
+                  touch-action="pan-y"
+                  auto-rotate={isAutoRotate3d ? "" : undefined}
+                  rotation-per-second="25deg"
+                  shadow-intensity="1"
+                  exposure="1"
+                  loading="eager"
+                  reveal="auto"
+                  onError={() => setModel3dError(true)}
+                  style={{
+                    width: "100%",
+                    height: "260px",
+                    backgroundColor: "transparent",
+                    outline: "none",
+                  }}
+                >
+                  <div slot="poster" className="model-poster-fallback">
+                    <img
+                      src={currentArtworkUrl}
+                      alt={pokemon.name}
+                      className="artwork-img"
+                    />
+                    <div className="model-loading-pill">Loading 3D Model…</div>
+                  </div>
+                </model-viewer>
+
+                {model3dError ? (
+                  <div className="rotator-control-bar">
+                    <span className="rotator-hint">
+                      Model 3D belum tersedia untuk varian ini.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModel3dError(false);
+                        setViewMode("artwork");
+                      }}
+                      className="btn-rotator-toggle active"
+                    >
+                      Buka Artwork
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rotator-control-bar">
+                    <span className="rotator-hint">
+                      Geser 360° bebas • Pinch / scroll zoom
+                    </span>
+                    <div className="rotator-action-buttons">
+                      <button
+                        type="button"
+                        onClick={() => setIsAutoRotate3d((prev) => !prev)}
+                        className={`btn-rotator-toggle ${isAutoRotate3d ? "active" : ""}`}
+                        title="Toggle auto 360 rotation"
+                      >
+                        {isAutoRotate3d ? "Auto 360°: ON" : "Auto 360°: OFF"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (modelViewerRef.current) {
+                            modelViewerRef.current.cameraOrbit = "0deg 75deg 105%";
+                            modelViewerRef.current.resetTurntableRotation?.();
+                          }
+                        }}
+                        className="btn-rotator-toggle"
+                        title="Reset ke posisi depan"
+                      >
+                        <IconRefresh size={13} />
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 2. ARTWORK MODE */}
+            {viewMode === "artwork" && (
+              <div className="artwork-stage">
+                <img
+                  key={`${pokemon.id}-artwork-${isShiny}`}
+                  src={currentArtworkUrl}
+                  alt={`${pokemon.name} ${isShiny ? "shiny" : "regular"}`}
+                  className="artwork-img"
+                  onError={(e) => {
+                    e.target.src = fallbackImgUrl;
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 3. ANIMATED 2D BATTLE SPRITE MODE */}
+            {viewMode === "animated" && (
+              <div className="animated-stage">
+                <img
+                  key={`${pokemon.id}-animated-${isShiny}-${showBackSprite}`}
+                  src={showBackSprite ? currentBackAnimatedUrl : currentFrontAnimatedUrl}
+                  alt={`${pokemon.name} animated`}
+                  className="animated-img"
+                  onError={(e) => {
+                    e.target.src = fallbackImgUrl;
+                  }}
+                />
+                <div className="animated-control-bar">
+                  <button
+                    type="button"
+                    onClick={() => setShowBackSprite((prev) => !prev)}
+                    className="btn-rotator-toggle"
+                    title="Ganti tampak depan / belakang"
+                  >
+                    <IconRefresh size={12} />
+                    <span>{showBackSprite ? "Tampak Depan" : "Tampak Belakang"}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
