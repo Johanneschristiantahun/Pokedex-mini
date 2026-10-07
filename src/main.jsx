@@ -15,7 +15,20 @@ createRoot(document.getElementById('root')).render(
 // Register PWA Service Worker for offline capability & asset caching
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch((err) => {
+    const swUrl = `${import.meta.env.BASE_URL || './'}sw.js`;
+    navigator.serviceWorker.register(swUrl).then((registration) => {
+      registration.update().catch(() => {});
+      registration.onupdatefound = () => {
+        const installing = registration.installing;
+        if (installing) {
+          installing.onstatechange = () => {
+            if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+              window.location.reload();
+            }
+          };
+        }
+      };
+    }).catch((err) => {
       console.warn('Service worker registration failed:', err);
     });
   });
