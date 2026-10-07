@@ -1,6 +1,7 @@
 // ========================================================
-// PokéDex Mini Game Boy Link Cable PvP Arena & Trade Station (/link)
-// Real-time peer communication across browser tabs using BroadcastChannel API
+// PokéDex Mini Link Battle (/link)
+// Real-time peer battle arena across browser tabs using BroadcastChannel API
+// Apple-inspired minimalist lobby, real-time sync, and battle arena
 // ========================================================
 
 import { useState, useEffect, useRef } from "react";
@@ -13,10 +14,11 @@ import {
 import TypeBadge from "../components/TypeBadge.jsx";
 import {
   IconSwords,
-  IconSparkles,
-  IconRefresh,
   IconCheck,
-  IconInfo,
+  IconX,
+  IconExternalLink,
+  IconTrophy,
+  IconShield,
 } from "../components/Icons.jsx";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
@@ -41,7 +43,7 @@ export default function LinkBattlePage() {
   const { trainer, team } = useGame();
 
   // Tab Unique Peer ID
-  const [peerId] = useState(() => `peer_${Math.random().toString(36).slice(2, 8)}`);
+  const [peerId] = useState(() => `peer_${Math.random().toString(36).slice(2, 7)}`);
 
   // Channel & Connected Peers
   const channelRef = useRef(null);
@@ -146,19 +148,18 @@ export default function LinkBattlePage() {
         setOppActiveIdx(0);
         setMode("BATTLE");
         setIsMyTurn(true);
-        setBattleDialogue(`Link Battle started with ${data.trainerName}! Choose your move!`);
+        setBattleDialogue(`Battle started with ${data.trainerName}! Select your opening move.`);
         playBattleStartSound();
       }
 
       if (data.type === "BATTLE_MOVE" && data.targetId === peerId) {
-        // Receive opponent move
         handleReceiveOpponentMoveRef.current?.(data.move, data.damage);
       }
 
       if (data.type === "PEER_DISCONNECT") {
         setRemotePeers((prev) => prev.filter((p) => p.id !== data.senderId));
         if (activeDuelPeerRef.current && activeDuelPeerRef.current.id === data.senderId) {
-          setBattleDialogue("Opponent disconnected from the Link Cable session!");
+          setBattleDialogue("Opponent disconnected from the Link session.");
           setTimeout(() => {
             alert("Opponent closed their tab or disconnected. Returning to lobby.");
             setMode("LOBBY");
@@ -168,7 +169,7 @@ export default function LinkBattlePage() {
       }
 
       if (data.type === "BATTLE_FORFEIT" && data.targetId === peerId) {
-        setBattleDialogue(`${data.trainerName || "Opponent"} has forfeited the match!`);
+        setBattleDialogue(`${data.trainerName || "Opponent"} has forfeited the match.`);
         setTimeout(() => {
           setMode("VICTORY");
         }, 1200);
@@ -271,9 +272,13 @@ export default function LinkBattlePage() {
 
     setIncomingChallenge(null);
     setMode("BATTLE");
-    setIsMyTurn(false); // Guest waits for Host's first move
-    setBattleDialogue(`Link Battle connected! Waiting for ${incomingChallenge.trainerName}'s first attack...`);
+    setIsMyTurn(false);
+    setBattleDialogue(`Connected to ${incomingChallenge.trainerName}. Waiting for opponent's first attack...`);
     playBattleStartSound();
+  }
+
+  function handleDeclineChallenge() {
+    setIncomingChallenge(null);
   }
 
   // Active Battlers
@@ -285,7 +290,7 @@ export default function LinkBattlePage() {
     if (!isMyTurn || !myMon || !oppMon || !channelRef.current || !activeDuelPeer) return;
 
     setIsMyTurn(false);
-    setBattleDialogue(`${myMon.nickname.toUpperCase()} used ${move.name.toUpperCase()}!`);
+    setBattleDialogue(`${myMon.nickname} used ${move.name}!`);
     setPlayerAnim("anim-player-lunge");
     setElementalVfx({ target: "leader", type: move.type });
     playAttackWhooshSound();
@@ -321,16 +326,14 @@ export default function LinkBattlePage() {
       });
 
       if (nextOppHp <= 0) {
-        // Opponent mon fainted
         const nextOppAlive = nextOppRoster.findIndex((p, idx) => idx > oppActiveIdx && p.currentHp > 0);
         if (nextOppAlive !== -1) {
           setOppActiveIdx(nextOppAlive);
-          setBattleDialogue(`${oppMon.nickname.toUpperCase()} fainted! Opponent sent out next Pokémon.`);
+          setBattleDialogue(`${oppMon.nickname} fainted! Opponent sent out next Pokémon.`);
         } else {
-          // We won!
-          setBattleDialogue(`All opponent Pokémon fainted! You emerged victorious in the Link Cable Duel!`);
+          setBattleDialogue(`All opponent Pokémon fainted! You won the battle!`);
           playCatchSuccessJingle();
-          setTimeout(() => setMode("VICTORY"), 2000);
+          setTimeout(() => setMode("VICTORY"), 1800);
         }
       } else {
         setBattleDialogue(`Waiting for opponent's response...`);
@@ -345,7 +348,7 @@ export default function LinkBattlePage() {
     setScreenShake(true);
     playHitSound();
 
-    setBattleDialogue(`Opponent's ${oppMon.nickname.toUpperCase()} used ${move.name.toUpperCase()} dealing ${damage} damage!`);
+    setBattleDialogue(`Opponent's ${oppMon.nickname} used ${move.name} dealing ${damage} damage!`);
 
     setTimeout(() => {
       setOppAnim("");
@@ -362,15 +365,15 @@ export default function LinkBattlePage() {
         const nextAlive = nextMyRoster.findIndex((p) => p.currentHp > 0);
         if (nextAlive !== -1) {
           setMyActiveIdx(nextAlive);
-          setBattleDialogue(`${myMon.nickname.toUpperCase()} fainted! Go, ${nextMyRoster[nextAlive].nickname.toUpperCase()}!`);
+          setBattleDialogue(`${myMon.nickname} fainted! Go, ${nextMyRoster[nextAlive].nickname}!`);
           setIsMyTurn(true);
         } else {
-          setBattleDialogue("All your Pokémon fainted! Defeated in Link Cable Duel.");
-          setTimeout(() => setMode("DEFEAT"), 2000);
+          setBattleDialogue("All your Pokémon fainted. Defeated in Link Battle.");
+          setTimeout(() => setMode("DEFEAT"), 1800);
         }
       } else {
         setIsMyTurn(true);
-        setBattleDialogue(`It's your turn! What will ${myMon.nickname.toUpperCase()} do?`);
+        setBattleDialogue(`Your turn. Choose a move for ${myMon.nickname}.`);
       }
     }, 700);
   }
@@ -380,7 +383,7 @@ export default function LinkBattlePage() {
   });
 
   function handleForfeit() {
-    if (window.confirm("Are you sure you want to forfeit this Link Battle and return to the lobby?")) {
+    if (window.confirm("Forfeit this Link Battle and return to the lobby?")) {
       if (channelRef.current && activeDuelPeer) {
         channelRef.current.postMessage({
           type: "BATTLE_FORFEIT",
@@ -400,78 +403,104 @@ export default function LinkBattlePage() {
   if (mode === "LOBBY" || mode === "CHALLENGING") {
     return (
       <div className="link-page-container">
-        <div className="link-hero-banner">
-          <div className="link-cable-plug-icon">
-            <IconSwords size={32} />
+        {/* Apple Style Header */}
+        <div className="link-header-banner">
+          <div className="link-header-info">
+            <h1 className="link-title">Link Battle</h1>
+            <p className="link-subtitle">
+              Real-time peer battles across browser windows using local channel sync.
+            </p>
           </div>
-          <h1 className="link-title">Game Boy Link Cable PvP Arena</h1>
-          <p className="link-subtitle">
-            Battle your Pokémon team live in real-time across two browser tabs or windows using the BroadcastChannel API!
-          </p>
+
+          <button
+            type="button"
+            onClick={() => window.open(window.location.href, "_blank")}
+            className="btn-link-action"
+            title="Open in new window to battle yourself"
+          >
+            <IconExternalLink size={14} />
+            <span>Open Second Tab</span>
+          </button>
         </div>
 
-        {/* Multi-Tab Testing Helper Banner */}
-        <div className="link-instructions-box">
-          <h4 className="instructions-title">
-            <IconInfo size={16} style={{ display: "inline-block", verticalAlign: "text-bottom", marginRight: 6 }} />
-            How to Test Multi-Tab PvP Duel:
-          </h4>
-          <ol className="instructions-list">
-            <li>Duplicate this tab or open <code>/#/link</code> in a second browser window side-by-side.</li>
-            <li>Both tabs will automatically discover each other via Link Cable heartbeat.</li>
-            <li>Click <strong>"Issue PvP Challenge"</strong> on Tab 1, and click <strong>"Accept Challenge"</strong> on Tab 2!</li>
-          </ol>
+        {/* Live Channel Status Card */}
+        <div className="link-status-card">
+          <div className="link-status-pill">
+            <span className="status-live-dot"></span>
+            <span>Link Channel Active • ID: {peerId}</span>
+          </div>
+          <p className="link-guide-text">
+            Open this page in a second tab or window side-by-side to initiate a 3v3 live battle.
+          </p>
         </div>
 
         {/* Incoming Challenge Alert */}
         {incomingChallenge && (
           <div className="incoming-challenge-card">
-            <IconSparkles size={24} className="incoming-challenge-icon" />
-            <div className="incoming-challenge-body">
+            <div className="incoming-challenge-content">
+              <span className="incoming-badge">Duel Invite</span>
               <h3 className="incoming-challenge-title">
-                {incomingChallenge.trainerName} has challenged you to a Link Duel!
+                {incomingChallenge.trainerName} wants to battle
               </h3>
-              <p className="incoming-challenge-subtitle">3 vs 3 Pokémon tactical battle.</p>
+              <p className="incoming-challenge-desc">3 vs 3 Pokémon team duel</p>
             </div>
-            <button
-              type="button"
-              onClick={handleAcceptChallenge}
-              className="btn-accept-challenge"
-            >
-              <IconCheck size={18} />
-              <span>Accept Duel</span>
-            </button>
+
+            <div className="incoming-challenge-actions">
+              <button
+                type="button"
+                onClick={handleAcceptChallenge}
+                className="btn-accept-duel"
+              >
+                <IconCheck size={15} />
+                <span>Accept</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleDeclineChallenge}
+                className="btn-decline-duel"
+              >
+                <IconX size={15} />
+                <span>Decline</span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Discovered Peers Grid */}
+        {/* Peers Lobby Panel */}
         <div className="peers-panel">
           <div className="peers-panel-header">
-            <span className="peers-count-label">
-              Active Link Cable Peers Detected: {remotePeers.length}
-            </span>
-            <span className="my-peer-tag">Your ID: {peerId}</span>
+            <h2 className="peers-panel-title">
+              Available Challengers
+              <span className="peers-count-badge">{remotePeers.length}</span>
+            </h2>
           </div>
 
           <div className="peers-grid">
             {remotePeers.map((peer) => (
               <div key={peer.id} className="peer-card">
                 <div className="peer-card-header">
-                  <span className="peer-status-dot"></span>
-                  <h3 className="peer-trainer-name">{peer.name}</h3>
+                  <div className="peer-identity">
+                    <span className="peer-status-dot"></span>
+                    <h3 className="peer-trainer-name">{peer.name}</h3>
+                  </div>
+                  <span className="peer-tag">Ready</span>
                 </div>
 
                 <div className="peer-team-roster">
                   {peer.teamSummary.map((m, idx) => (
-                    <div key={idx} className="peer-mon-chip">
+                    <div key={idx} className="peer-mon-chip" title={`${capitalize(m.name)} (Lv.${m.level})`}>
                       <img
                         src={getAnimatedSpriteUrl(m.id)}
                         alt={m.name}
                         className="peer-mon-sprite"
                       />
-                      <span className="peer-mon-name">{capitalize(m.name)} (Lv.{m.level})</span>
+                      <span className="peer-mon-name">{capitalize(m.name)}</span>
+                      <span className="peer-mon-lvl">Lv.{m.level}</span>
                     </div>
                   ))}
+                  {peer.teamSummary.length === 0 && (
+                    <span className="peer-empty-team">No team loaded</span>
+                  )}
                 </div>
 
                 <button
@@ -480,22 +509,28 @@ export default function LinkBattlePage() {
                   className="btn-send-challenge"
                   disabled={mode === "CHALLENGING"}
                 >
-                  <IconSwords size={16} />
-                  <span>{mode === "CHALLENGING" ? "Invitation Sent..." : "Issue PvP Challenge"}</span>
+                  <IconSwords size={15} />
+                  <span>{mode === "CHALLENGING" ? "Waiting for response..." : "Challenge"}</span>
                 </button>
               </div>
             ))}
 
             {remotePeers.length === 0 && (
               <div className="empty-peers-notice">
-                <IconRefresh size={32} className="spin-refresh-icon" />
-                <p>Waiting for a second tab to connect...</p>
+                <div className="radar-pulse-ring">
+                  <span className="radar-core"></span>
+                </div>
+                <h3 className="empty-peers-title">Searching for nearby trainers...</h3>
+                <p className="empty-peers-desc">
+                  Open another tab or window to start a match. Both instances will automatically discover each other.
+                </p>
                 <button
                   type="button"
                   onClick={() => window.open(window.location.href, "_blank")}
                   className="btn-open-second-tab"
                 >
-                  Open Second Tab in New Window
+                  <IconExternalLink size={14} />
+                  <span>Launch Second Tab</span>
                 </button>
               </div>
             )}
@@ -515,38 +550,21 @@ export default function LinkBattlePage() {
     return (
       <div className="link-page-container">
         <div className={`battle-stage-container arena-gym-champion ${screenShake ? "screen-shake" : ""}`}>
+          {/* Top HUD */}
           <div className="battle-top-hud">
             <div className="hud-chamber-badge">
-              <IconSwords size={16} style={{ marginRight: 6 }} />
-              <span>Link Duel VS {activeDuelPeer.name}</span>
+              <IconSwords size={15} />
+              <span>Link Duel • VS {activeDuelPeer?.name}</span>
             </div>
-            <div className="hud-actions-right" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="hud-actions-right">
               <span className={`turn-turn-indicator ${isMyTurn ? "indicator-my-turn" : "indicator-waiting"}`}>
-                <span
-                  style={{
-                    display: "inline-block",
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    backgroundColor: isMyTurn ? "#22c55e" : "#f59e0b",
-                    marginRight: 6,
-                  }}
-                />
-                {isMyTurn ? "YOUR TURN" : "OPPONENT'S TURN"}
+                <span className="turn-dot" />
+                {isMyTurn ? "Your Turn" : "Opponent's Turn"}
               </span>
               <button
                 type="button"
                 onClick={handleForfeit}
-                style={{
-                  padding: "4px 10px",
-                  fontSize: "0.75rem",
-                  fontWeight: 600,
-                  borderRadius: "6px",
-                  border: "1px solid rgba(239, 68, 68, 0.4)",
-                  background: "rgba(239, 68, 68, 0.15)",
-                  color: "#f87171",
-                  cursor: "pointer",
-                }}
+                className="btn-battle-forfeit"
                 title="Forfeit duel and return to lobby"
               >
                 Forfeit
@@ -554,6 +572,7 @@ export default function LinkBattlePage() {
             </div>
           </div>
 
+          {/* Isometric Battle Stage */}
           <div className="battle-viewport camera-isometric">
             <BattleEnvironment arenaTheme="gym-champion" />
 
@@ -613,10 +632,12 @@ export default function LinkBattlePage() {
             )}
           </div>
 
+          {/* Dialogue Banner */}
           <div className="battle-dialogue-banner">
             <p className="dialogue-text">{battleDialogue}</p>
           </div>
 
+          {/* Controls Tray */}
           <div className="battle-controls-tray">
             {isMyTurn ? (
               <div className="moves-deck-grid">
@@ -639,7 +660,7 @@ export default function LinkBattlePage() {
               </div>
             ) : (
               <div className="waiting-remote-turn">
-                <span>Opponent is selecting their move over Link Cable...</span>
+                <span>Opponent is selecting their move...</span>
               </div>
             )}
           </div>
@@ -654,18 +675,25 @@ export default function LinkBattlePage() {
   return (
     <div className="link-page-container">
       <div className={`link-result-card ${mode === "VICTORY" ? "result-victory" : "result-defeat"}`}>
-        <h1 className="result-title">{mode === "VICTORY" ? "LINK DUEL VICTORY!" : "LINK DUEL DEFEAT"}</h1>
+        <div className="link-result-icon-wrap">
+          {mode === "VICTORY" ? (
+            <IconTrophy size={48} className="result-icon-victory" />
+          ) : (
+            <IconShield size={48} className="result-icon-defeat" />
+          )}
+        </div>
+        <h1 className="result-title">{mode === "VICTORY" ? "Victory" : "Defeat"}</h1>
         <p className="result-desc">
           {mode === "VICTORY"
-            ? "Congratulations! You proved your tactical mastery over your Link Cable rival!"
-            : "Good match! Refine your team composition and battle again!"}
+            ? "Congratulations! You proved your team's tactical strength in the Link Battle."
+            : "Good match. Refine your lineup and challenge your rival again."}
         </p>
         <button
           type="button"
           onClick={() => setMode("LOBBY")}
           className="btn-return-lobby"
         >
-          Return to Link Cable Lobby
+          Return to Lobby
         </button>
       </div>
     </div>

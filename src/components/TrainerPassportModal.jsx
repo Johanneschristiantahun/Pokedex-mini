@@ -1,12 +1,12 @@
 // ========================================================
-// PokéDex Mini Official Trainer Passport & QR Code Card
-// Generates official Kanto League Trainer Card with QR sharing
+// PokéDex Mini Official Trainer Passport (Apple Wallet Pass Style)
+// Clean, minimalist Apple ID / Wallet Pass design
 // Powered by QR Server Public API
 // ========================================================
 
 import { useGame } from "../context/GameContext.jsx";
 import GymBadgeIcon from "./GymBadgeIcons.jsx";
-import { IconCross, IconCrown, IconParty } from "./Icons.jsx";
+import { IconCross, IconCrown, IconPokeball } from "./Icons.jsx";
 import { getAnimatedSpriteUrl, capitalize } from "../utils.js";
 
 const KANTO_BADGE_KEYS = [
@@ -31,7 +31,7 @@ export default function TrainerPassportModal({ isOpen, onClose }) {
   // Build QR payload data
   const qrData = encodeURIComponent(
     JSON.stringify({
-      trainer: trainer.name,
+      trainer: trainer.name || "Trainer Red",
       badges: earnedBadgesCount,
       champion: isChampion,
       team: team.map((p) => ({
@@ -43,7 +43,7 @@ export default function TrainerPassportModal({ isOpen, onClose }) {
     })
   );
 
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${qrData}&color=1e1b4b&bgcolor=ffffff&margin=4`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${qrData}&color=111827&bgcolor=ffffff&margin=4`;
 
   return (
     <div className="passport-modal-backdrop" onClick={onClose}>
@@ -51,123 +51,149 @@ export default function TrainerPassportModal({ isOpen, onClose }) {
         className="passport-card-container"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Button */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn-passport-close"
-          aria-label="Close Trainer Passport"
-        >
-          <IconCross size={18} />
-        </button>
-
-        {/* Passport Header */}
+        {/* Pass Header */}
         <div className="passport-card-header">
-          <div className="passport-header-emblem">
-            <IconCrown size={22} className="passport-crown-icon" />
-            <span className="passport-league-text">POKÉMON LEAGUE OFFICIAL PASSPORT</span>
+          <div className="passport-header-title-wrap">
+            <div className="passport-icon-pill">
+              <IconPokeball size={16} />
+            </div>
+            <div>
+              <span className="passport-title-text">Trainer Pass</span>
+              <span className="passport-region-subtext">Kanto Region</span>
+            </div>
           </div>
-          <span className="passport-region-badge">KANTO REGION</span>
+
+          <div className="passport-header-actions">
+            <span className="passport-id-tag">#00151</span>
+            <button
+              type="button"
+              onClick={onClose}
+              className="btn-passport-close"
+              aria-label="Close Trainer Pass"
+            >
+              <IconCross size={15} />
+            </button>
+          </div>
         </div>
 
-        {/* Main Body */}
-        <div className="passport-body-grid">
-          {/* Left Column: Trainer Identity */}
-          <div className="passport-identity-col">
-            <div className="passport-avatar-box">
-              <img
-                src="https://play.pokemonshowdown.com/sprites/trainers/red.png"
-                alt="Trainer Red"
-                className="passport-avatar-img"
-              />
-              {isChampion && <span className="passport-champ-stamp">CHAMPION</span>}
-            </div>
+        {/* Trainer Profile Row */}
+        <div className="passport-profile-card">
+          <div className="passport-avatar-box">
+            <img
+              src="https://play.pokemonshowdown.com/sprites/trainers/red.png"
+              alt={trainer.name || "Trainer"}
+              className="passport-avatar-img"
+            />
+          </div>
 
-            <div className="passport-meta-info">
-              <div className="meta-field">
-                <span className="meta-label">TRAINER NAME</span>
-                <span className="meta-value">{trainer.name || "Trainer Red"}</span>
-              </div>
-              <div className="meta-field">
-                <span className="meta-label">ID NO.</span>
-                <span className="meta-value">#00151</span>
-              </div>
-              <div className="meta-field">
-                <span className="meta-label">POKÉDOLLARS</span>
-                <span className="meta-value money-color">
-                  ₽ {trainer.money.toLocaleString()}
+          <div className="passport-profile-details">
+            <div className="passport-name-row">
+              <h2 className="passport-trainer-name">{trainer.name || "Trainer Red"}</h2>
+              {isChampion ? (
+                <span className="passport-champion-pill">
+                  <IconCrown size={12} />
+                  <span>Champion</span>
                 </span>
-              </div>
-              <div className="meta-field">
-                <span className="meta-label">BADGES WON</span>
-                <span className="meta-value">{earnedBadgesCount} / 8 BADGES</span>
-              </div>
+              ) : (
+                <span className="passport-rank-pill">Trainer</span>
+              )}
             </div>
-          </div>
-
-          {/* Right Column: QR Code & Team Lineup */}
-          <div className="passport-qr-col">
-            <div className="passport-qr-box">
-              <img
-                src={qrCodeUrl}
-                alt="Trainer QR Code"
-                className="passport-qr-image"
-              />
-              <span className="qr-caption">Scan to Battle / Inspect Team</span>
-            </div>
-
-            {/* Badges Matrix */}
-            <div className="passport-badges-tray">
-              <span className="tray-label">OFFICIAL GYM BADGES</span>
-              <div className="passport-badges-row">
-                {KANTO_BADGE_KEYS.map((k) => {
-                  const owned = hasBadge(k);
-                  return (
-                    <div
-                      key={k}
-                      className={`passport-badge-slot ${owned ? "badge-owned" : "badge-missing"}`}
-                      title={k.toUpperCase()}
-                    >
-                      <GymBadgeIcon badgeId={k} size={28} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <p className="passport-license-note">Indigo Plateau Certified</p>
           </div>
         </div>
 
-        {/* Bottom Party Roster Showcase */}
-        <div className="passport-party-strip">
-          <div className="party-strip-header">
-            <IconParty size={15} />
-            <span>ACTIVE BATTLE ROSTER</span>
+        {/* Apple 3-Metric Summary Strip */}
+        <div className="passport-stats-strip">
+          <div className="passport-stat-item">
+            <span className="stat-item-label">Balance</span>
+            <span className="stat-item-value money-color">
+              ₽ {trainer.money.toLocaleString()}
+            </span>
+          </div>
+          <div className="passport-stat-divider"></div>
+          <div className="passport-stat-item">
+            <span className="stat-item-label">Badges</span>
+            <span className="stat-item-value">{earnedBadgesCount} / 8</span>
+          </div>
+          <div className="passport-stat-divider"></div>
+          <div className="passport-stat-item">
+            <span className="stat-item-label">Party</span>
+            <span className="stat-item-value">{team.length} / 6</span>
+          </div>
+        </div>
+
+        {/* Gym Badges Section */}
+        <div className="passport-section">
+          <div className="passport-section-header">
+            <span className="passport-section-title">Gym Badges</span>
+            <span className="passport-section-count">{earnedBadgesCount} of 8</span>
+          </div>
+          <div className="passport-badges-row">
+            {KANTO_BADGE_KEYS.map((k) => {
+              const owned = hasBadge(k);
+              return (
+                <div
+                  key={k}
+                  className={`passport-badge-slot ${owned ? "badge-owned" : "badge-missing"}`}
+                  title={`${capitalize(k)} Badge`}
+                >
+                  <GymBadgeIcon badgeId={k} size={28} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Active Party Section */}
+        <div className="passport-section">
+          <div className="passport-section-header">
+            <span className="passport-section-title">Active Party</span>
+            <span className="passport-section-count">{team.length} Pokémon</span>
           </div>
           <div className="passport-party-grid">
             {team.map((member, idx) => (
-              <div key={member.instanceId || idx} className="passport-mon-pill">
+              <div key={member.instanceId || idx} className="passport-mon-chip">
                 <img
                   src={getAnimatedSpriteUrl(member.id)}
                   alt={member.name}
                   className="passport-mon-sprite"
                 />
-                <div className="passport-mon-info">
-                  <span className="mon-name">{member.nickname || capitalize(member.name)}</span>
-                  <span className="mon-lvl">Lv. {member.level}</span>
+                <div className="passport-mon-meta">
+                  <span className="passport-mon-name">
+                    {member.nickname || capitalize(member.name)}
+                  </span>
+                  <span className="passport-mon-lvl">Lv. {member.level}</span>
                 </div>
               </div>
             ))}
             {team.length === 0 && (
-              <span className="empty-party-note">No Pokémon in party yet.</span>
+              <div className="passport-empty-party">
+                <span>No Pokémon currently in party</span>
+              </div>
             )}
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="passport-footer">
-          <span className="passport-serial">
-            VERIFIED BY INDIGO PLATEAU LEAGUE COMMISSION • {new Date().getFullYear()}
-          </span>
+        {/* Pass Barcode / QR Code Strip */}
+        <div className="passport-qr-strip">
+          <div className="passport-qr-img-wrap">
+            <img
+              src={qrCodeUrl}
+              alt="Trainer Pass QR Code"
+              className="passport-qr-image"
+            />
+          </div>
+          <div className="passport-qr-info">
+            <span className="passport-qr-heading">Pass Verification</span>
+            <p className="passport-qr-subtext">
+              Scan to inspect battle roster and trainer credentials.
+            </p>
+          </div>
+        </div>
+
+        {/* Minimal Footer */}
+        <div className="passport-card-footer">
+          <span>Pokémon League Pass • Kanto</span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 // ========================================================
-// PokéDex Mini Pro Comparison Tool (/compare)
-// Head-to-Head Side-by-Side Dual Pokémon Analyzer
-// Interactive Stats Diffs, Type Matchup Matrix, & Movepools
+// PokéDex Mini Comparison Tool (/compare)
+// Apple-inspired side-by-side Dual Pokémon Analyzer
+// Responsive desktop & mobile comparison, base stats, & matchups
 // ========================================================
 
 import { useState, useEffect } from "react";
@@ -20,26 +20,25 @@ import {
 } from "../utils.js";
 import { getTypeDamageMultiplier } from "../utils/typeEffectiveness.js";
 import {
-  IconScale,
   IconSparkles,
   IconVolume,
   IconParty,
   IconArrowLeft,
-  IconCheck,
   IconX,
   IconSwords,
   IconBook,
+  IconSearch,
 } from "../components/Icons.jsx";
 import { API_BASE_URL } from "../config.js";
 
-// Preset popular rivalries
+// Preset iconic rivalries
 const POPULAR_RIVALRIES = [
-  { name: "Starters Clash", a: "charizard", b: "blastoise" },
-  { name: "Electric Line", a: "pikachu", b: "raichu" },
-  { name: "Psychic vs Ghost", a: "alakazam", b: "gengar" },
-  { name: "Legendary Myth", a: "mewtwo", b: "mew" },
-  { name: "Kanto Titans", a: "dragonite", b: "gyarados" },
-  { name: "Heavyweights", a: "snorlax", b: "machamp" },
+  { name: "Charizard vs Blastoise", a: "charizard", b: "blastoise" },
+  { name: "Pikachu vs Raichu", a: "pikachu", b: "raichu" },
+  { name: "Alakazam vs Gengar", a: "alakazam", b: "gengar" },
+  { name: "Mewtwo vs Mew", a: "mewtwo", b: "mew" },
+  { name: "Dragonite vs Gyarados", a: "dragonite", b: "gyarados" },
+  { name: "Snorlax vs Machamp", a: "snorlax", b: "machamp" },
 ];
 
 const STAT_CONFIG = [
@@ -179,14 +178,12 @@ export default function ComparePage() {
   const typesA = pokemonA ? pokemonA.types.map((t) => t.type.name) : [];
   const typesB = pokemonB ? pokemonB.types.map((t) => t.type.name) : [];
 
-  // Matchup calculations:
-  // How A's offensive types hit B
+  // Matchup calculations
   const attackAtoB = typesA.map((type) => ({
     attackerType: type,
     multiplier: getTypeDamageMultiplier(type, typesB),
   }));
 
-  // How B's offensive types hit A
   const attackBtoA = typesB.map((type) => ({
     attackerType: type,
     multiplier: getTypeDamageMultiplier(type, typesA),
@@ -208,53 +205,47 @@ export default function ComparePage() {
     <div className="compare-page-container">
       {/* Header Banner */}
       <div className="compare-header">
-        <div className="compare-header-title">
-          <div className="compare-title-icon">
-            <IconScale size={24} />
-          </div>
-          <div>
-            <h1 className="compare-title-text">Pro Comparison Tool</h1>
-            <p className="compare-subtitle">
-              Head-to-head tactical analysis: base stats, type matchups, and traits
-            </p>
-          </div>
+        <div className="compare-header-info">
+          <h1 className="compare-title-text">Compare</h1>
+          <p className="compare-subtitle">
+            Side-by-side analysis of base stats, combat matchups, and traits.
+          </p>
         </div>
 
-        {/* Swap Quick Action */}
         <button
           type="button"
           onClick={handleSwap}
           className="btn-swap-comparison"
           title="Swap Left and Right Pokémon"
         >
-          <IconArrowLeft size={16} />
+          <IconArrowLeft size={15} />
           <span>Swap Sides</span>
         </button>
       </div>
 
-      {/* Quick Picks: Popular Rivalries & My Team */}
+      {/* Quick Picks / Iconic Matchups Bar */}
       <div className="compare-presets-bar">
         <div className="preset-group">
-          <span className="preset-label">Iconic Duels:</span>
+          <span className="preset-label">Iconic Matchups:</span>
           <div className="preset-pills">
-            {POPULAR_RIVALRIES.map((riv) => (
-              <button
-                key={riv.name}
-                type="button"
-                className={`preset-pill ${
-                  (pokeIdA === riv.a && pokeIdB === riv.b) ||
-                  (pokeIdA === riv.b && pokeIdB === riv.a)
-                    ? "preset-pill-active"
-                    : ""
-                }`}
-                onClick={() => {
-                  setPokeIdA(riv.a);
-                  setPokeIdB(riv.b);
-                }}
-              >
-                {riv.name}
-              </button>
-            ))}
+            {POPULAR_RIVALRIES.map((riv) => {
+              const isActive =
+                (pokeIdA === riv.a && pokeIdB === riv.b) ||
+                (pokeIdA === riv.b && pokeIdB === riv.a);
+              return (
+                <button
+                  key={riv.name}
+                  type="button"
+                  className={`preset-pill ${isActive ? "preset-pill-active" : ""}`}
+                  onClick={() => {
+                    setPokeIdA(riv.a);
+                    setPokeIdB(riv.b);
+                  }}
+                >
+                  {riv.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -263,7 +254,7 @@ export default function ComparePage() {
           <div className="preset-group">
             <span className="preset-label">
               <IconParty size={13} style={{ marginRight: 4 }} />
-              From My Team:
+              From Party:
             </span>
             <div className="preset-pills">
               {team.map((member) => (
@@ -272,14 +263,13 @@ export default function ComparePage() {
                   type="button"
                   className="preset-team-pill"
                   onClick={() => {
-                    // Fill slot A first, or slot B if A is already this member
                     if (pokeIdA !== member.name.toLowerCase()) {
                       setPokeIdA(member.name.toLowerCase());
                     } else {
                       setPokeIdB(member.name.toLowerCase());
                     }
                   }}
-                  title={`Click to analyze ${member.nickname || member.name}`}
+                  title={`Select ${member.nickname || member.name}`}
                 >
                   <img
                     src={getAnimatedSpriteUrl(member.id)}
@@ -294,32 +284,34 @@ export default function ComparePage() {
         )}
       </div>
 
-      {/* Main Dual Card Showcase */}
+      {/* ================= CONTENDERS SHOWCASE (RESPONSIVE SIDE-BY-SIDE) ================= */}
       <div className="compare-grid">
-        {/* ================= SLOT A ================= */}
+        {/* SLOT A */}
         <div className="compare-card compare-card-a">
-          {/* Search Box A */}
           <form onSubmit={handleSearchSubmitA} className="compare-search-form">
-            <input
-              type="text"
-              placeholder="Search Pokémon A (e.g. Mewtwo, 150)..."
-              value={searchQueryA}
-              onChange={(e) => setSearchQueryA(e.target.value)}
-              className="compare-search-input"
-            />
+            <div className="compare-search-input-wrap">
+              <IconSearch size={14} className="compare-search-icon" />
+              <input
+                type="text"
+                placeholder="Search or ID..."
+                value={searchQueryA}
+                onChange={(e) => setSearchQueryA(e.target.value)}
+                className="compare-search-input"
+              />
+            </div>
             <button type="submit" className="btn-compare-search">
-              Analyze
+              Go
             </button>
           </form>
 
           {loadingA ? (
             <div className="compare-loading-box">
               <div className="mini-spinner"></div>
-              <span>Analyzing Pokémon A...</span>
+              <span>Loading...</span>
             </div>
           ) : errorA ? (
             <div className="compare-error-box">
-              <IconX size={20} />
+              <IconX size={16} />
               <span>{errorA}</span>
             </div>
           ) : pokemonA ? (
@@ -335,25 +327,24 @@ export default function ComparePage() {
                   className="compare-avatar-img"
                 />
 
-                {/* Sound Cry & Shiny Buttons */}
                 <div className="compare-avatar-controls">
                   <button
                     type="button"
                     onClick={() => playPokemonCry(pokemonA.id)}
-                    className="compare-cry-btn"
+                    className="compare-ctrl-btn"
                     title="Play Audio Cry"
                   >
-                    <IconVolume size={14} />
+                    <IconVolume size={13} />
                     <span>Cry</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShinyA((prev) => !prev)}
-                    className={`compare-shiny-btn ${shinyA ? "shiny-active" : ""}`}
-                    title="Toggle Shiny Artwork"
+                    className={`compare-ctrl-btn ${shinyA ? "ctrl-active" : ""}`}
+                    title="Toggle Shiny Variant"
                   >
-                    <IconSparkles size={14} />
+                    <IconSparkles size={13} />
                     <span>Shiny</span>
                   </button>
                 </div>
@@ -365,42 +356,42 @@ export default function ComparePage() {
 
                 <div className="compare-types-row">
                   {typesA.map((t) => (
-                    <TypeBadge key={t} type={t} size="sm" />
+                    <TypeBadge key={t} type={t} size="xs" />
                   ))}
                 </div>
 
-                <div className="compare-traits-chips">
-                  <span className="trait-chip">
-                    Ht: <strong>{(pokemonA.height / 10).toFixed(1)} m</strong>
-                  </span>
-                  <span className="trait-chip">
-                    Wt: <strong>{(pokemonA.weight / 10).toFixed(1)} kg</strong>
-                  </span>
-                  <span className="trait-chip">
-                    Exp: <strong>{pokemonA.base_experience || "—"}</strong>
-                  </span>
+                <div className="compare-specs-grid">
+                  <div className="spec-item">
+                    <span className="spec-label">Height</span>
+                    <span className="spec-val">{(pokemonA.height / 10).toFixed(1)} m</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Weight</span>
+                    <span className="spec-val">{(pokemonA.weight / 10).toFixed(1)} kg</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Base Exp</span>
+                    <span className="spec-val">{pokemonA.base_experience || "—"}</span>
+                  </div>
                 </div>
 
                 <Link
                   to={`/pokemon/${pokemonA.name}`}
                   className="btn-compare-dex-link"
                 >
-                  <IconBook size={14} />
-                  <span>Full Pokédex Entry</span>
+                  <IconBook size={13} />
+                  <span>Pokédex Entry</span>
                 </Link>
               </div>
             </div>
           ) : null}
         </div>
 
-        {/* ================= VS CENTRAL PILL ================= */}
+        {/* CENTER VS PILL */}
         <div className="compare-center-vs">
-          <div className="vs-badge-circle">
-            <span className="vs-text">VS</span>
-          </div>
-
+          <div className="vs-badge-circle">VS</div>
           {pokemonA && pokemonB && (
-            <div className="stat-summary-pill">
+            <div className="stat-summary-pill" title="Stat Wins (A : B)">
               <span className="summary-score score-a">{winsA}</span>
               <span className="summary-divider">:</span>
               <span className="summary-score score-b">{winsB}</span>
@@ -408,30 +399,32 @@ export default function ComparePage() {
           )}
         </div>
 
-        {/* ================= SLOT B ================= */}
+        {/* SLOT B */}
         <div className="compare-card compare-card-b">
-          {/* Search Box B */}
           <form onSubmit={handleSearchSubmitB} className="compare-search-form">
-            <input
-              type="text"
-              placeholder="Search Pokémon B (e.g. Gengar, 94)..."
-              value={searchQueryB}
-              onChange={(e) => setSearchQueryB(e.target.value)}
-              className="compare-search-input"
-            />
+            <div className="compare-search-input-wrap">
+              <IconSearch size={14} className="compare-search-icon" />
+              <input
+                type="text"
+                placeholder="Search or ID..."
+                value={searchQueryB}
+                onChange={(e) => setSearchQueryB(e.target.value)}
+                className="compare-search-input"
+              />
+            </div>
             <button type="submit" className="btn-compare-search">
-              Analyze
+              Go
             </button>
           </form>
 
           {loadingB ? (
             <div className="compare-loading-box">
               <div className="mini-spinner"></div>
-              <span>Analyzing Pokémon B...</span>
+              <span>Loading...</span>
             </div>
           ) : errorB ? (
             <div className="compare-error-box">
-              <IconX size={20} />
+              <IconX size={16} />
               <span>{errorB}</span>
             </div>
           ) : pokemonB ? (
@@ -447,25 +440,24 @@ export default function ComparePage() {
                   className="compare-avatar-img"
                 />
 
-                {/* Sound Cry & Shiny Buttons */}
                 <div className="compare-avatar-controls">
                   <button
                     type="button"
                     onClick={() => playPokemonCry(pokemonB.id)}
-                    className="compare-cry-btn"
+                    className="compare-ctrl-btn"
                     title="Play Audio Cry"
                   >
-                    <IconVolume size={14} />
+                    <IconVolume size={13} />
                     <span>Cry</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShinyB((prev) => !prev)}
-                    className={`compare-shiny-btn ${shinyB ? "shiny-active" : ""}`}
-                    title="Toggle Shiny Artwork"
+                    className={`compare-ctrl-btn ${shinyB ? "ctrl-active" : ""}`}
+                    title="Toggle Shiny Variant"
                   >
-                    <IconSparkles size={14} />
+                    <IconSparkles size={13} />
                     <span>Shiny</span>
                   </button>
                 </div>
@@ -477,28 +469,31 @@ export default function ComparePage() {
 
                 <div className="compare-types-row">
                   {typesB.map((t) => (
-                    <TypeBadge key={t} type={t} size="sm" />
+                    <TypeBadge key={t} type={t} size="xs" />
                   ))}
                 </div>
 
-                <div className="compare-traits-chips">
-                  <span className="trait-chip">
-                    Ht: <strong>{(pokemonB.height / 10).toFixed(1)} m</strong>
-                  </span>
-                  <span className="trait-chip">
-                    Wt: <strong>{(pokemonB.weight / 10).toFixed(1)} kg</strong>
-                  </span>
-                  <span className="trait-chip">
-                    Exp: <strong>{pokemonB.base_experience || "—"}</strong>
-                  </span>
+                <div className="compare-specs-grid">
+                  <div className="spec-item">
+                    <span className="spec-label">Height</span>
+                    <span className="spec-val">{(pokemonB.height / 10).toFixed(1)} m</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Weight</span>
+                    <span className="spec-val">{(pokemonB.weight / 10).toFixed(1)} kg</span>
+                  </div>
+                  <div className="spec-item">
+                    <span className="spec-label">Base Exp</span>
+                    <span className="spec-val">{pokemonB.base_experience || "—"}</span>
+                  </div>
                 </div>
 
                 <Link
                   to={`/pokemon/${pokemonB.name}`}
                   className="btn-compare-dex-link"
                 >
-                  <IconBook size={14} />
-                  <span>Full Pokédex Entry</span>
+                  <IconBook size={13} />
+                  <span>Pokédex Entry</span>
                 </Link>
               </div>
             </div>
@@ -506,16 +501,16 @@ export default function ComparePage() {
         </div>
       </div>
 
-      {/* ================= SIDE-BY-SIDE STATS COMPARISON TABLE ================= */}
+      {/* ================= BASE STATS SPEC SHEET ================= */}
       {pokemonA && pokemonB && (
         <div className="compare-stats-card">
           <div className="compare-section-header">
             <h3 className="section-title">
               <IconSwords size={18} />
-              <span>Base Stats Comparison</span>
+              <span>Base Stats</span>
             </h3>
             <span className="section-desc">
-              Higher value in green with advantage points
+              Higher value highlighted in green with advantage differential
             </span>
           </div>
 
@@ -531,12 +526,12 @@ export default function ComparePage() {
 
               return (
                 <div key={cfg.key} className="stat-row">
-                  {/* Left Side (Pokemon A) */}
+                  {/* Left Side (A) */}
                   <div className={`stat-col col-a ${isWinnerA ? "stat-winner" : ""}`}>
-                    <span className="stat-val">{valA}</span>
                     {isWinnerA && diff !== 0 && (
                       <span className="stat-win-tag">+{diff}</span>
                     )}
+                    <span className="stat-val">{valA}</span>
                     <div className="stat-meter-track track-left">
                       <div
                         className="stat-meter-fill fill-a"
@@ -550,7 +545,7 @@ export default function ComparePage() {
                     <span className="stat-cfg-label">{cfg.label}</span>
                   </div>
 
-                  {/* Right Side (Pokemon B) */}
+                  {/* Right Side (B) */}
                   <div className={`stat-col col-b ${isWinnerB ? "stat-winner" : ""}`}>
                     <div className="stat-meter-track track-right">
                       <div
@@ -558,10 +553,10 @@ export default function ComparePage() {
                         style={{ width: `${pctB}%` }}
                       ></div>
                     </div>
+                    <span className="stat-val">{valB}</span>
                     {isWinnerB && diff !== 0 && (
                       <span className="stat-win-tag">+{Math.abs(diff)}</span>
                     )}
-                    <span className="stat-val">{valB}</span>
                   </div>
                 </div>
               );
@@ -574,16 +569,16 @@ export default function ComparePage() {
                   statsA.total > statsB.total ? "stat-winner" : ""
                 }`}
               >
-                <span className="stat-total-val">{statsA.total}</span>
                 {statsA.total > statsB.total && (
                   <span className="stat-win-tag">
                     +{statsA.total - statsB.total}
                   </span>
                 )}
+                <span className="stat-total-val">{statsA.total}</span>
               </div>
 
               <div className="stat-label-col">
-                <span className="stat-total-label">BST TOTAL</span>
+                <span className="stat-total-label">Total BST</span>
               </div>
 
               <div
@@ -591,28 +586,28 @@ export default function ComparePage() {
                   statsB.total > statsA.total ? "stat-winner" : ""
                 }`}
               >
+                <span className="stat-total-val">{statsB.total}</span>
                 {statsB.total > statsA.total && (
                   <span className="stat-win-tag">
                     +{statsB.total - statsA.total}
                   </span>
                 )}
-                <span className="stat-total-val">{statsB.total}</span>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ================= TACTICAL TYPE MATCHUP MATRIX ================= */}
+      {/* ================= COMBAT MATCHUP MATRIX ================= */}
       {pokemonA && pokemonB && (
         <div className="compare-matchup-card">
           <div className="compare-section-header">
             <h3 className="section-title">
               <IconSparkles size={18} />
-              <span>Type Matchup & Tactical Advantage</span>
+              <span>Combat Matchups</span>
             </h3>
             <span className="section-desc">
-              Damage multipliers applied when attacking each other
+              Direct type offensive multipliers applied when attacking
             </span>
           </div>
 
@@ -620,9 +615,7 @@ export default function ComparePage() {
             {/* A attacking B */}
             <div className="matchup-box">
               <div className="matchup-box-title">
-                <span className="matchup-actor-name">{capitalize(pokemonA.name)}</span>
-                <span className="matchup-vs-arrow">➔ attacking ➔</span>
-                <span className="matchup-target-name">{capitalize(pokemonB.name)}</span>
+                <span>{capitalize(pokemonA.name)} Attacks</span>
               </div>
 
               <div className="matchup-pills-list">
@@ -632,16 +625,16 @@ export default function ComparePage() {
                     <span
                       className={`multiplier-badge mult-${String(item.multiplier).replace(".", "_")}`}
                     >
-                      {item.multiplier}x
+                      {item.multiplier}×
                     </span>
                     <span className="multiplier-desc">
                       {item.multiplier >= 2
-                        ? "Super Effective!"
+                        ? "Super Effective"
                         : item.multiplier === 0
                         ? "No Effect (Immune)"
                         : item.multiplier < 1
                         ? "Not Very Effective"
-                        : "Regular Effective"}
+                        : "Effective"}
                     </span>
                   </div>
                 ))}
@@ -651,9 +644,7 @@ export default function ComparePage() {
             {/* B attacking A */}
             <div className="matchup-box">
               <div className="matchup-box-title">
-                <span className="matchup-actor-name">{capitalize(pokemonB.name)}</span>
-                <span className="matchup-vs-arrow">➔ attacking ➔</span>
-                <span className="matchup-target-name">{capitalize(pokemonA.name)}</span>
+                <span>{capitalize(pokemonB.name)} Attacks</span>
               </div>
 
               <div className="matchup-pills-list">
@@ -663,16 +654,16 @@ export default function ComparePage() {
                     <span
                       className={`multiplier-badge mult-${String(item.multiplier).replace(".", "_")}`}
                     >
-                      {item.multiplier}x
+                      {item.multiplier}×
                     </span>
                     <span className="multiplier-desc">
                       {item.multiplier >= 2
-                        ? "Super Effective!"
+                        ? "Super Effective"
                         : item.multiplier === 0
                         ? "No Effect (Immune)"
                         : item.multiplier < 1
                         ? "Not Very Effective"
-                        : "Regular Effective"}
+                        : "Effective"}
                     </span>
                   </div>
                 ))}
@@ -680,32 +671,64 @@ export default function ComparePage() {
             </div>
           </div>
 
-          {/* Quick Tactical Verdict */}
-          <div className="tactical-verdict-banner">
-            <IconCheck size={18} className="verdict-icon" />
-            <div className="verdict-text">
-              <strong>Tactical Verdict: </strong>
-              {statsA.total > statsB.total ? (
-                <span>
-                  <strong>{capitalize(pokemonA.name)}</strong> holds superior Base Stat Total ({statsA.total} vs {statsB.total}).
-                </span>
-              ) : statsB.total > statsA.total ? (
-                <span>
-                  <strong>{capitalize(pokemonB.name)}</strong> holds superior Base Stat Total ({statsB.total} vs {statsA.total}).
-                </span>
-              ) : (
-                <span>Both Pokémon are tied in Base Stat Total ({statsA.total})!</span>
-              )}{" "}
-              {attackAtoB.some((m) => m.multiplier >= 2) && (
-                <span>
-                  {capitalize(pokemonA.name)} possesses Super Effective type coverage against {capitalize(pokemonB.name)}!
-                </span>
-              )}{" "}
-              {attackBtoA.some((m) => m.multiplier >= 2) && (
-                <span>
-                  {capitalize(pokemonB.name)} also wields Super Effective STAB against {capitalize(pokemonA.name)}!
-                </span>
-              )}
+          {/* ================= APPLE KEY TAKEAWAYS CARDS ================= */}
+          <div className="compare-takeaways-grid">
+            {/* Takeaway 1: Stat Total */}
+            <div className="takeaway-card">
+              <span className="takeaway-label">Base Stat Leader</span>
+              <p className="takeaway-content">
+                {statsA.total > statsB.total ? (
+                  <>
+                    <strong>{capitalize(pokemonA.name)}</strong> leads with{" "}
+                    <strong>{statsA.total}</strong> BST (+{statsA.total - statsB.total} advantage).
+                  </>
+                ) : statsB.total > statsA.total ? (
+                  <>
+                    <strong>{capitalize(pokemonB.name)}</strong> leads with{" "}
+                    <strong>{statsB.total}</strong> BST (+{statsB.total - statsA.total} advantage).
+                  </>
+                ) : (
+                  <>Both Pokémon are evenly matched with {statsA.total} BST.</>
+                )}
+              </p>
+            </div>
+
+            {/* Takeaway 2: Type Coverage */}
+            <div className="takeaway-card">
+              <span className="takeaway-label">Type Matchup</span>
+              <p className="takeaway-content">
+                {attackAtoB.some((m) => m.multiplier >= 2) && attackBtoA.some((m) => m.multiplier >= 2) ? (
+                  <>Both Pokémon possess Super Effective (2×) moves against each other.</>
+                ) : attackAtoB.some((m) => m.multiplier >= 2) ? (
+                  <>
+                    <strong>{capitalize(pokemonA.name)}</strong> wields a Super Effective type advantage.
+                  </>
+                ) : attackBtoA.some((m) => m.multiplier >= 2) ? (
+                  <>
+                    <strong>{capitalize(pokemonB.name)}</strong> wields a Super Effective type advantage.
+                  </>
+                ) : (
+                  <>Standard neutral matchup with no direct type vulnerabilities.</>
+                )}
+              </p>
+            </div>
+
+            {/* Takeaway 3: Speed Priority */}
+            <div className="takeaway-card">
+              <span className="takeaway-label">Speed Priority</span>
+              <p className="takeaway-content">
+                {(statsA.speed || 0) > (statsB.speed || 0) ? (
+                  <>
+                    <strong>{capitalize(pokemonA.name)}</strong> strikes first with {statsA.speed} Speed (+{(statsA.speed || 0) - (statsB.speed || 0)}).
+                  </>
+                ) : (statsB.speed || 0) > (statsA.speed || 0) ? (
+                  <>
+                    <strong>{capitalize(pokemonB.name)}</strong> strikes first with {statsB.speed} Speed (+{(statsB.speed || 0) - (statsA.speed || 0)}).
+                  </>
+                ) : (
+                  <>Identical Speed stat ({statsA.speed}) — speed ties decided by priority.</>
+                )}
+              </p>
             </div>
           </div>
         </div>
