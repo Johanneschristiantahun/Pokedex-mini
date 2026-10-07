@@ -1,5 +1,5 @@
 // PokéSphere Service Worker (Offline caching & PWA support)
-const CACHE_NAME = 'pokesphere-v5';
+const CACHE_NAME = 'pokesphere-v6';
 const STATIC_ASSETS = [
   './',
   './index.html',
