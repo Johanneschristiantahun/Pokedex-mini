@@ -293,15 +293,22 @@ export default function ComparePage() {
               <IconSearch size={14} className="compare-search-icon" />
               <input
                 type="text"
-                placeholder="Search or ID..."
+                placeholder="Search name or ID..."
                 value={searchQueryA}
                 onChange={(e) => setSearchQueryA(e.target.value)}
                 className="compare-search-input"
               />
+              {searchQueryA && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQueryA("")}
+                  className="compare-search-clear-btn"
+                  aria-label="Clear search"
+                >
+                  <IconX size={13} />
+                </button>
+              )}
             </div>
-            <button type="submit" className="btn-compare-search">
-              Go
-            </button>
           </form>
 
           {loadingA ? (
@@ -406,15 +413,22 @@ export default function ComparePage() {
               <IconSearch size={14} className="compare-search-icon" />
               <input
                 type="text"
-                placeholder="Search or ID..."
+                placeholder="Search name or ID..."
                 value={searchQueryB}
                 onChange={(e) => setSearchQueryB(e.target.value)}
                 className="compare-search-input"
               />
+              {searchQueryB && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQueryB("")}
+                  className="compare-search-clear-btn"
+                  aria-label="Clear search"
+                >
+                  <IconX size={13} />
+                </button>
+              )}
             </div>
-            <button type="submit" className="btn-compare-search">
-              Go
-            </button>
           </form>
 
           {loadingB ? (

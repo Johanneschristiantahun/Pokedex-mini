@@ -282,28 +282,29 @@ function BagAndMartPage() {
             <div className="bag-items-grid">
               {filteredBagItems.map((item) => (
                 <div key={item.id} className="bag-item-card">
-                  <div className="item-card-header">
-                    <span className="item-pocket-tag">{item.pocket}</span>
-                    <span className="item-qty-badge">×{item.count}</span>
+                  <div className="item-card-left">
+                    <div className="item-sprite-box">
+                      <img
+                        src={item.sprite}
+                        alt={item.name}
+                        className="item-sprite-img"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </div>
                   </div>
 
-                  <div className="item-sprite-box">
-                    <img
-                      src={item.sprite}
-                      alt={item.name}
-                      className="item-sprite-img"
-                      onError={(e) => {
-                        e.target.style.display = "none";
-                      }}
-                    />
-                  </div>
-
-                  <div className="item-details">
-                    <h4 className="item-name">{item.name}</h4>
+                  <div className="item-card-center">
+                    <div className="item-card-header-row">
+                      <h4 className="item-name">{item.name}</h4>
+                      <span className="item-qty-badge">×{item.count}</span>
+                      <span className="item-pocket-tag">{item.pocket}</span>
+                    </div>
                     <p className="item-description">{item.description}</p>
                   </div>
 
-                  <div className="item-card-footer">
+                  <div className="item-card-right">
                     {item.isUsableOnPokemon ? (
                       <button
                         type="button"
@@ -315,10 +316,10 @@ function BagAndMartPage() {
                     ) : (
                       <span className="item-unusable-tag">
                         {item.category === "pokeballs"
-                          ? "Auto-used in Wild"
+                          ? "Wild"
                           : item.category === "valuable"
-                          ? `Sell for ₽${item.sellPrice.toLocaleString()}`
-                          : "Held item"}
+                          ? `₽${item.sellPrice.toLocaleString()}`
+                          : "Held"}
                       </span>
                     )}
                   </div>
@@ -392,7 +393,7 @@ function BagAndMartPage() {
 
                 return (
                   <div key={item.id} className="mart-card">
-                    <div className="mart-card-top">
+                    <div className="mart-card-left">
                       <div className="mart-item-sprite-box">
                         <img
                           src={item.sprite}
@@ -400,19 +401,18 @@ function BagAndMartPage() {
                           className="mart-sprite-img"
                         />
                       </div>
-                      <div className="mart-item-meta">
-                        <h4 className="mart-item-name">{item.name}</h4>
-                        <span className="mart-item-pocket">{item.pocket}</span>
-                        <div className="mart-price-tag">
-                          <span>₽{item.price.toLocaleString()}</span>
-                        </div>
-                      </div>
                     </div>
 
-                    <p className="mart-item-desc">{item.description}</p>
+                    <div className="mart-card-center">
+                      <div className="mart-card-header-row">
+                        <h4 className="mart-item-name">{item.name}</h4>
+                        <span className="mart-price-tag">₽{item.price.toLocaleString()}</span>
+                        <span className="mart-item-pocket">{item.pocket}</span>
+                      </div>
+                      <p className="mart-item-desc">{item.description}</p>
+                    </div>
 
-                    {/* Stepper & Buy Action */}
-                    <div className="mart-card-actions">
+                    <div className="mart-card-right">
                       <div className="qty-stepper">
                         <button
                           type="button"
@@ -421,7 +421,7 @@ function BagAndMartPage() {
                           className="stepper-btn"
                           aria-label="Decrease quantity"
                         >
-                          <IconMinus size={13} />
+                          <IconMinus size={11} />
                         </button>
                         <input
                           type="number"
@@ -437,7 +437,7 @@ function BagAndMartPage() {
                           className="stepper-btn"
                           aria-label="Increase quantity"
                         >
-                          <IconPlus size={13} />
+                          <IconPlus size={11} />
                         </button>
                         <button
                           type="button"
@@ -457,7 +457,7 @@ function BagAndMartPage() {
                           !canAfford ? "btn-disabled" : ""
                         }`}
                       >
-                        <span>Buy • ₽{totalCost.toLocaleString()}</span>
+                        <span>Buy ({qty > 1 ? `₽${totalCost.toLocaleString()}` : `₽${item.price.toLocaleString()}`})</span>
                       </button>
                     </div>
                   </div>
@@ -483,7 +483,7 @@ function BagAndMartPage() {
 
                     return (
                       <div key={item.id} className="mart-sell-card">
-                        <div className="mart-card-top">
+                        <div className="mart-card-left">
                           <div className="mart-item-sprite-box">
                             <img
                               src={item.sprite}
@@ -491,16 +491,18 @@ function BagAndMartPage() {
                               className="mart-sprite-img"
                             />
                           </div>
-                          <div className="mart-item-meta">
-                            <h4 className="mart-item-name">{item.name}</h4>
-                            <span className="mart-stock-tag">In Bag: ×{item.count}</span>
-                            <div className="mart-sell-price-tag">
-                              <span>₽{item.sellPrice.toLocaleString()} each</span>
-                            </div>
-                          </div>
                         </div>
 
-                        <div className="mart-sell-actions">
+                        <div className="mart-card-center">
+                          <div className="mart-card-header-row">
+                            <h4 className="mart-item-name">{item.name}</h4>
+                            <span className="mart-sell-price-tag">+₽{item.sellPrice.toLocaleString()}/ea</span>
+                            <span className="mart-stock-tag">Owned: ×{item.count}</span>
+                          </div>
+                          <p className="mart-item-desc">{item.description}</p>
+                        </div>
+
+                        <div className="mart-card-right">
                           <div className="qty-stepper">
                             <button
                               type="button"
@@ -508,7 +510,7 @@ function BagAndMartPage() {
                               disabled={sellQty <= 1}
                               className="stepper-btn"
                             >
-                              <IconMinus size={13} />
+                              <IconMinus size={11} />
                             </button>
                             <input
                               type="number"
@@ -526,7 +528,7 @@ function BagAndMartPage() {
                               disabled={sellQty >= item.count}
                               className="stepper-btn"
                             >
-                              <IconPlus size={13} />
+                              <IconPlus size={11} />
                             </button>
                             <button
                               type="button"
@@ -542,7 +544,7 @@ function BagAndMartPage() {
                             onClick={() => handleSell(item)}
                             className="btn-mart-sell"
                           >
-                            <span>Sell • +₽{totalReward.toLocaleString()}</span>
+                            <span>Sell (+₽{totalReward.toLocaleString()})</span>
                           </button>
                         </div>
                       </div>

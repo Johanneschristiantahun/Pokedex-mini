@@ -8,9 +8,25 @@ import {
   IconCheck,
   IconChevronUp,
   IconChevronDown,
+  IconVolume,
+  IconExternalLink,
+  IconPotion,
+  IconTrash,
+  IconX,
 } from "../components/Icons.jsx";
-import { playHealingJingle } from "../utils/soundEffects.js";
-import { capitalize, getTypeColor, formatPokemonId, getAnimatedSpriteUrl } from "../utils.js";
+import {
+  playHealingJingle,
+  playItemUseSound,
+  playLevelUpSound,
+  playEvolutionJingle,
+} from "../utils/soundEffects.js";
+import {
+  capitalize,
+  getTypeColor,
+  formatPokemonId,
+  getAnimatedSpriteUrl,
+  playPokemonCry,
+} from "../utils.js";
 import { calculateExpNeeded } from "../utils/pokemonFactory.js";
 import GymBadgeIcon from "../components/GymBadgeIcons.jsx";
 
@@ -31,6 +47,7 @@ function TeamPage() {
     team,
     box,
     getItemCount,
+    getInventoryList,
     healAllPokemon,
     applyItemToPokemon,
     renamePokemon,
@@ -52,8 +69,22 @@ function TeamPage() {
   const [newNick, setNewNick] = useState("");
   const [isEditingTrainerName, setIsEditingTrainerName] = useState(false);
   const [trainerNameInput, setTrainerNameInput] = useState(trainer.name);
+  const [quickItemTarget, setQuickItemTarget] = useState(null);
+  const [expandedIds, setExpandedIds] = useState(new Set());
 
   const potionCount = getItemCount("potion");
+
+  function toggleExpand(instanceId) {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(instanceId)) {
+        next.delete(instanceId);
+      } else {
+        next.add(instanceId);
+      }
+      return next;
+    });
+  }
 
   function showToast(msg) {
     setNotification(msg);
@@ -70,10 +101,6 @@ function TeamPage() {
     }, 1000);
   }
 
-  function handleUsePotion(instanceId) {
-    const res = applyItemToPokemon("potion", instanceId);
-    showToast(res.message);
-  }
 
   function handleRelease(instanceId) {
     const target = team.find((p) => p.instanceId === instanceId);
@@ -214,20 +241,24 @@ function TeamPage() {
           <div className="party-grid">
             {partySlots.map((pokemon, slotIndex) => {
               if (!pokemon) {
-                // Empty Slot
+                // Compact Empty Slot
                 return (
                   <div key={`empty-${slotIndex}`} className="empty-party-slot">
-                    <div className="empty-slot-icon">
-                      <IconPokeball size={28} />
+                    <div className="empty-slot-content">
+                      <div className="empty-slot-icon">
+                        <IconPokeball size={20} />
+                      </div>
+                      <div className="empty-slot-text">
+                        <h4>Slot #{slotIndex + 1}</h4>
+                        <p>Empty party slot</p>
+                      </div>
                     </div>
-                    <h4>Empty Slot</h4>
-                    <p>Select Pokémon from PokéDex or catch in Wilderness.</p>
                     <div className="empty-slot-btn-group">
                       <Link to="/" className="btn-browse-dex">
-                        Add from PokéDex
+                        + PokéDex
                       </Link>
                       <Link to="/wilderness" className="btn-browse-wilderness">
-                        Wilderness
+                        Wild
                       </Link>
                     </div>
                   </div>
@@ -243,11 +274,12 @@ function TeamPage() {
                 Math.round((pokemon.currentHp / pokemon.maxHp) * 100)
               );
 
-              let hpColor = "#38a169"; // Green
-              if (hpPercent <= 20) hpColor = "#e53e3e"; // Red
-              else if (hpPercent <= 50) hpColor = "#dd6b20"; // Orange
+              let hpColor = "#34c759"; // Apple Green
+              if (hpPercent <= 20) hpColor = "#ff3b30"; // Apple Red
+              else if (hpPercent <= 50) hpColor = "#ff9500"; // Apple Orange
 
               const isFainted = pokemon.currentHp <= 0;
+              const isExpanded = expandedIds.has(pokemon.instanceId);
 
               return (
                 <div
@@ -260,21 +292,21 @@ function TeamPage() {
                     "--slot-bg": theme.bg,
                   }}
                 >
-                  {/* Card Header */}
+                  {/* Card Top Row */}
                   <div className="party-card-top">
                     <div className="slot-pill-group">
-                      <div className="slot-pill">
-                        {isLeader ? "Leader" : `Slot #${slotIndex + 1}`}
-                      </div>
+                      <span className={`slot-pill ${isLeader ? "slot-pill-leader" : ""}`}>
+                        {isLeader ? "Leader" : `#${slotIndex + 1}`}
+                      </span>
                       {pokemon.isStarter && (
                         <span className="starter-partner-pill">
                           Partner
                         </span>
                       )}
+                      <span className="level-pill">Lv. {pokemon.level}</span>
                     </div>
 
                     <div className="card-top-right-group">
-                      {/* Slot Reorder Controls */}
                       {team.length > 1 && (
                         <div className="slot-order-controls">
                           <button
@@ -282,181 +314,157 @@ function TeamPage() {
                             onClick={() => movePokemonInTeam(pokemon.instanceId, -1)}
                             disabled={slotIndex === 0}
                             className="btn-slot-order"
-                            title="Move Pokémon Up / Left"
+                            title="Move Up in Party"
                             aria-label="Move Pokémon up in party"
                           >
-                            <IconChevronUp size={12} />
+                            <IconChevronUp size={11} />
                           </button>
                           <button
                             type="button"
                             onClick={() => movePokemonInTeam(pokemon.instanceId, 1)}
                             disabled={slotIndex === team.length - 1}
                             className="btn-slot-order"
-                            title="Move Pokémon Down / Right"
+                            title="Move Down in Party"
                             aria-label="Move Pokémon down in party"
                           >
-                            <IconChevronDown size={12} />
+                            <IconChevronDown size={11} />
                           </button>
                         </div>
                       )}
-                      <div className="level-pill">Lv. {pokemon.level}</div>
                     </div>
                   </div>
 
-                  {/* Sprite Showcase */}
-                  <div className="party-sprite-box">
-                    <img
-                      src={pokemon.sprites.animated}
-                      alt={pokemon.name}
-                      className={`party-animated-sprite ${isFainted ? "sprite-fainted" : ""}`}
-                      onError={(e) => {
-                        e.target.src = pokemon.sprites.static;
-                      }}
-                    />
-                  </div>
-
-                  {/* Identification */}
-                  <div className="party-info">
-                    {editingId === pokemon.instanceId ? (
-                      <div className="inline-rename-box">
-                        <input
-                          type="text"
-                          value={newNick}
-                          onChange={(e) => setNewNick(e.target.value)}
-                          maxLength={14}
-                          className="rename-input"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleSaveRename(pokemon.instanceId)}
-                          className="btn-save-nick"
-                          title="Save nickname"
-                        >
-                          <IconCheck size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="nickname-display-row">
-                        <h4 className="party-nickname">{pokemon.nickname}</h4>
-                        <button
-                          type="button"
-                          onClick={() => handleStartRename(pokemon)}
-                          className="btn-rename-icon"
-                          title="Rename Pokémon"
-                        >
-                          <IconPencil size={13} />
-                        </button>
-                      </div>
-                    )}
-                    <span className="party-species-name">
-                      {capitalize(pokemon.name)} ({formatPokemonId(pokemon.id)})
-                    </span>
-
-                    <div className="party-types-row">
-                      {pokemon.types.map((t) => (
-                        <TypeBadge key={t} type={t} size="sm" />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* HP Bar */}
-                  <div className="party-hp-section">
-                    <div className="hp-label-row">
-                      <span className="hp-tag">HP</span>
-                      <span className="hp-values">
-                        {pokemon.currentHp} / {pokemon.maxHp}
-                      </span>
-                    </div>
-                    <div className="hp-track">
-                      <div
-                        className="hp-fill"
-                        style={{
-                          width: `${hpPercent}%`,
-                          backgroundColor: hpColor,
+                  {/* Card Main: Left Avatar + Audio, Right Info & HP */}
+                  <div className="party-card-main-row">
+                    <div className="party-avatar-unit">
+                      <img
+                        src={pokemon.sprites.animated}
+                        alt={pokemon.name}
+                        className={`party-animated-sprite ${isFainted ? "sprite-fainted" : ""}`}
+                        onError={(e) => {
+                          e.target.src = pokemon.sprites.static;
                         }}
-                      ></div>
+                      />
+                      <button
+                        type="button"
+                        onClick={() => playPokemonCry(pokemon.id)}
+                        className="btn-party-cry"
+                        title={`Listen to ${pokemon.nickname}'s cry`}
+                        aria-label={`Play cry for ${pokemon.nickname}`}
+                      >
+                        <IconVolume size={11} />
+                      </button>
                     </div>
-                    {isFainted && <span className="fainted-tag">FAINTED</span>}
-                  </div>
 
-                  {/* EXP Progress Bar */}
-                  {(() => {
-                    const currentLevelBase = calculateExpNeeded(pokemon.level);
-                    const nextLevelTarget =
-                      pokemon.expToNextLevel || calculateExpNeeded(pokemon.level + 1);
-                    const currentExp = pokemon.exp || currentLevelBase;
-                    const expRange = Math.max(1, nextLevelTarget - currentLevelBase);
-                    const expPercent = Math.min(
-                      100,
-                      Math.max(
-                        0,
-                        Math.round(
-                          ((currentExp - currentLevelBase) / expRange) * 100
-                        )
-                      )
-                    );
+                    <div className="party-identity-unit">
+                      <div className="party-name-row">
+                        {editingId === pokemon.instanceId ? (
+                          <div className="inline-rename-box">
+                            <input
+                              type="text"
+                              value={newNick}
+                              onChange={(e) => setNewNick(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveRename(pokemon.instanceId);
+                              }}
+                              maxLength={14}
+                              className="rename-input"
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleSaveRename(pokemon.instanceId)}
+                              className="btn-save-nick"
+                              title="Save nickname"
+                            >
+                              <IconCheck size={12} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="nickname-display-row">
+                            <h4 className="party-nickname">{pokemon.nickname}</h4>
+                            <button
+                              type="button"
+                              onClick={() => handleStartRename(pokemon)}
+                              className="btn-rename-icon"
+                              title="Rename Pokémon"
+                            >
+                              <IconPencil size={11} />
+                            </button>
+                          </div>
+                        )}
+                        <span className="party-species-name">
+                          {capitalize(pokemon.name)} {formatPokemonId(pokemon.id)}
+                        </span>
+                      </div>
 
-                    return (
-                      <div className="party-exp-section">
-                        <div className="exp-label-row">
-                          <span className="exp-tag">EXP</span>
-                          <span className="exp-values">
-                            {currentExp.toLocaleString()} / {nextLevelTarget.toLocaleString()}
+                      <div className="party-types-row">
+                        {pokemon.types.map((t) => (
+                          <TypeBadge key={t} type={t} size="sm" />
+                        ))}
+                      </div>
+
+                      {/* Compact HP Gauge */}
+                      <div className="party-hp-section">
+                        <div className="hp-label-row">
+                          <span className="hp-tag">HP</span>
+                          <span className="hp-values">
+                            {pokemon.currentHp} / {pokemon.maxHp}
                           </span>
                         </div>
-                        <div
-                          className="exp-track"
-                          title={`${expPercent}% towards Lv. ${pokemon.level + 1}`}
-                        >
+                        <div className="hp-track">
                           <div
-                            className="exp-fill"
-                            style={{ width: `${expPercent}%` }}
+                            className="hp-fill"
+                            style={{
+                              width: `${hpPercent}%`,
+                              backgroundColor: hpColor,
+                            }}
                           ></div>
                         </div>
+                        {isFainted && <span className="fainted-tag">FAINTED</span>}
                       </div>
-                    );
-                  })()}
-
-                  {/* Stats Preview (5 stats) */}
-                  <div className="party-mini-stats">
-                    <span>Atk: <strong>{pokemon.attack}</strong></span>
-                    <span>Def: <strong>{pokemon.defense}</strong></span>
-                    <span>Sp.A: <strong>{pokemon.spAttack || "—"}</strong></span>
-                    <span>Sp.D: <strong>{pokemon.spDefense || "—"}</strong></span>
-                    <span>Spd: <strong>{pokemon.speed}</strong></span>
-                  </div>
-
-                  {/* Moveset Badges */}
-                  {pokemon.moves && pokemon.moves.length > 0 && (
-                    <div className="party-moves-list">
-                      {pokemon.moves.map((m, mIdx) => (
-                        <span key={mIdx} className="mini-move-tag">
-                          {m.name}
-                        </span>
-                      ))}
                     </div>
-                  )}
+                  </div>
 
                   {/* Action Toolbar */}
                   <div className="party-actions-toolbar">
                     <button
                       type="button"
-                      onClick={() => handleUsePotion(pokemon.instanceId)}
-                      disabled={pokemon.currentHp >= pokemon.maxHp || potionCount <= 0}
-                      className="btn-action-potion"
-                      title="Restore 20 HP with Potion"
+                      onClick={() => setQuickItemTarget(pokemon)}
+                      className="btn-action-compact btn-action-use-item"
+                      title="Use potion, revive, rare candy, or evo stone"
                     >
-                      Potion (+20)
+                      <IconPotion size={12} />
+                      <span>Use Item</span>
                     </button>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleExpand(pokemon.instanceId)}
+                      className={`btn-action-compact btn-action-toggle ${isExpanded ? "active" : ""}`}
+                      title="View stats and moves"
+                    >
+                      <span>Moves & Stats</span>
+                      {isExpanded ? <IconChevronUp size={11} /> : <IconChevronDown size={11} />}
+                    </button>
+
+                    <Link
+                      to={`/pokemon/${pokemon.name}`}
+                      className="btn-action-compact btn-action-dex"
+                      title="View in PokéDex"
+                    >
+                      <span>Dex</span>
+                      <IconExternalLink size={11} />
+                    </Link>
 
                     {!isLeader && (
                       <button
                         type="button"
                         onClick={() => setTeamLeader(pokemon.instanceId)}
-                        className="btn-action-leader"
+                        className="btn-action-compact btn-action-leader"
                         title="Set as party leader"
                       >
-                        Set Leader
+                        Leader
                       </button>
                     )}
 
@@ -467,10 +475,10 @@ function TeamPage() {
                           const res = depositToBox(pokemon.instanceId);
                           if (res.success) showToast(res.message);
                         }}
-                        className="btn-action-deposit"
+                        className="btn-action-compact btn-action-deposit"
                         title="Move to Storage Box"
                       >
-                        To Box
+                        Box
                       </button>
                     )}
 
@@ -478,13 +486,76 @@ function TeamPage() {
                       <button
                         type="button"
                         onClick={() => handleRelease(pokemon.instanceId)}
-                        className="btn-action-release"
+                        className="btn-action-compact btn-action-release"
                         title="Release Pokémon"
                       >
-                        Release
+                        <IconTrash size={11} />
                       </button>
                     )}
                   </div>
+
+                  {/* Collapsible Stats & Moves Drawer */}
+                  {isExpanded && (
+                    <div className="party-card-drawer">
+                      {/* EXP Section */}
+                      {(() => {
+                        const currentLevelBase = calculateExpNeeded(pokemon.level);
+                        const nextLevelTarget =
+                          pokemon.expToNextLevel || calculateExpNeeded(pokemon.level + 1);
+                        const currentExp = pokemon.exp || currentLevelBase;
+                        const expRange = Math.max(1, nextLevelTarget - currentLevelBase);
+                        const expPercent = Math.min(
+                          100,
+                          Math.max(
+                            0,
+                            Math.round(
+                              ((currentExp - currentLevelBase) / expRange) * 100
+                            )
+                          )
+                        );
+
+                        return (
+                          <div className="drawer-exp-section">
+                            <div className="drawer-exp-labels">
+                              <span className="exp-tag">EXP</span>
+                              <span className="exp-values">
+                                {currentExp.toLocaleString()} / {nextLevelTarget.toLocaleString()}
+                              </span>
+                            </div>
+                            <div
+                              className="exp-track"
+                              title={`${expPercent}% towards Lv. ${pokemon.level + 1}`}
+                            >
+                              <div
+                                className="exp-fill"
+                                style={{ width: `${expPercent}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Mini Stats 5-column */}
+                      <div className="drawer-stats-strip">
+                        <div className="stat-unit"><span>Atk</span><strong>{pokemon.attack}</strong></div>
+                        <div className="stat-unit"><span>Def</span><strong>{pokemon.defense}</strong></div>
+                        <div className="stat-unit"><span>Sp.A</span><strong>{pokemon.spAttack || "—"}</strong></div>
+                        <div className="stat-unit"><span>Sp.D</span><strong>{pokemon.spDefense || "—"}</strong></div>
+                        <div className="stat-unit"><span>Spd</span><strong>{pokemon.speed}</strong></div>
+                      </div>
+
+                      {/* Moveset Badges */}
+                      {pokemon.moves && pokemon.moves.length > 0 && (
+                        <div className="drawer-moves-list">
+                          {pokemon.moves.map((m, mIdx) => (
+                            <span key={mIdx} className="mini-move-tag">
+                              {m.name} {m.power ? `(${m.power})` : ""}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -678,6 +749,96 @@ function TeamPage() {
           Reset Save Data
         </button>
       </div>
+
+      {/* Quick Item Use Modal */}
+      {quickItemTarget && (
+        <div className="modal-backdrop" onClick={() => setQuickItemTarget(null)}>
+          <div className="quick-item-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <img
+                  src={quickItemTarget.sprites?.animated || quickItemTarget.sprites?.static}
+                  alt={quickItemTarget.nickname}
+                  className="modal-mon-avatar"
+                  onError={(e) => {
+                    e.target.src = quickItemTarget.sprites?.static;
+                  }}
+                />
+                <div>
+                  <h3 className="modal-title">Use Item on {quickItemTarget.nickname}</h3>
+                  <p className="modal-subtitle">
+                    Lv. {quickItemTarget.level} • HP: {quickItemTarget.currentHp}/{quickItemTarget.maxHp}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuickItemTarget(null)}
+                className="btn-modal-close"
+                aria-label="Close"
+              >
+                <IconX size={16} />
+              </button>
+            </div>
+
+            <div className="modal-body quick-item-list">
+              {(() => {
+                const usableItems = getInventoryList().filter(
+                  (item) => item.isUsableOnPokemon && item.count > 0
+                );
+
+                if (usableItems.length === 0) {
+                  return (
+                    <div className="quick-item-empty">
+                      <p>No usable medicine, berries, or evolution items in your Bag.</p>
+                      <Link
+                        to="/bag"
+                        onClick={() => setQuickItemTarget(null)}
+                        className="btn-go-mart-link"
+                      >
+                        Visit Mart to buy supplies &rarr;
+                      </Link>
+                    </div>
+                  );
+                }
+
+                return usableItems.map((item) => (
+                  <div key={item.id} className="quick-item-row">
+                    <div className="quick-item-sprite-box">
+                      <img src={item.sprite} alt={item.name} className="quick-item-sprite" />
+                    </div>
+                    <div className="quick-item-info">
+                      <div className="quick-item-name-row">
+                        <span className="quick-item-name">{item.name}</span>
+                        <span className="quick-item-qty">×{item.count}</span>
+                      </div>
+                      <span className="quick-item-desc">{item.description}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const res = applyItemToPokemon(item.id, quickItemTarget.instanceId);
+                        showToast(res.message);
+                        if (res.success) {
+                          if (item.effect?.type === "level_up") playLevelUpSound();
+                          else if (item.effect?.type === "evolution_stone") playEvolutionJingle();
+                          else playItemUseSound();
+
+                          const refreshed = team.find((p) => p.instanceId === quickItemTarget.instanceId);
+                          if (refreshed) setQuickItemTarget(refreshed);
+                        }
+                      }}
+                      className="btn-quick-item-use"
+                    >
+                      Use
+                    </button>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

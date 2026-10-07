@@ -389,10 +389,10 @@ function DetailPage() {
                 {isAlreadyInTeam ? (
                   <>
                     <IconCheck size={14} />
-                    <span>In Party ({team.filter((p) => p.name === pokemon.name).length}/6)</span>
+                    <span>In Party ({team.length}/6)</span>
                   </>
                 ) : (
-                  <span>Add to Party</span>
+                  <span>Add to Party ({team.length}/6)</span>
                 )}
               </button>
             ) : (
@@ -402,7 +402,7 @@ function DetailPage() {
                 className="btn-team-action btn-team-box"
                 title="Party is full (6/6). Send to Storage Box"
               >
-                Deposit to Box
+                Deposit to Box (Party 6/6)
               </button>
             )}
             <button
