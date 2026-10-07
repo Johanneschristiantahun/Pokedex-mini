@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import TypeBadge from "../components/TypeBadge.jsx";
 import { API_BASE_URL } from "../config.js";
@@ -10,8 +10,13 @@ import {
   stopPokemonCry,
   getAnimatedSpriteUrl,
   getAnimatedShinySpriteUrl,
+  getAnimatedBackSpriteUrl,
+  getAnimatedBackShinySpriteUrl,
+  getBackSpriteUrl,
   getArtworkUrl,
   getArtworkShinyUrl,
+  getModel3dUrl,
+  getModel3dShinyUrl,
   getTypeColor,
   pokemonDetailCache,
 } from "../utils.js";
@@ -27,6 +32,7 @@ import {
   IconSparkles,
   IconMic,
   IconSquare,
+  IconRefresh,
 } from "../components/Icons.jsx";
 
 // Memory cache for evolution chains
@@ -91,8 +97,42 @@ function DetailPage() {
   );
   const [species, setSpecies] = useState(null);
   const [evoChain, setEvoChain] = useState([]);
-  const [useArtwork, setUseArtwork] = useState(true);
+  const [viewMode, setViewMode] = useState("animated");
   const [isShiny, setIsShiny] = useState(false);
+  const [spriteAngle, setSpriteAngle] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isAutoRotate3d, setIsAutoRotate3d] = useState(true);
+  const [model3dError, setModel3dError] = useState(false);
+  const dragStartRef = useRef({ x: 0, startAngle: 0 });
+  const modelViewerRef = useRef(null);
+
+  function handlePointerDown(e) {
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      startAngle: spriteAngle,
+    };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  }
+
+  function handlePointerMove(e) {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStartRef.current.x;
+    let newAngle = dragStartRef.current.startAngle + deltaX * 0.8;
+    newAngle = Math.max(0, Math.min(180, newAngle));
+    setSpriteAngle(newAngle);
+  }
+
+  function handlePointerUp(e) {
+    if (!isDragging) return;
+    setIsDragging(false);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+  }
+
+  function handleToggleSpin180() {
+    setSpriteAngle((prev) => (prev >= 90 ? 0 : 180));
+  }
+
   const [isLoading, setIsLoading] = useState(
     () => !pokemonDetailCache[name.toLowerCase()]
   );
@@ -266,7 +306,7 @@ function DetailPage() {
   // Total base stat calculation
   const totalStats = pokemon.stats.reduce((acc, curr) => acc + curr.base_stat, 0);
 
-  // Artwork vs Animated sprite (with Shiny support)
+  // Artwork vs Animated sprite vs 3D (with Shiny support)
   const artworkNormal =
     pokemon.sprites.other?.["official-artwork"]?.front_default ||
     getArtworkUrl(pokemon.id);
@@ -275,18 +315,21 @@ function DetailPage() {
     getArtworkShinyUrl(pokemon.id);
   const animatedNormal = getAnimatedSpriteUrl(pokemon.id);
   const animatedShiny = getAnimatedShinySpriteUrl(pokemon.id);
-
-  const displayImgUrl = useArtwork
-    ? isShiny
-      ? artworkShiny
-      : artworkNormal
-    : isShiny
-    ? animatedShiny
-    : animatedNormal;
+  const animatedBackNormal =
+    getAnimatedBackSpriteUrl(pokemon.id) || getBackSpriteUrl(pokemon.id);
+  const animatedBackShiny =
+    getAnimatedBackShinySpriteUrl(pokemon.id) || getBackSpriteUrl(pokemon.id);
 
   const fallbackImgUrl = isShiny
     ? pokemon.sprites.front_shiny || artworkNormal
     : artworkNormal;
+
+  const currentArtworkUrl = isShiny ? artworkShiny : artworkNormal;
+  const currentFrontAnimatedUrl = isShiny ? animatedShiny : animatedNormal;
+  const currentBackAnimatedUrl = isShiny ? animatedBackShiny : animatedBackNormal;
+  const currentModel3dUrl = isShiny
+    ? getModel3dShinyUrl(pokemon.id)
+    : getModel3dUrl(pokemon.id);
 
   // Defensive Matchups calculation
   const matchups = calculateDefensiveMatchups(pokemon.types);
@@ -417,23 +460,30 @@ function DetailPage() {
           </div>
         </div>
 
-        {/* Visual Showcase with Artwork / Animated & Shiny Mode */}
+        {/* Visual Showcase with Artwork / Animated (180°) / 3D (360°) & Shiny Mode */}
         <div className="detail-visual-wrapper">
           <div className="image-toggle-bar">
             <div className="toggle-group-left">
               <button
                 type="button"
-                onClick={() => setUseArtwork(true)}
-                className={`toggle-btn ${useArtwork ? "active" : ""}`}
+                onClick={() => setViewMode("artwork")}
+                className={`toggle-btn ${viewMode === "artwork" ? "active" : ""}`}
               >
                 Artwork
               </button>
               <button
                 type="button"
-                onClick={() => setUseArtwork(false)}
-                className={`toggle-btn ${!useArtwork ? "active" : ""}`}
+                onClick={() => setViewMode("animated")}
+                className={`toggle-btn ${viewMode === "animated" ? "active" : ""}`}
               >
-                Animated
+                Animated (180°)
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("3d")}
+                className={`toggle-btn ${viewMode === "3d" ? "active" : ""}`}
+              >
+                3D (360°)
               </button>
             </div>
 
@@ -449,15 +499,197 @@ function DetailPage() {
           </div>
 
           <div className="detail-image-box">
-            <img
-              key={`${pokemon.id}-${useArtwork}-${isShiny}`}
-              src={displayImgUrl}
-              alt={`${pokemon.name} ${isShiny ? "shiny" : "regular"}`}
-              className={useArtwork ? "artwork-img" : "animated-img"}
-              onError={(e) => {
-                e.target.src = fallbackImgUrl;
-              }}
-            />
+            {/* 1. ARTWORK MODE */}
+            {viewMode === "artwork" && (
+              <div className="artwork-stage">
+                <img
+                  key={`${pokemon.id}-artwork-${isShiny}`}
+                  src={currentArtworkUrl}
+                  alt={`${pokemon.name} ${isShiny ? "shiny" : "regular"}`}
+                  className="artwork-img"
+                  onError={(e) => {
+                    e.target.src = fallbackImgUrl;
+                  }}
+                />
+              </div>
+            )}
+
+            {/* 2. ANIMATED 180° DRAG ROTATOR MODE */}
+            {viewMode === "animated" && (
+              <div
+                className="sprite-180-stage"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+              >
+                <div
+                  className="sprite-3d-turntable"
+                  style={{
+                    transform: `perspective(600px) rotateY(${spriteAngle}deg)`,
+                    transition: isDragging ? "none" : "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                >
+                  <img
+                    key={`${pokemon.id}-front-${isShiny}`}
+                    src={currentFrontAnimatedUrl}
+                    alt={`${pokemon.name} front`}
+                    className="animated-img sprite-face-front"
+                    style={{
+                      display: spriteAngle <= 90 ? "block" : "none",
+                    }}
+                    onError={(e) => {
+                      e.target.src = fallbackImgUrl;
+                    }}
+                    draggable={false}
+                  />
+
+                  <img
+                    key={`${pokemon.id}-back-${isShiny}`}
+                    src={currentBackAnimatedUrl}
+                    alt={`${pokemon.name} back`}
+                    className="animated-img sprite-face-back"
+                    style={{
+                      display: spriteAngle > 90 ? "block" : "none",
+                      transform: "scaleX(-1)",
+                    }}
+                    onError={(e) => {
+                      e.target.src = getBackSpriteUrl(pokemon.id);
+                    }}
+                    draggable={false}
+                  />
+                </div>
+
+                <div className="rotator-control-bar">
+                  <span className="rotator-hint">
+                    {spriteAngle <= 45
+                      ? "Front View (0°)"
+                      : spriteAngle >= 135
+                      ? "Back View (180°)"
+                      : `Angled View (${Math.round(spriteAngle)}°)`}
+                    {" • Drag to rotate 180°"}
+                  </span>
+
+                  <div className="rotator-angle-pills">
+                    <button
+                      type="button"
+                      onClick={() => setSpriteAngle(0)}
+                      className={`btn-angle-pill ${spriteAngle <= 45 ? "active" : ""}`}
+                    >
+                      Front (0°)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSpriteAngle(90)}
+                      className={`btn-angle-pill ${spriteAngle > 45 && spriteAngle < 135 ? "active" : ""}`}
+                    >
+                      Profile (90°)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSpriteAngle(180)}
+                      className={`btn-angle-pill ${spriteAngle >= 135 ? "active" : ""}`}
+                    >
+                      Back (180°)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleToggleSpin180}
+                      className="btn-angle-pill btn-spin-pill"
+                      title="Spin 180 degrees"
+                    >
+                      <IconRefresh size={12} />
+                      <span>Flip 180°</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. 3D 360° ORBIT VIEWER MODE */}
+            {viewMode === "3d" && (
+              <div className="model-3d-stage">
+                <model-viewer
+                  key={`3d-${pokemon.id}-${isShiny}`}
+                  ref={modelViewerRef}
+                  src={currentModel3dUrl}
+                  poster={currentArtworkUrl}
+                  alt={`3D model of ${pokemon.name}`}
+                  camera-controls
+                  touch-action="pan-y"
+                  auto-rotate={isAutoRotate3d ? "" : undefined}
+                  rotation-per-second="25deg"
+                  shadow-intensity="1"
+                  exposure="1"
+                  loading="eager"
+                  reveal="auto"
+                  onError={() => setModel3dError(true)}
+                  style={{
+                    width: "100%",
+                    height: "260px",
+                    backgroundColor: "transparent",
+                    outline: "none",
+                  }}
+                >
+                  <div slot="poster" className="model-poster-fallback">
+                    <img
+                      src={currentArtworkUrl}
+                      alt={pokemon.name}
+                      className="artwork-img"
+                    />
+                    <div className="model-loading-pill">Loading 3D Model…</div>
+                  </div>
+                </model-viewer>
+
+                {model3dError ? (
+                  <div className="rotator-control-bar">
+                    <span className="rotator-hint">
+                      3D model unavailable for this variant.
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModel3dError(false);
+                        setViewMode("animated");
+                      }}
+                      className="btn-angle-pill active"
+                    >
+                      Switch to Animated (180°)
+                    </button>
+                  </div>
+                ) : (
+                  <div className="rotator-control-bar">
+                    <span className="rotator-hint">
+                      Drag to rotate 360° • Scroll to zoom
+                    </span>
+                    <div className="rotator-action-buttons">
+                      <button
+                        type="button"
+                        onClick={() => setIsAutoRotate3d((prev) => !prev)}
+                        className={`btn-rotator-toggle ${isAutoRotate3d ? "active" : ""}`}
+                        title="Toggle automatic 360 rotation"
+                      >
+                        {isAutoRotate3d ? "Auto 360°: ON" : "Auto 360°: OFF"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (modelViewerRef.current) {
+                            modelViewerRef.current.cameraOrbit = "0deg 75deg 105%";
+                            modelViewerRef.current.resetTurntableRotation?.();
+                          }
+                        }}
+                        className="btn-rotator-toggle"
+                        title="Reset to front angle"
+                      >
+                        <IconRefresh size={13} />
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
