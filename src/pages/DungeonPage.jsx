@@ -895,80 +895,83 @@ export default function DungeonPage() {
   }
 
   // ========================================================
-  // RENDER: DUNGEON HUB
+  // RENDER: DUNGEON HUB (Apple Reference Design)
   // ========================================================
   return (
-    <div className="dungeon-page-container">
+    <div className="apple-hub-container">
       {toastMessage && <div className="game-toast-pill">{toastMessage}</div>}
 
-      <div className="dungeon-hub-header">
-        <div className="dungeon-header-text">
-          <div className="dungeon-title-row">
-            <h1 className="dungeon-title">Dungeons &amp; Raids</h1>
-          </div>
-          <p className="dungeon-subtitle">
-            Explore legendary sanctuaries across Kanto and battle mythical Pokémon.
+      <div className="apple-hub-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <h1 className="apple-hub-title">Dungeons &amp; Raids</h1>
+          <p className="apple-hub-subtitle">
+            Explore legendary sanctuaries across Kanto and battle mythical Pokémon in these challenging expeditions.
           </p>
         </div>
-
-        <div className="dungeon-hub-actions">
-          <button
-            type="button"
-            onClick={() => {
-              healAllPokemon();
-              showToast("Party Pokémon restored to full health.");
-            }}
-            className="btn-dungeon-heal"
-          >
-            Restore Party
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            healAllPokemon();
+            showToast("Party Pokémon restored to full health.");
+          }}
+          className="apple-btn-secondary"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color, #e5e5e5)', padding: '10px 20px', borderRadius: '980px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', color: 'var(--text-primary)' }}
+        >
+          Restore Party
+        </button>
       </div>
 
-      <div className="dungeons-grid">
+      <div className="apple-grid-2">
         {LEGENDARY_DUNGEONS.map((dung, idx) => {
           const isCleared = clearedDungeons.includes(dung.id);
           return (
             <div
               key={dung.id}
-              className={`dungeon-card ${isCleared ? "dungeon-cleared" : ""}`}
-              style={{ borderTopColor: dung.color }}
+              className="apple-card"
+              style={{ position: 'relative', overflow: 'hidden' }}
             >
-              <div className="dungeon-card-header">
-                <span className="dungeon-region-tag">{dung.region}</span>
+              {/* Optional ambient glow using the dungeon's color */}
+              <div style={{ position: 'absolute', top: '-50px', right: '-50px', width: '150px', height: '150px', background: dung.color, opacity: 0.1, filter: 'blur(40px)', borderRadius: '50%' }}></div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                  {dung.region}
+                </span>
                 {isCleared ? (
-                  <span className="tag-cleared">Captured</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, background: '#34c759', color: 'white', padding: '4px 10px', borderRadius: '8px' }}>Captured</span>
                 ) : (
-                  <span className="tag-recommended">{dung.recommendedLevel}</span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 600, background: 'rgba(0,0,0,0.05)', color: 'var(--text-secondary)', padding: '4px 10px', borderRadius: '8px' }}>{dung.recommendedLevel}</span>
                 )}
               </div>
 
-              <div className="dungeon-boss-preview">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
                 <img
                   src={getAnimatedSpriteUrl(dung.boss.id)}
                   alt={dung.boss.name}
-                  className="dungeon-boss-sprite"
+                  style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))' }}
                 />
+                <div>
+                  <h3 className="apple-card-title" style={{ fontSize: '1.4rem', marginBottom: '4px' }}>{dung.name}</h3>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                    Boss: {capitalize(dung.boss.name)} • Lv. {dung.boss.level || 70}
+                  </span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    {dung.boss.types.map((t) => (
+                      <TypeBadge key={t} type={t} size="sm" />
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              <div className="dungeon-card-body">
-                <h3 className="dungeon-name">{dung.name}</h3>
-                <span className="dungeon-boss-title">
-                  Boss: {capitalize(dung.boss.name)} • Lv. {dung.boss.level || 70}
-                </span>
-                <div className="dungeon-types-row">
-                  {dung.boss.types.map((t) => (
-                    <TypeBadge key={t} type={t} size="sm" />
-                  ))}
-                </div>
-                <p className="dungeon-desc">{dung.description}</p>
-              </div>
+              <p className="apple-card-subtitle" style={{ marginBottom: '24px', flex: 1 }}>
+                {dung.description}
+              </p>
 
               <button
                 type="button"
                 onClick={() => handleEnterDungeon(idx)}
-                className="btn-enter-dungeon"
-                style={{ background: dung.color }}
+                className="apple-btn-primary"
+                style={{ width: '100%', background: dung.color, boxShadow: `0 4px 14px ${dung.color}40` }}
               >
                 Enter Expedition
               </button>

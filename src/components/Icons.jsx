@@ -1048,3 +1048,4 @@ export function IconExternalLink({ size = 18, className = "" }) {
     </svg>
   );
 }
+

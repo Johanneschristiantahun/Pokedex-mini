@@ -579,138 +579,107 @@ export default function GymPage() {
   ];
 
   // ========================================================
-  // RENDER VIEW 1: KANTO GYM CIRCUIT LOBBY
+  // RENDER VIEW 1: KANTO GYM CIRCUIT LOBBY (Apple Reference Design)
   // ========================================================
   if (viewMode === "CIRCUIT") {
     const earnedCount = KANTO_GYM_LEADERS.filter((l) => hasBadge(l.badge.id)).length;
+    const progressPercent = (earnedCount / 8) * 100;
 
     return (
-      <div className="gym-circuit-container">
-        {toastMessage && <div className="toast-notification">{toastMessage}</div>}
+      <div className="apple-hub-container">
+        {toastMessage && <div className="game-toast-pill">{toastMessage}</div>}
 
-        {/* Hero Header */}
-        <div className="gym-hero-banner">
-          <div className="gym-hero-left">
-            <h1 className="gym-hero-title">Gym Arena</h1>
-            <p className="gym-hero-subtitle">
+        <div className="apple-hub-header" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div>
+            <h1 className="apple-hub-title">Gym Arena</h1>
+            <p className="apple-hub-subtitle">
               Challenge 8 Kanto Gym Leaders to earn official League Badges.
             </p>
           </div>
-
-          {/* League Progress Bar */}
-          <div className="gym-progress-card">
-            <div className="gym-progress-header">
-              <span className="progress-label">Badges Collected</span>
-              <span className="progress-counter">
-                <strong>{earnedCount}</strong> / 8
-              </span>
+          
+          <div style={{ background: 'var(--bg-card, #fff)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color, #e5e5e5)', maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>League Progress</span>
+              <span style={{ fontWeight: 700, color: '#0071e3' }}>{earnedCount} / 8 Badges</span>
             </div>
-            <div className="gym-progress-track">
-              <div
-                className="gym-progress-fill"
-                style={{ width: `${(earnedCount / 8) * 100}%` }}
-              ></div>
+            <div style={{ height: '8px', background: 'rgba(0,0,0,0.05)', borderRadius: '4px', overflow: 'hidden' }}>
+              <div style={{ width: `${progressPercent}%`, height: '100%', background: '#0071e3', borderRadius: '4px', transition: 'width 0.4s ease' }}></div>
             </div>
           </div>
         </div>
 
-        {/* 8 Gym Leaders Grid */}
-        <div className="gym-leaders-grid">
+        <div className="apple-grid-2">
           {KANTO_GYM_LEADERS.map((leader, index) => {
             const isEarned = hasBadge(leader.badge.id);
             const isPreviousEarned = index === 0 || hasBadge(KANTO_GYM_LEADERS[index - 1].badge.id);
             const isCurrentTarget = !isEarned && isPreviousEarned;
+            
+            let cardOpacity = isCurrentTarget || isEarned ? 1 : 0.6;
+            let cardBorder = isCurrentTarget ? '2px solid #0071e3' : '1px solid rgba(0,0,0,0.05)';
 
             return (
               <div
                 key={leader.id}
-                className={`gym-leader-card ${
-                  isEarned
-                    ? "card-badge-earned"
-                    : isCurrentTarget
-                    ? "card-current-target"
-                    : "card-locked-circuit"
-                }`}
+                className="apple-card"
+                style={{ opacity: cardOpacity, border: cardBorder, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'row', gap: '24px', padding: '24px' }}
               >
-                {/* Header Strip */}
-                <div
-                  className="leader-card-header"
-                  style={{
-                    background: `linear-gradient(135deg, ${leader.themeColor}33, transparent)`,
-                    borderBottom: `2px solid ${leader.themeColor}55`,
-                  }}
-                >
-                  <div className="leader-order-tag">Gym #{leader.order}</div>
-                  <TypeBadge type={leader.specialtyType} size="sm" />
+                {/* Background ambient glow */}
+                <div style={{ position: 'absolute', top: -50, left: -50, width: 150, height: 150, background: leader.themeColor, opacity: 0.1, filter: 'blur(40px)', borderRadius: '50%' }}></div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', minWidth: '100px' }}>
+                  <GymBadgeIcon
+                    badgeId={leader.badge.id}
+                    size={64}
+                    isLocked={!isEarned}
+                  />
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>GYM #{leader.order}</span>
+                    <TypeBadge type={leader.specialtyType} size="sm" />
+                  </div>
                 </div>
 
-                {/* Leader Portrait & Badge Preview */}
-                <div className="leader-portrait-box">
-                  <div className="leader-badge-display">
-                    <GymBadgeIcon
-                      badgeId={leader.badge.id}
-                      size={44}
-                      isLocked={!isEarned}
-                    />
-                    <span className="badge-preview-name">{leader.badge.name}</span>
-                  </div>
-
-                  <div className="leader-sprite-wrapper">
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0 0 4px 0', color: 'var(--text-primary)' }}>{leader.name}</h3>
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{leader.title} • {leader.city}</span>
+                    </div>
                     <img
                       src={leader.spriteUrl}
                       alt={leader.name}
-                      className="leader-showdown-sprite"
-                      loading="lazy"
+                      style={{ width: '48px', height: '48px', objectFit: 'contain' }}
                     />
                   </div>
-                </div>
 
-                {/* Leader Meta */}
-                <div className="leader-meta-content">
-                  <h3 className="leader-name">{leader.name}</h3>
-                  <p className="leader-title">{leader.title}</p>
-                  <span className="leader-city">{leader.city}</span>
-
-                  <div className="leader-specs-row">
-                    <div className="spec-item">
-                      <span className="spec-label">Level</span>
-                      <span className="spec-val">{leader.recommendedLevel}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Prize</span>
-                      <span className="spec-val prize-val">₽ {leader.prizeMoney.toLocaleString()}</span>
-                    </div>
-                    <div className="spec-item">
-                      <span className="spec-label">Team</span>
-                      <span className="spec-val">{leader.team.length} Pokémon</span>
-                    </div>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', fontSize: '0.85rem' }}>
+                    <span style={{ background: 'rgba(0,0,0,0.04)', padding: '4px 8px', borderRadius: '6px', color: 'var(--text-secondary)' }}>Lv. {leader.recommendedLevel}</span>
+                    <span style={{ background: 'rgba(0,0,0,0.04)', padding: '4px 8px', borderRadius: '6px', color: 'var(--text-secondary)' }}>{leader.team.length} PKMN</span>
                   </div>
 
-                  {/* Intro Quote */}
-                  <blockquote className="leader-quote">
+                  <blockquote style={{ fontSize: '0.9rem', fontStyle: 'italic', color: 'var(--text-secondary)', borderLeft: `2px solid ${leader.themeColor}`, margin: '0 0 20px 0', paddingLeft: '12px', flex: 1 }}>
                     "{leader.dialogue.intro}"
                   </blockquote>
 
-                  {/* Action Button */}
-                  <div className="leader-action-box">
-                    {isEarned ? (
-                      <button
-                        type="button"
-                        onClick={() => handleSelectLeader(leader)}
-                        className="btn-gym-action btn-gym-rematch"
-                      >
-                        Rematch {leader.name}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleSelectLeader(leader)}
-                        className="btn-gym-action btn-gym-challenge"
-                      >
-                        Challenge {leader.name}
-                      </button>
-                    )}
-                  </div>
+                  {isEarned ? (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectLeader(leader)}
+                      className="apple-btn-secondary"
+                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', padding: '10px', borderRadius: '8px', fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}
+                    >
+                      Rematch {leader.name}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectLeader(leader)}
+                      className="apple-btn-primary"
+                      style={{ padding: '10px', borderRadius: '8px' }}
+                      disabled={!isCurrentTarget}
+                    >
+                      Challenge {leader.name}
+                    </button>
+                  )}
                 </div>
               </div>
             );

@@ -1071,83 +1071,81 @@ export default function LeaguePage() {
   }
 
   // ========================================================
-  // RENDER: 6. LOBBY (Indigo Plateau Chamber Gate selection)
+  // RENDER: 6. LOBBY (Indigo Plateau Chamber Gate selection) (Apple Reference)
   // ========================================================
   return (
-    <div className="league-page-container">
-      {/* Indigo Plateau Hero Banner */}
-      <div className="league-lobby-header">
-        <div className="league-header-text">
-          <div className="league-title-row">
-            <IconCrown size={28} className="league-crown-icon" />
-            <h1 className="league-title">Indigo Plateau</h1>
+    <div className="apple-hub-container">
+      <div className="apple-hub-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <IconCrown size={32} color="#0071e3" />
+            <h1 className="apple-hub-title" style={{ margin: 0 }}>Indigo Plateau</h1>
           </div>
-          <p className="league-subtitle">
-            The Apex of Kanto Trainers — Conquer the 4 Elite Masters and claim the Championship!
+          <p className="apple-hub-subtitle">
+            The Apex of Kanto Trainers — Conquer the 4 Elite Masters and claim the Championship.
           </p>
         </div>
-
-        {/* Quick Party Restore */}
-        <div className="lobby-actions-bar">
-          <button
-            type="button"
-            onClick={() => {
-              healAllPokemon();
-              alert("All Pokémon in your party have been fully healed at the Indigo Center desk!");
-            }}
-            className="btn-lobby-heal"
-          >
-            <IconCross size={16} />
-            <span>Full Party Recovery Desk</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            healAllPokemon();
+            alert("All Pokémon in your party have been fully healed at the Indigo Center desk!");
+          }}
+          className="apple-btn-secondary"
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-card)', border: '1px solid var(--border-color, #e5e5e5)', padding: '10px 20px', borderRadius: '980px', fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}
+        >
+          <IconCross size={16} />
+          <span>Full Recovery</span>
+        </button>
       </div>
 
-      {/* 5 Chamber Gauntlet Cards */}
-      <div className="chambers-gauntlet-list">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {INDIGO_ELITE_FOUR.map((opp, idx) => (
           <div
             key={opp.id}
-            className={`chamber-card ${idx === 4 ? "chamber-champion" : ""}`}
+            className="apple-card"
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: '24px', gap: '24px', border: idx === 4 ? '1px solid #0071e3' : undefined }}
           >
-            <div className="chamber-order-pill">
-              {idx === 4 ? "CHAMPIONSHIP" : `CHAMBER ${idx + 1}`}
-            </div>
-
-            <div className="chamber-trainer-wrap">
-              <img
-                src={opp.spriteUrl}
-                alt={opp.name}
-                className="chamber-trainer-sprite"
-              />
-            </div>
-
-            <div className="chamber-details">
-              <span className="chamber-location">{opp.chamberName}</span>
-              <h3 className="chamber-name">{opp.name}</h3>
-              <span className="chamber-title">{opp.title}</span>
-              <span className="chamber-level-tag">{opp.recommendedLevel}</span>
-
-              {/* Team preview sprites */}
-              <div className="chamber-team-preview">
-                {opp.team.map((mon, mIdx) => (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div style={{ position: 'relative' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(0,0,0,0.03)', overflow: 'hidden', border: idx === 4 ? '2px solid #0071e3' : '2px solid rgba(0,0,0,0.05)' }}>
                   <img
-                    key={mIdx}
-                    src={getAnimatedSpriteUrl(mon.id)}
-                    alt={mon.name}
-                    className="chamber-team-mini-sprite"
-                    title={mon.nickname}
+                    src={opp.spriteUrl}
+                    alt={opp.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
-                ))}
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: idx === 4 ? '#0071e3' : 'var(--text-secondary)', letterSpacing: '0.05em' }}>
+                  {idx === 4 ? "CHAMPIONSHIP" : `CHAMBER ${idx + 1} - ${opp.chamberName}`}
+                </span>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-primary)', margin: '4px 0' }}>{opp.name}</h3>
+                <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>
+                  {opp.title} • {opp.recommendedLevel}
+                </span>
+                
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                  {opp.team.map((mon, mIdx) => (
+                    <img
+                      key={mIdx}
+                      src={getAnimatedSpriteUrl(mon.id)}
+                      alt={mon.name}
+                      title={mon.nickname}
+                      style={{ width: '32px', height: '32px', objectFit: 'contain' }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => handleEnterChamber(idx)}
-              className="btn-enter-chamber"
+              className="apple-btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: idx === 4 ? '#0071e3' : '#1d1d1f' }}
             >
-              <span>Challenge {opp.name}</span>
+              <span>Challenge</span>
               <IconSwords size={16} />
             </button>
           </div>

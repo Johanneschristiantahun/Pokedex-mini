@@ -609,118 +609,118 @@ export default function WildernessPage() {
       {/* ======================================================== */}
       {!activeEncounter && (
         <>
-          {/* Hero Header Banner */}
-          <div className="gym-hero-banner">
-            <div className="gym-hero-left">
-              <h1 className="gym-hero-title">Wilderness</h1>
-              <p className="gym-hero-subtitle">
-                Explore natural habitats across Kanto, encounter wild Pokémon, and collect resources.
-              </p>
-            </div>
-
-            <div className="wilderness-header-meta">
-              <span className="party-status-pill">
-                Party: <strong>{team.length}</strong> / 6
-              </span>
-              <span className="box-status-pill">
-                PC Storage: <strong>{box.length}</strong>
-              </span>
-              <span className="encounter-status-pill">
-                Encounters: <strong>{encounterCount}</strong>
-              </span>
-            </div>
-          </div>
-
-          {/* Loot / Discovery Notification Banner */}
-          {lootNotice && (
-            <div className={`loot-notice-banner ${lootNotice.empty ? "loot-empty" : "loot-found"}`}>
-              {lootNotice.empty ? (
-                <span>{lootNotice.message}</span>
-              ) : (
-                <div className="loot-content">
-                  <span>
-                    Found <strong>{lootNotice.count}x {lootNotice.name}</strong> in the grass! Added to Bag.
-                  </span>
-                  <Link to="/bag" className="loot-bag-link">
-                    View Bag
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Biome Selection Cards */}
-          <div className="biome-deck-section">
-            <span className="section-label">Exploration Regions</span>
-            <div className="biome-cards-grid">
-              {WILDERNESS_BIOMES.map((biome) => {
-                const isSelected = selectedBiome.id === biome.id;
-                return (
-                  <button
-                    key={biome.id}
-                    type="button"
-                    onClick={() => setSelectedBiome(biome)}
-                    className={`biome-card ${isSelected ? "biome-card-active" : ""}`}
-                    style={{ "--biome-color": biome.color }}
-                  >
-                    <div className="biome-card-inner">
-                      <span className="biome-name">{biome.name}</span>
-                      <span className="biome-level-badge">{biome.recommendedLevel}</span>
-                      <p className="biome-desc">{biome.subtitle}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Active Biome Explorer Zone */}
-          <div
-            className="meadow-zone-card"
-            style={{
-              "--biome-gradient": selectedBiome.bgGradient,
-              "--biome-color": selectedBiome.color,
-            }}
-          >
-            <div className="meadow-header">
-              <div className="meadow-title-group">
-                <h3>{selectedBiome.name}</h3>
-                <span className="meadow-subtitle">{selectedBiome.subtitle}</span>
+          <div className="apple-hub-container">
+            <div className="apple-hub-header" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div>
+                <h1 className="apple-hub-title">Wilderness</h1>
+                <p className="apple-hub-subtitle">
+                  Explore natural habitats across Kanto, encounter wild Pokémon, and collect resources.
+                </p>
               </div>
-              <WeatherWidget
-                onWeatherChange={setCurrentWeather}
-                className="wilderness-weather-bar"
-              />
+
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <span style={{ background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '980px', fontSize: '0.9rem', fontWeight: 600, border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                  Party: <span style={{ color: '#0071e3' }}>{team.length} / 6</span>
+                </span>
+                <span style={{ background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '980px', fontSize: '0.9rem', fontWeight: 600, border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                  PC Storage: <span style={{ color: '#0071e3' }}>{box.length}</span>
+                </span>
+                <span style={{ background: 'var(--bg-card)', padding: '8px 16px', borderRadius: '980px', fontSize: '0.9rem', fontWeight: 600, border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
+                  Encounters: <span style={{ color: '#0071e3' }}>{encounterCount}</span>
+                </span>
+              </div>
             </div>
 
-            {/* Native Species Row */}
-            <div className="habitat-spawns-preview">
-              <span className="spawns-preview-label">Native Species:</span>
-              <div className="habitat-spawns-list">
-                {selectedBiome.wildSpawns.map((s) => (
-                  <div key={s.id} className="habitat-spawn-pill">
-                    <img
-                      src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
-                      alt={s.name}
-                      className="spawn-preview-sprite"
-                    />
-                    <span className="spawn-name">{capitalize(s.name)}</span>
-                    <span className="spawn-level-tag">Lv. {s.minLevel}-{s.maxLevel}</span>
+            {/* Loot / Discovery Notification Banner */}
+            {lootNotice && (
+              <div style={{ background: lootNotice.empty ? 'rgba(0,0,0,0.03)' : 'rgba(52, 199, 89, 0.1)', border: lootNotice.empty ? '1px solid rgba(0,0,0,0.05)' : '1px solid rgba(52, 199, 89, 0.3)', padding: '16px 24px', borderRadius: '12px', marginBottom: '32px', color: lootNotice.empty ? 'var(--text-secondary)' : '#248a3d', fontWeight: 500 }}>
+                {lootNotice.empty ? (
+                  <span>{lootNotice.message}</span>
+                ) : (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>
+                      Found <strong>{lootNotice.count}x {lootNotice.name}</strong>! Added to Bag.
+                    </span>
+                    <Link to="/bag" style={{ color: '#248a3d', textDecoration: 'underline', fontWeight: 600 }}>
+                      View Bag
+                    </Link>
                   </div>
-                ))}
+                )}
+              </div>
+            )}
+
+            <div style={{ marginBottom: '40px' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 600, marginBottom: '20px', color: 'var(--text-primary)' }}>Exploration Regions</h3>
+              <div className="apple-grid-3">
+                {WILDERNESS_BIOMES.map((biome) => {
+                  const isSelected = selectedBiome.id === biome.id;
+                  return (
+                    <button
+                      key={biome.id}
+                      type="button"
+                      onClick={() => setSelectedBiome(biome)}
+                      className="apple-card"
+                      style={{ cursor: 'pointer', textAlign: 'left', padding: '20px', border: isSelected ? `2px solid ${biome.color}` : '2px solid transparent', boxShadow: isSelected ? `0 4px 16px ${biome.color}30` : '0 2px 12px rgba(0,0,0,0.04)', opacity: isSelected ? 1 : 0.7 }}
+                    >
+                      <h4 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 4px 0', color: 'var(--text-primary)' }}>{biome.name}</h4>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 600, color: biome.color, background: `${biome.color}20`, padding: '2px 8px', borderRadius: '6px', marginBottom: '8px', display: 'inline-block' }}>{biome.recommendedLevel}</span>
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{biome.subtitle}</p>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Primary Action Button */}
-            <div className="meadow-action-wrap">
-              <button
-                type="button"
-                onClick={handleExploreGrass}
-                disabled={isSearchingGrass}
-                className={`btn-explore-grass ${isSearchingGrass ? "searching" : ""}`}
-              >
-                {isSearchingGrass ? "Searching Tall Grass…" : "Search Tall Grass"}
-              </button>
+            {/* Active Biome Explorer Zone */}
+            <div className="apple-card" style={{ position: 'relative', overflow: 'hidden', padding: '40px' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: selectedBiome.bgGradient, opacity: 0.1, zIndex: 0 }}></div>
+              <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <h3 style={{ fontSize: '2rem', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-primary)' }}>{selectedBiome.name}</h3>
+                    <span style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>{selectedBiome.subtitle}</span>
+                  </div>
+                  <WeatherWidget onWeatherChange={setCurrentWeather} />
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Native Species</span>
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    {selectedBiome.wildSpawns.map((s) => (
+                      <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--bg-primary)', padding: '8px 16px 8px 8px', borderRadius: '980px', border: '1px solid var(--border-color)' }}>
+                        <img
+                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${s.id}.png`}
+                          alt={s.name}
+                          style={{ width: '40px', height: '40px' }}
+                        />
+                        <div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>{capitalize(s.name)}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Lv. {s.minLevel}-{s.maxLevel}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+                  <button
+                    type="button"
+                    onClick={handleExploreGrass}
+                    disabled={isSearchingGrass}
+                    className="apple-btn-primary"
+                    style={{ fontSize: '1.1rem', padding: '16px 40px', display: 'flex', alignItems: 'center', gap: '12px', background: selectedBiome.color, boxShadow: `0 4px 14px ${selectedBiome.color}50` }}
+                  >
+                    {isSearchingGrass ? (
+                      <>
+                        <div className="spinner-border" style={{ width: '1.2rem', height: '1.2rem', borderWidth: '0.15em' }}></div>
+                        Searching Tall Grass…
+                      </>
+                    ) : (
+                      "Search Tall Grass"
+                    )}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </>

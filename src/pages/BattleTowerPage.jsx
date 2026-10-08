@@ -807,72 +807,63 @@ export default function BattleTowerPage() {
   }
 
   // ========================================================
-  // RENDER: TOWER LOBBY
+  // RENDER: TOWER LOBBY (Apple Reference Design)
   // ========================================================
   return (
-    <div className="tower-page-container">
+    <div className="apple-hub-container">
       {toastMessage && <div className="game-toast-pill">{toastMessage}</div>}
 
-      <div className="tower-lobby-header">
-        <div className="tower-header-text">
-          <div className="tower-title-row">
-            <h1 className="tower-title">Battle Tower</h1>
-          </div>
-          <p className="tower-subtitle">
-            Endless survival challenge. Test your party against consecutive trainers.
-          </p>
-        </div>
-
-        <div className="tower-record-pill">
-          <span className="record-label">Best Streak:</span>
-          <span className="record-number">{towerRecord.bestStreak} Wins</span>
-        </div>
+      <div className="apple-hub-header">
+        <h1 className="apple-hub-title">Battle Tower</h1>
+        <p className="apple-hub-subtitle">
+          Endless survival challenge. Test your party against consecutive trainers in a minimalist, highly refined arena.
+        </p>
       </div>
 
-      <div className="tower-stats-overview-grid">
-        <div className="tower-stat-card">
-          <span className="tower-stat-title">Current Rank</span>
-          <h2 className="tower-stat-value" style={{ color: currentRank.color }}>
+      <div className="apple-grid-3">
+        <div className="apple-card">
+          <span className="apple-card-title">Current Rank</span>
+          <h2 className="apple-card-value" style={{ color: currentRank.color }}>
             {currentRank.title}
           </h2>
-          <span className="tower-stat-sub">Based on streak performance</span>
+          <span className="apple-card-subtitle">Based on streak performance</span>
         </div>
 
-        <div className="tower-stat-card">
-          <span className="tower-stat-title">Total Battles Won</span>
-          <h2 className="tower-stat-value">{towerRecord.totalWins}</h2>
-          <span className="tower-stat-sub">Lifetime Tower Victories</span>
+        <div className="apple-card">
+          <span className="apple-card-title">Total Battles Won</span>
+          <h2 className="apple-card-value">{towerRecord.totalWins}</h2>
+          <span className="apple-card-subtitle">Lifetime Tower Victories</span>
         </div>
 
-        <div className="tower-stat-card">
-          <span className="tower-stat-title">Milestone Rewards</span>
-          <h2 className="tower-stat-value">Every 5 Wins</h2>
-          <span className="tower-stat-sub">Master Ball &amp; Rare Candies</span>
+        <div className="apple-card">
+          <span className="apple-card-title">Best Streak</span>
+          <h2 className="apple-card-value">{towerRecord.bestStreak} Wins</h2>
+          <span className="apple-card-subtitle">Highest consecutive wins</span>
         </div>
       </div>
 
-      {/* Start Button */}
-      <div className="tower-start-hero">
+      <div className="apple-action-hero">
         <button
           type="button"
           onClick={handleStartTowerChallenge}
-          className="btn-start-tower-run"
+          className="apple-btn-primary"
         >
           Enter Battle Tower
         </button>
       </div>
 
-      {/* Milestone Ladder Table */}
-      <div className="tower-ladder-card">
-        <h3 className="ladder-card-title">Tower Honor Ranks & Milestones</h3>
-        <div className="ladder-ranks-list">
+      <div className="apple-list-section" style={{ marginTop: '64px' }}>
+        <h3 className="apple-section-title" style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '24px' }}>Tower Honor Ranks & Milestones</h3>
+        <div className="apple-list-container" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {TOWER_RANKS.map((r) => (
-            <div key={r.title} className="ladder-rank-row">
-              <span className="ladder-rank-badge" style={{ backgroundColor: r.color }}>
-                Streak {r.minStreak}+
-              </span>
-              <span className="ladder-rank-name">{r.title}</span>
-              <span className="ladder-rank-reward">
+            <div key={r.title} className="apple-list-item" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', backgroundColor: 'var(--bg-card, #ffffff)', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <span style={{ backgroundColor: r.color, color: '#fff', padding: '6px 12px', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 700 }}>
+                  Streak {r.minStreak}+
+                </span>
+                <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>{r.title}</span>
+              </div>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                 {r.minStreak === 0 ? "Standard Rewards" : `₽ ${(r.minStreak * 2500).toLocaleString()} + Rare Candy`}
               </span>
             </div>
