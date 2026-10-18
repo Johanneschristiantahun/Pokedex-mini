@@ -1326,32 +1326,81 @@ button {
 .detail-image-box {
   background: var(--bg-tertiary, #f2f2f7);
   border-radius: var(--radius-apple-md, 14px);
-  padding: 24px;
+  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 250px;
-  height: 260px;
+  min-height: 310px;
+  height: 310px;
   border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
   position: relative;
   overflow: hidden;
 }
 
 .artwork-img {
-  max-width: 220px;
-  max-height: 220px;
+  max-width: 250px;
+  max-height: 250px;
+  width: auto;
+  height: auto;
   object-fit: contain;
   filter: none;
 }
 
 .animated-img {
-  max-width: 170px;
-  max-height: 170px;
+  max-width: 190px;
+  max-height: 190px;
   object-fit: contain;
   filter: none;
   image-rendering: pixelated;
-  transform: scale(1.45);
+  transform: scale(1.6);
   transform-origin: center;
+}
+
+.btn-3d-reset-corner {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  color: #1e293b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-3d-reset-corner:hover {
+  background: #ffffff;
+  color: #0071e3;
+  border-color: #0071e3;
+  box-shadow: 0 4px 10px rgba(0, 113, 227, 0.15);
+  transform: translateY(-1px);
+}
+
+.model-3d-hint-outside {
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #86868b);
+  font-weight: 500;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: var(--shadow-apple-subtle, 0 1px 3px rgba(0, 0, 0, 0.04));
 }
 
 /* 3D 360° Stage & Presentation Styles */
@@ -14961,4 +15010,92 @@ body {
 .move-category-badge.category-status {
   background: rgba(148, 163, 184, 0.2);
   color: #64748b;
+}
+
+
+/* ========================================================
+   Apple Design System: Team Summary Strip & Move Pill Stats
+   ======================================================== */
+.team-summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.team-summary-item {
+  background: #ffffff;
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple-md, 14px);
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+.team-summary-item:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.team-summary-item .summary-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted, #86868b);
+  font-weight: 600;
+}
+
+.team-summary-item .summary-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main, #1d1d1f);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.team-summary-item .summary-value.all-healthy {
+  color: var(--apple-green, #34c759);
+}
+
+.team-summary-item .summary-value.has-fainted {
+  color: var(--apple-red, #ff3b30);
+}
+
+@media (max-width: 768px) {
+  .team-summary-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .team-summary-item {
+    padding: 10px 14px;
+  }
+}
+
+.move-pill-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.move-pill-stats span {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  white-space: nowrap;
+}
+
+.detail-moves-grid .move-pill-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow: hidden;
 }

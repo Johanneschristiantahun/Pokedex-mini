@@ -237,28 +237,54 @@ function TeamPage() {
       {/* TAB 1: ACTIVE PARTY (6 SLOTS) */}
       {activeTab === "party" && (
         <div className="party-tab-content">
+          {/* Quick Team Summary Strip (Apple Stats Banner) */}
+          <div className="team-summary-strip">
+            <div className="team-summary-item">
+              <span className="summary-label">Roster Tim</span>
+              <span className="summary-value"><strong>{team.length}</strong> / 6 Partner</span>
+            </div>
+            <div className="team-summary-item">
+              <span className="summary-label">Rata-rata Level</span>
+              <span className="summary-value">
+                Lv. <strong>{team.length > 0 ? Math.round(team.reduce((acc, p) => acc + p.level, 0) / team.length) : "—"}</strong>
+              </span>
+            </div>
+            <div className="team-summary-item">
+              <span className="summary-label">Kondisi Tim</span>
+              <span className={`summary-value ${team.some((p) => p.currentHp <= 0) ? "has-fainted" : "all-healthy"}`}>
+                {team.some((p) => p.currentHp <= 0)
+                  ? `${team.filter((p) => p.currentHp <= 0).length} Terluka`
+                  : "Semua Prima"}
+              </span>
+            </div>
+            <div className="team-summary-item">
+              <span className="summary-label">Stok Potion</span>
+              <span className="summary-value"><strong>{potionCount}</strong> Tersedia</span>
+            </div>
+          </div>
+
           {/* 6 Party Slots Grid */}
           <div className="party-grid">
             {partySlots.map((pokemon, slotIndex) => {
               if (!pokemon) {
-                // Compact Empty Slot
+                // Compact Apple-style Empty Slot
                 return (
                   <div key={`empty-${slotIndex}`} className="empty-party-slot">
                     <div className="empty-slot-content">
                       <div className="empty-slot-icon">
-                        <IconPokeball size={24} />
+                        <IconPokeball size={28} />
                       </div>
                       <div className="empty-slot-text">
-                        <h4>Slot #{slotIndex + 1}</h4>
-                        <p>Empty Party Slot</p>
+                        <h4>Slot #{slotIndex + 1} Kosong</h4>
+                        <p>Pilih partner Pokémon untuk memperkuat tim</p>
                       </div>
                     </div>
                     <div className="empty-slot-btn-group">
                       <Link to="/" className="btn-browse-dex">
-                        + PokéDex
+                        + Pokédex
                       </Link>
                       <Link to="/wilderness" className="btn-browse-wilderness">
-                        + Wild
+                        + Jelajah Wild
                       </Link>
                     </div>
                   </div>

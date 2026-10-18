@@ -543,16 +543,19 @@ function DetailPage() {
                   alt={`3D model of ${pokemon.name}`}
                   camera-controls
                   touch-action="pan-y"
-                  auto-rotate={isAutoRotate3d ? "" : undefined}
+                  auto-rotate
                   rotation-per-second="25deg"
                   shadow-intensity="1"
                   exposure="1"
                   loading="eager"
                   reveal="auto"
+                  bounds="tight"
+                  camera-orbit="0deg 75deg 90%"
+                  field-of-view="28deg"
                   onError={() => setModel3dError(true)}
                   style={{
                     width: "100%",
-                    height: "260px",
+                    height: "300px",
                     backgroundColor: "transparent",
                     outline: "none",
                   }}
@@ -563,55 +566,41 @@ function DetailPage() {
                       alt={pokemon.name}
                       className="artwork-img"
                     />
-                    <div className="model-loading-pill">Loading 3D Model…</div>
                   </div>
                 </model-viewer>
 
-                {model3dError ? (
-                  <div className="rotator-control-bar">
-                    <span className="rotator-hint">
-                      Model 3D belum tersedia untuk varian ini.
-                    </span>
+                {/* Floating Reset button strictly in the bottom-right corner */}
+                {!model3dError && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (modelViewerRef.current) {
+                        modelViewerRef.current.cameraOrbit = "0deg 75deg 90%";
+                        modelViewerRef.current.resetTurntableRotation?.();
+                      }
+                    }}
+                    className="btn-3d-reset-corner"
+                    title="Reset sudut visual 3D ke posisi awal"
+                    aria-label="Reset visual 3D"
+                  >
+                    <IconRefresh size={12} />
+                    <span>Reset</span>
+                  </button>
+                )}
+
+                {model3dError && (
+                  <div className="model-3d-error-overlay">
+                    <span>Model 3D belum tersedia untuk varian ini.</span>
                     <button
                       type="button"
                       onClick={() => {
                         setModel3dError(false);
                         setViewMode("artwork");
                       }}
-                      className="btn-rotator-toggle active"
+                      className="btn-view-artwork-fallback"
                     >
                       Buka Artwork
                     </button>
-                  </div>
-                ) : (
-                  <div className="rotator-control-bar">
-                    <span className="rotator-hint">
-                      Geser 360° bebas • Pinch / scroll zoom
-                    </span>
-                    <div className="rotator-action-buttons">
-                      <button
-                        type="button"
-                        onClick={() => setIsAutoRotate3d((prev) => !prev)}
-                        className={`btn-rotator-toggle ${isAutoRotate3d ? "active" : ""}`}
-                        title="Toggle auto 360 rotation"
-                      >
-                        {isAutoRotate3d ? "Auto 360°: ON" : "Auto 360°: OFF"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (modelViewerRef.current) {
-                            modelViewerRef.current.cameraOrbit = "0deg 75deg 105%";
-                            modelViewerRef.current.resetTurntableRotation?.();
-                          }
-                        }}
-                        className="btn-rotator-toggle"
-                        title="Reset ke posisi depan"
-                      >
-                        <IconRefresh size={13} />
-                        <span>Reset</span>
-                      </button>
-                    </div>
                   </div>
                 )}
               </div>
@@ -635,15 +624,17 @@ function DetailPage() {
             {/* 3. ANIMATED 2D BATTLE SPRITE MODE */}
             {viewMode === "animated" && (
               <div className="animated-stage">
-                <img
-                  key={`${pokemon.id}-animated-${isShiny}-${showBackSprite}`}
-                  src={showBackSprite ? currentBackAnimatedUrl : currentFrontAnimatedUrl}
-                  alt={`${pokemon.name} animated`}
-                  className="animated-img"
-                  onError={(e) => {
-                    e.target.src = fallbackImgUrl;
-                  }}
-                />
+                <div className="animated-sprite-container">
+                  <img
+                    key={`${pokemon.id}-animated-${isShiny}-${showBackSprite}`}
+                    src={showBackSprite ? currentBackAnimatedUrl : currentFrontAnimatedUrl}
+                    alt={`${pokemon.name} animated`}
+                    className="animated-img"
+                    onError={(e) => {
+                      e.target.src = fallbackImgUrl;
+                    }}
+                  />
+                </div>
                 <div className="animated-control-bar">
                   <button
                     type="button"
@@ -654,10 +645,20 @@ function DetailPage() {
                     <IconRefresh size={12} />
                     <span>{showBackSprite ? "Tampak Depan" : "Tampak Belakang"}</span>
                   </button>
+                  <span className="view-angle-indicator">
+                    {showBackSprite ? "Tampak Belakang" : "Tampak Depan"}
+                  </span>
                 </div>
               </div>
             )}
           </div>
+
+          {/* Outside Helper Hint: completely outside the box to prevent obstructing Pokémon */}
+          {viewMode === "3d" && !model3dError && (
+            <div className="model-3d-hint-outside">
+              <span>Geser untuk rotasi 360° bebas • Pinch / scroll untuk zoom • Tombol Reset di pojok kanan</span>
+            </div>
+          )}
         </div>
 
         {/* Lore / Description with Text to Speech */}
@@ -964,9 +965,11 @@ function DetailPage() {
                     <TypeBadge type={m.type} size="xs" />
                   </div>
                   <div className="move-pill-footer">
-                    <span className="move-power">Pow {m.power || "—"}</span>
-                    <span className="move-accuracy">Acc {m.accuracy ? `${m.accuracy}%` : "—"}</span>
-                    <span className="move-pp">PP {m.maxPp}</span>
+                    <div className="move-pill-stats">
+                      <span className="move-power">Pow {m.power || "—"}</span>
+                      <span className="move-accuracy">Acc {m.accuracy ? `${m.accuracy}%` : "—"}</span>
+                      <span className="move-pp">PP {m.maxPp}</span>
+                    </div>
                     <span className={`move-category-badge category-${m.category}`}>
                       {m.category === "special" ? "SP" : m.category === "status" ? "STAT" : "PHY"}
                     </span>
