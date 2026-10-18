@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGame } from "../context/GameContext.jsx";
 import { STARTER_POKEMON } from "../utils/pokemonFactory.js";
 import TypeBadge from "./TypeBadge.jsx";
@@ -11,6 +11,13 @@ function StarterModal() {
   const [nickname, setNickname] = useState("");
   const [isOpen, setIsOpen] = useState(!hasStarter);
 
+  // Sync isOpen whenever hasStarter changes (e.g., reset save data)
+  useEffect(() => {
+    if (!hasStarter) {
+      setIsOpen(true);
+    }
+  }, [hasStarter]);
+
   if (hasStarter || !isOpen) return null;
 
   function handleConfirm() {
@@ -19,7 +26,7 @@ function StarterModal() {
   }
 
   return (
-    <div className="modal-backdrop">
+    <div className="modal-backdrop starter-modal-backdrop" role="dialog" aria-modal="true">
       <div className="starter-modal">
         {/* Header */}
         <div className="starter-modal-header">

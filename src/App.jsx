@@ -21,12 +21,6 @@ function App() {
 
   return (
     <HashRouter>
-      <StarterModal />
-      <EvolutionModal
-        pendingEvolution={pendingEvolution}
-        onComplete={completeEvolution}
-        onCancel={cancelEvolution}
-      />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<ListPage />} />
@@ -46,6 +40,12 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      <StarterModal />
+      <EvolutionModal
+        pendingEvolution={pendingEvolution}
+        onComplete={completeEvolution}
+        onCancel={cancelEvolution}
+      />
     </HashRouter>
   );
 }
