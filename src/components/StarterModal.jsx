@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useGame } from "../context/GameContext.jsx";
 import { STARTER_POKEMON } from "../utils/pokemonFactory.js";
 import TypeBadge from "./TypeBadge.jsx";
@@ -25,9 +26,14 @@ function StarterModal() {
     setIsOpen(false);
   }
 
-  return (
-    <div className="modal-backdrop starter-modal-backdrop" role="dialog" aria-modal="true">
-      <div className="starter-modal">
+  const modalContent = (
+    <div
+      className="modal-backdrop starter-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      style={{ zIndex: 2147483647 }}
+    >
+      <div className="starter-modal" style={{ zIndex: 2147483647 }}>
         {/* Header */}
         <div className="starter-modal-header">
           <div className="oak-badge">
@@ -61,6 +67,9 @@ function StarterModal() {
                     src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${starter.id}.gif`}
                     alt={starter.name}
                     className="starter-animated-gif"
+                    onError={(e) => {
+                      e.target.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${starter.id}.png`;
+                    }}
                   />
                 </div>
                 <h4 className="starter-name">{capitalize(starter.name)}</h4>
@@ -120,6 +129,11 @@ function StarterModal() {
       </div>
     </div>
   );
+
+  if (typeof document !== "undefined" && document.body) {
+    return createPortal(modalContent, document.body);
+  }
+  return modalContent;
 }
 
 export default StarterModal;

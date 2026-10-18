@@ -4,6 +4,7 @@
 // Powered by QR Server Public API
 // ========================================================
 
+import { createPortal } from "react-dom";
 import { useGame } from "../context/GameContext.jsx";
 import GymBadgeIcon from "./GymBadgeIcons.jsx";
 import { IconCross, IconCrown, IconParty } from "./Icons.jsx";
@@ -45,7 +46,7 @@ export default function TrainerPassportModal({ isOpen, onClose }) {
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${qrData}&color=1e1b4b&bgcolor=ffffff&margin=4`;
 
-  return (
+  const modalNode = (
     <div className="passport-modal-backdrop" onClick={onClose}>
       <div
         className="passport-card-container"
@@ -187,4 +188,9 @@ export default function TrainerPassportModal({ isOpen, onClose }) {
       </div>
     </div>
   );
+
+  if (typeof document !== "undefined" && document.body) {
+    return createPortal(modalNode, document.body);
+  }
+  return modalNode;
 }
