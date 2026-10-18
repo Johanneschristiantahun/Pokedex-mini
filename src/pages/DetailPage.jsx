@@ -22,6 +22,68 @@ import {
 import { calculateDefensiveMatchups } from "../utils/typeEffectiveness.js";
 import { fetchPokemonTcgCards } from "../utils/tcgApi.js";
 import { speakPokemonEntry, stopSpeaking } from "../utils/speech.js";
+import { getPokemonMoves } from "../data/pokemonMoves.js";
+
+// In-game battle effect descriptions for common and prominent Pokémon abilities
+const ABILITY_DESCRIPTIONS = {
+  overgrow: "Powers up Grass-type moves by 50% when HP is below 1/3.",
+  blaze: "Powers up Fire-type moves by 50% when HP is below 1/3.",
+  torrent: "Powers up Water-type moves by 50% when HP is below 1/3.",
+  "shield-dust": "Blocks the additional effects of damaging attacks.",
+  "compound-eyes": "Boosts move accuracy by 30%.",
+  "speed-boost": "Boosts Speed stat by 1 stage at the end of each turn.",
+  frisk: "Identifies the held item of opposing Pokémon upon entering battle.",
+  "tinted-lens": "Doubles the damage of 'not very effective' moves.",
+  infiltrator: "Bypasses enemy barriers, screens, and Substitute doll.",
+  static: "30% chance to paralyze attackers upon physical contact.",
+  "lightning-rod": "Draws Electric attacks to raise Sp. Atk with full immunity.",
+  intimidate: "Lowers opposing Pokémon's Attack by 1 stage on entrance.",
+  levitate: "Grants full immunity to Ground moves, Spikes, and Arena Trap.",
+  sturdy: "Survives lethal attacks with 1 HP when at full health.",
+  pressure: "Doubles the PP cost of opponent moves directed at this Pokémon.",
+  "magic-guard": "Prevents all indirect non-attack damage (poison, burn, hazards).",
+  unaware: "Ignores the opponent's stat modifications during damage calculations.",
+  chlorophyll: "Doubles Speed stat in harsh sunlight.",
+  "solar-power": "Boosts Sp. Atk by 50% in sun, but loses 1/8 HP each turn.",
+  "rain-dish": "Gradually restores 1/16 max HP each turn during rain.",
+  "cute-charm": "30% chance to infatuate opposing gender upon physical contact.",
+  technician: "Powers up moves with base power 60 or less by 50%.",
+  swarm: "Powers up Bug-type moves by 50% when HP is below 1/3.",
+  guts: "Boosts Attack by 50% while afflicted with a status condition.",
+  "natural-cure": "Heals all status conditions automatically upon switching out.",
+  "serene-grace": "Doubles the probability of secondary move effects.",
+  "swift-swim": "Doubles Speed stat while rain is active.",
+  synchronize: "Copies burn, paralysis, or poison status onto the attacker.",
+  "inner-focus": "Prevents this Pokémon from flinching in battle.",
+  "clear-body": "Prevents opponents from lowering this Pokémon's stats.",
+  "shed-skin": "33% chance to cure status conditions at the end of each turn.",
+  adaptability: "Increases STAB (Same Type Attack Bonus) from 1.5× to 2.0×.",
+  "water-absorb": "Heals 1/4 max HP when hit by Water moves instead of damage.",
+  "volt-absorb": "Heals 1/4 max HP when hit by Electric moves instead of damage.",
+  "flash-fire": "Powers up Fire moves by 50% and grants immunity to Fire.",
+  "wonder-guard": "Only super-effective attacks can damage this Pokémon.",
+  "huge-power": "Doubles the Pokémon's effective Attack stat.",
+  "pure-power": "Doubles the Pokémon's effective Attack stat.",
+  drought: "Summons harsh sunlight when entering battle.",
+  drizzle: "Summons heavy rain when entering battle.",
+  "sand-stream": "Summons a sandstorm upon entering battle.",
+  "snow-warning": "Summons a hailstorm/snow upon entering battle.",
+  prankster: "Gives +1 priority to all status and non-damaging moves.",
+  "sheer-force": "Boosts attack power by 30% by removing secondary effects.",
+  protean: "Changes Pokémon's type to match the move it is about to use.",
+  moxie: "Boosts Attack by 1 stage after knocking out a target.",
+  "iron-fist": "Powers up punching moves by 20%.",
+  regenerator: "Restores 1/3 max HP when switching out of battle.",
+  multiscale: "Halves damage taken when at maximum HP.",
+};
+
+function getAbilityDescription(name, isHidden) {
+  const key = (name || "").toLowerCase().trim();
+  if (ABILITY_DESCRIPTIONS[key]) return ABILITY_DESCRIPTIONS[key];
+  return isHidden
+    ? "Rare latent battle trait granting unique tactical advantages."
+    : "Inherent biological trait and passive battle characteristic.";
+}
 import {
   IconAlertTriangle,
   IconArrowLeft,
@@ -299,6 +361,9 @@ function DetailPage() {
 
   // Defensive Matchups calculation
   const matchups = calculateDefensiveMatchups(pokemon.types);
+
+  // Authentic RPG Moves calculation
+  const combatMoves = pokemon ? getPokemonMoves(pokemon) : [];
 
   return (
     <div
@@ -622,27 +687,83 @@ function DetailPage() {
           </div>
         )}
 
-        {/* Physical Bio Metrics */}
+        {/* Physical Bio Metrics (Apple Compact Metric Tiles) */}
         <div className="detail-metrics-grid">
           <div className="metric-box">
             <span className="metric-label">Height</span>
             <span className="metric-val">{pokemon.height / 10} m</span>
           </div>
+
           <div className="metric-box">
             <span className="metric-label">Weight</span>
             <span className="metric-val">{pokemon.weight / 10} kg</span>
           </div>
+
           <div className="metric-box">
             <span className="metric-label">Base EXP</span>
             <span className="metric-val">{pokemon.base_experience || "—"}</span>
           </div>
+
           <div className="metric-box">
-            <span className="metric-label">Abilities</span>
+            <span className="metric-label">Gender Ratio</span>
             <span className="metric-val">
-              {pokemon.abilities
-                .map((a) => capitalize(a.ability.name))
-                .join(", ")}
+              {species?.gender_rate === -1
+                ? "Genderless"
+                : species?.gender_rate !== undefined && species?.gender_rate !== null
+                ? `${100 - (species.gender_rate / 8) * 100}% ♂ / ${(species.gender_rate / 8) * 100}% ♀`
+                : "—"}
             </span>
+          </div>
+
+          <div className="metric-box">
+            <span className="metric-label">Catch Rate</span>
+            <span className="metric-val">
+              {species?.capture_rate !== undefined && species?.capture_rate !== null
+                ? `${species.capture_rate} / 255`
+                : "—"}
+            </span>
+          </div>
+
+          <div className="metric-box">
+            <span className="metric-label">Hatch Steps</span>
+            <span className="metric-val">
+              {species?.hatch_counter !== undefined && species?.hatch_counter !== null
+                ? `${((species.hatch_counter + 1) * 255).toLocaleString()} steps`
+                : "—"}
+            </span>
+          </div>
+        </div>
+
+        {/* Pokémon Abilities Showcase (Discrete Apple Chips & Badges) */}
+        <div className="detail-abilities-section">
+          <div className="abilities-section-header">
+            <span className="abilities-section-title">Abilities</span>
+            <span className="abilities-section-subtitle">
+              Innate battle traits & passive effects
+            </span>
+          </div>
+          <div className="abilities-chips-list">
+            {(pokemon.abilities || []).map((a) => {
+              const formattedName = capitalize(a.ability.name.replace(/-/g, " "));
+              const desc = getAbilityDescription(a.ability.name, a.is_hidden);
+              return (
+                <div
+                  key={a.ability.name}
+                  className={`ability-chip ability-pill ${a.is_hidden ? "is-hidden" : ""}`}
+                  title={`${formattedName}${a.is_hidden ? " (Hidden Ability)" : ""}: ${desc}`}
+                >
+                  <div className="ability-chip-top">
+                    <span className="ability-name">{formattedName}</span>
+                    {a.is_hidden ? (
+                      <span className="ability-badge-hidden">Hidden</span>
+                    ) : (
+                      <span className="ability-badge-standard">Slot {a.slot}</span>
+                    )}
+                  </div>
+                  <p className="ability-desc">{desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -821,6 +942,39 @@ function DetailPage() {
             })}
           </div>
         </div>
+
+        {/* Combat Moves (Authentic RPG Moveset Showcase) */}
+        {combatMoves && combatMoves.length > 0 && (
+          <div className="detail-moves-section">
+            <div className="section-title-wrap">
+              <h3>Combat Moves</h3>
+              <span className="moves-count-badge">4 Moves</span>
+            </div>
+
+            <div className="moves-deck-grid detail-moves-grid">
+              {combatMoves.map((m) => (
+                <div
+                  key={m.id || m.name}
+                  className={`move-pill-card move-type-${m.type}`}
+                  style={{ borderLeftColor: getTypeColor(m.type).primary }}
+                >
+                  <div className="move-pill-header">
+                    <span className="move-name">{m.name}</span>
+                    <TypeBadge type={m.type} size="xs" />
+                  </div>
+                  <div className="move-pill-footer">
+                    <span className="move-power">Pow {m.power || "—"}</span>
+                    <span className="move-accuracy">Acc {m.accuracy ? `${m.accuracy}%` : "—"}</span>
+                    <span className="move-pp">PP {m.maxPp}</span>
+                    <span className={`move-category-badge category-${m.category}`}>
+                      {m.category === "special" ? "SP" : m.category === "status" ? "STAT" : "PHY"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Trading Card Game (TCG) Official Cards Gallery */}
         <div className="detail-tcg-section">

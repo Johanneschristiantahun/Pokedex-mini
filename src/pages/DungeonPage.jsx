@@ -90,6 +90,7 @@ export default function DungeonPage() {
   // Mode: "HUB" | "BATTLE" | "CATCH_SUCCESS"
   const [mode, setMode] = useState("HUB");
   const [activeDungeonIndex, setActiveDungeonIndex] = useState(0);
+  const [currentFloor, setCurrentFloor] = useState(1);
   const [toastMessage, setToastMessage] = useState(null);
 
   function showToast(msg) {

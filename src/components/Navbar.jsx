@@ -72,10 +72,10 @@ function Navbar() {
         <nav className="navbar-nav" aria-label="Main Navigation">
           <NavLink
             to="/"
-            end
-            className={({ isActive }) =>
-              `nav-item ${isActive ? "nav-item-active" : ""}`
-            }
+            className={({ isActive }) => {
+              const isPokedexActive = isActive || location.pathname.startsWith("/pokemon/");
+              return `nav-item ${isPokedexActive ? "nav-item-active" : ""}`;
+            }}
           >
             <IconBook size={17} />
             <span className="nav-label">PokéDex</span>

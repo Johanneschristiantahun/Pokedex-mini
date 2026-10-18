@@ -246,11 +246,11 @@ function TeamPage() {
                   <div key={`empty-${slotIndex}`} className="empty-party-slot">
                     <div className="empty-slot-content">
                       <div className="empty-slot-icon">
-                        <IconPokeball size={20} />
+                        <IconPokeball size={24} />
                       </div>
                       <div className="empty-slot-text">
                         <h4>Slot #{slotIndex + 1}</h4>
-                        <p>Empty party slot</p>
+                        <p>Empty Party Slot</p>
                       </div>
                     </div>
                     <div className="empty-slot-btn-group">
@@ -258,7 +258,7 @@ function TeamPage() {
                         + PokéDex
                       </Link>
                       <Link to="/wilderness" className="btn-browse-wilderness">
-                        Wild
+                        + Wild
                       </Link>
                     </div>
                   </div>
@@ -432,10 +432,10 @@ function TeamPage() {
                       type="button"
                       onClick={() => setQuickItemTarget(pokemon)}
                       className="btn-action-compact btn-action-use-item"
-                      title="Use potion, revive, rare candy, or evo stone"
+                      title="Use item on Pokémon"
                     >
-                      <IconPotion size={12} />
-                      <span>Use Item</span>
+                      <IconPotion size={11} />
+                      <span>Item</span>
                     </button>
 
                     <button
@@ -444,8 +444,8 @@ function TeamPage() {
                       className={`btn-action-compact btn-action-toggle ${isExpanded ? "active" : ""}`}
                       title="View stats and moves"
                     >
-                      <span>Moves & Stats</span>
-                      {isExpanded ? <IconChevronUp size={11} /> : <IconChevronDown size={11} />}
+                      <span>Stats</span>
+                      {isExpanded ? <IconChevronUp size={10} /> : <IconChevronDown size={10} />}
                     </button>
 
                     <Link
@@ -454,7 +454,7 @@ function TeamPage() {
                       title="View in PokéDex"
                     >
                       <span>Dex</span>
-                      <IconExternalLink size={11} />
+                      <IconExternalLink size={10} />
                     </Link>
 
                     {!isLeader && (
@@ -464,7 +464,7 @@ function TeamPage() {
                         className="btn-action-compact btn-action-leader"
                         title="Set as party leader"
                       >
-                        Leader
+                        Lead
                       </button>
                     )}
 
@@ -488,6 +488,7 @@ function TeamPage() {
                         onClick={() => handleRelease(pokemon.instanceId)}
                         className="btn-action-compact btn-action-release"
                         title="Release Pokémon"
+                        aria-label="Release Pokémon"
                       >
                         <IconTrash size={11} />
                       </button>

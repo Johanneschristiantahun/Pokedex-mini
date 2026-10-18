@@ -3,6 +3,108 @@
    ======================================================== */
 
 :root {
+  /* ========================================================
+     Apple Product Design System — Color Palette
+     ======================================================== */
+  /* Primary Brand & Accents */
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
+  --apple-blue-active: #0062c4;
+  --apple-blue-subtle: rgba(0, 113, 227, 0.08);
+  --accent: #0071e3;
+
+  /* Pokémon & Apple Semantic Colors */
+  --apple-red: #ff3b30;
+  --apple-red-dark: #d70015;
+  --primary-red: #ff3b30;
+  --primary-dark: #d70015;
+  --apple-green: #34c759;
+  --apple-green-dark: #248a3d;
+  --apple-orange: #ff9500;
+  --apple-yellow: #ffcc00;
+  --apple-purple: #af52de;
+  --apple-indigo: #5856d6;
+  --pokeball-white: #ffffff;
+
+  /* System Grays */
+  --apple-gray-1: #8e8e93;
+  --apple-gray-2: #aeaeb2;
+  --apple-gray-3: #c7c7cc;
+  --apple-gray-4: #d1d1d6;
+  --apple-gray-5: #e5e5ea;
+  --apple-gray-6: #f2f2f7;
+
+  /* Backgrounds & Surfaces */
+  --bg-primary: #f5f5f7;
+  --bg-main: #f5f5f7;
+  --bg-body: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-tertiary: #f2f2f7;
+  --bg-grouped-primary: #f5f5f7;
+  --bg-grouped-secondary: #ffffff;
+
+  /* Typography / Text Colors */
+  --text-primary: #1d1d1f;
+  --text-main: #1d1d1f;
+  --text-secondary: #86868b;
+  --text-muted: #86868b;
+  --text-tertiary: #a1a1a6;
+  --text-quaternary: #c7c7cc;
+
+  /* Borders & Dividers */
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-strong: rgba(0, 0, 0, 0.16);
+
+  /* ========================================================
+     Apple Product Design System — Geometry & Radius
+     ======================================================== */
+  --radius-apple: 18px;
+  --radius-apple-sm: 10px;
+  --radius-apple-md: 14px;
+  --radius-apple-lg: 18px;
+  --radius-apple-xl: 24px;
+  --radius-apple-pill: 980px;
+  --card-radius: 18px;
+
+  /* ========================================================
+     Apple Product Design System — Elevation & Shadows
+     ======================================================== */
+  --shadow-apple: 0 4px 20px rgba(0, 0, 0, 0.04);
+  --shadow-apple-hover: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-apple-subtle: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --shadow-apple-modal: 0 20px 48px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* ========================================================
+     Apple Product Design System — Frosted Glass & Materials
+     ======================================================== */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.65);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-border-subtle: rgba(0, 0, 0, 0.06);
+  --glass-blur: blur(20px);
+  --glass-blur-sm: blur(10px);
+  --glass-blur-lg: blur(30px);
+  --glass-saturate: saturate(180%);
+  --backdrop-frosted: blur(20px) saturate(180%);
+
+  /* ========================================================
+     Apple Product Design System — Layout & Animation
+     ======================================================== */
+  --max-width-hub: 1160px;
+  --max-width-focused: 860px;
+  --max-width-full: 1200px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --transition-smooth: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* Legacy aliases superseded by Apple tokens:
   --primary-red: #ff3b30;
   --primary-dark: #d70015;
   --pokeball-white: #ffffff;
@@ -13,21 +115,24 @@
   --text-main: #1d1d1f;
   --text-muted: #86868b;
   --border-light: rgba(0, 0, 0, 0.08);
-  --card-radius: 14px;
+  --card-radius: 18px;
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --transition-smooth: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
+*/
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+html {
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
@@ -39,12 +144,15 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* App Shell Layout */
-#root, .app-shell {
+#root,
+.app {
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: hidden;
 }
 
@@ -52,11 +160,35 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+/* Embedded media boundary enforcement */
+img,
+picture,
+video,
+canvas,
+svg,
+model-viewer {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+  font-family: inherit;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1200px;
+  max-width: 1160px;
+  min-width: 0;
   width: 100%;
   margin: 0 auto;
   padding: 24px 20px 60px;
@@ -69,13 +201,15 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--glass-bg, rgba(255, 255, 255, 0.82));
+  -webkit-backdrop-filter: var(--glass-blur, blur(20px)) var(--glass-saturate, saturate(180%));
+  backdrop-filter: var(--glass-blur, blur(20px)) var(--glass-saturate, saturate(180%));
+  border-bottom: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .navbar-container {
-  max-width: 1200px;
+  max-width: 1160px;
   margin: 0 auto;
   padding: 10px 20px;
   display: flex;
@@ -169,7 +303,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-apple-pill, 980px);
   text-decoration: none;
   color: #475569;
   font-weight: 600;
@@ -184,31 +318,36 @@ body {
 }
 
 .nav-item-active {
-  background: #fee2e2;
-  color: var(--primary-red);
+  background: var(--apple-blue-subtle, rgba(0, 113, 227, 0.08));
+  color: var(--apple-blue, #0071e3);
+  font-weight: 600;
+  border-color: rgba(0, 113, 227, 0.16);
 }
 
 .nav-team-count,
 .nav-bag-count {
   font-size: 0.72rem;
   padding: 1px 7px;
-  background: #f1f5f9;
-  color: #475569;
-  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary, #86868b);
+  border-radius: var(--radius-apple-pill, 980px);
+
   font-weight: 700;
   border: 1px solid #e2e8f0;
 }
 
 .nav-item-active .nav-team-count {
-  background: var(--primary-red);
-  color: white;
-  border-color: var(--primary-red);
+  background: var(--apple-blue, #0071e3);
+  color: #ffffff;
+  border-color: var(--apple-blue, #0071e3);
+
+
 }
 
 .nav-item-active .nav-bag-count {
-  background: #3b82f6;
+  background: var(--apple-blue, #0071e3);
   color: white;
-  border-color: #3b82f6;
+  border-color: var(--apple-blue, #0071e3);
 }
 
 /* Game Modes & Tools Dropdown */
@@ -221,7 +360,7 @@ body {
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-apple-pill, 980px);
   background: transparent;
   border: 1px solid transparent;
   color: #475569;
@@ -232,10 +371,18 @@ body {
   transition: all 0.15s ease;
 }
 
-.nav-dropdown-trigger:hover,
+.nav-dropdown-trigger:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary, #1d1d1f);
+}
+
 .nav-dropdown-trigger.active {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--apple-blue-subtle, rgba(0, 113, 227, 0.08));
+  color: var(--apple-blue, #0071e3);
+  font-weight: 600;
+  border-color: rgba(0, 113, 227, 0.16);
+
+
 }
 
 .dropdown-chevron {
@@ -251,11 +398,13 @@ body {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 275px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  min-width: 280px;
+  background: var(--glass-bg-heavy, rgba(255, 255, 255, 0.92));
+  -webkit-backdrop-filter: var(--glass-blur, blur(25px)) var(--glass-saturate, saturate(180%));
+  backdrop-filter: var(--glass-blur, blur(25px)) var(--glass-saturate, saturate(180%));
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple, 18px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 6px;
   z-index: 1000;
 }
@@ -274,9 +423,9 @@ body {
   align-items: center;
   gap: 10px;
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: var(--radius-apple-sm, 10px);
   text-decoration: none;
-  color: #334155;
+  color: var(--text-primary, #1d1d1f);
   transition: background 0.15s ease;
   width: 100%;
   border: none;
@@ -287,8 +436,8 @@ body {
 
 .dropdown-item:hover,
 .dropdown-item.active {
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--apple-blue-subtle, rgba(0, 113, 227, 0.08));
+  color: var(--apple-blue, #0071e3);
 }
 
 .dropdown-item svg {
@@ -297,7 +446,7 @@ body {
 }
 
 .dropdown-item:hover svg {
-  color: var(--primary-red);
+  color: var(--apple-blue, #0071e3);
 }
 
 .dropdown-item-text {
@@ -319,7 +468,7 @@ body {
 
 .dropdown-divider {
   height: 1px;
-  background: #f1f5f9;
+  background: var(--border-light, rgba(0, 0, 0, 0.08));
   margin: 4px 6px;
 }
 
@@ -639,7 +788,7 @@ body {
 .pokemon-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 14px;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -879,7 +1028,7 @@ body {
    Detail Page Showcase
    ======================================================== */
 .detail-page {
-  max-width: 760px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
@@ -980,11 +1129,12 @@ body {
 }
 
 .detail-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  border: 1px solid #e2e8f0;
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-apple, 18px);
+  padding: 28px;
+  box-shadow: var(--shadow-apple);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  transition: box-shadow 0.2s ease;
 }
 
 .detail-header-section {
@@ -1174,15 +1324,15 @@ body {
 }
 
 .detail-image-box {
-  background: #f8fafc;
-  border-radius: 8px;
+  background: var(--bg-tertiary, #f2f2f7);
+  border-radius: var(--radius-apple-md, 14px);
   padding: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 250px;
   height: 260px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
   position: relative;
   overflow: hidden;
 }
@@ -1320,11 +1470,12 @@ body {
 
 /* Lore Box & TTS */
 .detail-lore-box {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 20px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple-md, 14px);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-apple-subtle);
 }
 
 .lore-header {
@@ -1379,33 +1530,187 @@ body {
 /* Metrics Grid */
 .detail-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .metric-box {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  background: var(--bg-primary, #f5f5f7);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple-md, 14px);
   padding: 10px 12px;
   text-align: left;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1));
+  box-sizing: border-box;
+}
+
+.metric-box:hover {
+  background: var(--bg-card, #ffffff);
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+  transform: translateY(-1px);
 }
 
 .metric-label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.6875rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #64748b;
-  font-weight: 700;
-  margin-bottom: 2px;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary, #86868b);
+  font-weight: 600;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .metric-val {
   font-weight: 700;
-  font-size: 0.9rem;
-  color: #0f172a;
+  font-size: 0.9375rem;
+  color: var(--text-primary, #1d1d1f);
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* Abilities Section (Apple Card Container) */
+.detail-abilities-section {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple, 18px);
+  padding: 16px 18px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-apple-subtle, 0 2px 10px rgba(0, 0, 0, 0.03));
+  box-sizing: border-box;
+}
+
+.abilities-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.abilities-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary, #86868b);
+}
+
+.abilities-section-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-tertiary, #a1a1a6);
+}
+
+.abilities-chips-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+/* Apple Ability Chip / Pill */
+.ability-chip,
+.ability-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--bg-primary, #f5f5f7);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple-md, 14px);
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1));
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ability-chip:hover,
+.ability-pill:hover {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+  transform: translateY(-1px);
+}
+
+.ability-chip.is-hidden,
+.ability-pill.is-hidden {
+  background: rgba(175, 82, 222, 0.04);
+  border-color: rgba(175, 82, 222, 0.18);
+}
+
+.ability-chip.is-hidden:hover,
+.ability-pill.is-hidden:hover {
+  background: rgba(175, 82, 222, 0.08);
+  border-color: rgba(175, 82, 222, 0.32);
+  box-shadow: 0 4px 12px rgba(175, 82, 222, 0.08);
+}
+
+.ability-chip-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.ability-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary, #1d1d1f);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ability-badge-hidden {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--radius-apple-pill, 980px);
+  background: rgba(175, 82, 222, 0.14);
+  color: var(--apple-purple, #af52de);
+  border: 1px solid rgba(175, 82, 222, 0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ability-badge-standard {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 6px;
+  border-radius: var(--radius-apple-pill, 980px);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-secondary, #86868b);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ability-desc {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #86868b);
+  line-height: 1.4;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Stats Section */
@@ -1458,7 +1763,7 @@ body {
 
 .stat-bar-track {
   height: 8px;
-  background: #e2e8f0;
+  background: rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   overflow: hidden;
 }
@@ -1476,7 +1781,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(16px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -1664,7 +1969,7 @@ body {
    Stage 2: Trainer Hub & My Team Page
    ======================================================== */
 .team-page {
-  max-width: 1100px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -1911,7 +2216,7 @@ body {
 /* Active Party Grid */
 .party-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 24px;
 }
@@ -1921,13 +2226,14 @@ body {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
+  min-height: 154px;
 }
 
 .party-card:hover {
@@ -2032,10 +2338,10 @@ body {
 }
 
 .party-avatar-unit {
-  width: 58px;
-  height: 58px;
+  width: 48px;
+  height: 48px;
   background: rgba(0, 0, 0, 0.02);
-  border-radius: 12px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2044,18 +2350,18 @@ body {
 }
 
 .party-animated-sprite {
-  max-width: 52px;
-  max-height: 52px;
+  max-width: 42px;
+  max-height: 42px;
   object-fit: contain;
   image-rendering: pixelated;
 }
 
 .btn-party-cry {
   position: absolute;
-  bottom: -3px;
-  right: -3px;
-  width: 18px;
-  height: 18px;
+  bottom: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -2096,11 +2402,14 @@ body {
 }
 
 .party-nickname {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-main);
   margin: 0;
   letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .btn-rename-icon {
@@ -2158,7 +2467,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .hp-label-row {
@@ -2178,7 +2487,7 @@ body {
 }
 
 .hp-track {
-  height: 5px;
+  height: 4px;
   background: rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   overflow: hidden;
@@ -2200,21 +2509,22 @@ body {
 .party-actions-toolbar {
   display: flex;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 3px;
+  flex-wrap: nowrap;
   padding-top: 6px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  margin-top: 2px;
+  margin-top: auto;
+  width: 100%;
 }
 
 .btn-action-compact {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 5px 9px;
+  gap: 3px;
+  padding: 3px 6px;
   border-radius: 7px;
-  font-size: 0.73rem;
+  font-size: 0.7rem;
   font-weight: 600;
   border: 1px solid rgba(0, 0, 0, 0.08);
   background: rgba(0, 0, 0, 0.03);
@@ -2223,6 +2533,10 @@ body {
   text-decoration: none;
   transition: all 0.15s ease;
   line-height: 1;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 24px;
 }
 
 .btn-action-compact:hover {
@@ -2260,7 +2574,9 @@ body {
 
 .btn-action-release {
   color: #ff3b30;
-  padding: 5px 7px;
+  flex: 0 0 24px;
+  padding: 0;
+  width: 24px;
 }
 
 .btn-action-release:hover {
@@ -2343,49 +2659,59 @@ body {
   background: rgba(0, 0, 0, 0.015);
   border: 1.5px dashed rgba(0, 0, 0, 0.12);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 12px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  min-height: 84px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 154px;
   transition: all 0.15s ease;
 }
 
 .empty-slot-content {
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .empty-slot-icon {
   color: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .empty-slot-text h4 {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-main);
   margin: 0;
 }
 
 .empty-slot-text p {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--text-muted);
   margin: 2px 0 0;
 }
 
 .empty-slot-btn-group {
   display: flex;
-  gap: 5px;
+  gap: 6px;
+  margin-top: 2px;
 }
 
 .btn-browse-dex,
 .btn-browse-wilderness {
-  padding: 5px 10px;
-  border-radius: 7px;
-  font-size: 0.73rem;
+  padding: 4px 10px;
+  border-radius: 980px;
+  font-size: 0.7rem;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -2398,6 +2724,7 @@ body {
 .btn-browse-wilderness:hover {
   border-color: #0071e3;
   color: #0071e3;
+  background: rgba(0, 113, 227, 0.06);
 }
 
 /* Quick Item Modal */
@@ -2707,7 +3034,7 @@ body {
 }
 
 /* Responsive adjustments */
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .party-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2752,7 +3079,8 @@ body {
   }
 
   .detail-metrics-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 
   .stat-row {
@@ -2926,7 +3254,9 @@ body {
   padding-bottom: 4px;
 }
 
-.pocket-chip {
+.pocket-chip,
+.pocket-pill,
+.pocket-tab {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2942,12 +3272,16 @@ body {
   transition: var(--transition-smooth);
 }
 
-.pocket-chip:hover {
+.pocket-chip:hover,
+.pocket-pill:hover,
+.pocket-tab:hover {
   background: rgba(0, 0, 0, 0.08);
   color: var(--text-main);
 }
 
-.pocket-chip-active {
+.pocket-chip-active,
+.pocket-pill.active,
+.pocket-tab.active {
   background: #1d1d1f;
   color: #ffffff;
   border-color: #1d1d1f;
@@ -3004,21 +3338,22 @@ body {
 /* Bag Items Grid - High-efficiency Compact Tiles */
 .bag-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
 }
 
 .bag-item-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 10px;
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-  min-height: 56px;
+  min-height: 58px;
+  box-sizing: border-box;
 }
 
 .bag-item-card:hover {
@@ -3058,8 +3393,9 @@ body {
 .item-card-header-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .item-name {
@@ -3068,6 +3404,11 @@ body {
   color: var(--text-main);
   margin: 0;
   letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .item-qty-badge {
@@ -3075,12 +3416,14 @@ body {
   font-weight: 600;
   color: var(--text-main);
   background: rgba(0, 0, 0, 0.06);
-  padding: 1px 5px;
-  border-radius: 4px;
+  padding: 1px 6px;
+  border-radius: 999px;
   font-feature-settings: "tnum";
+  flex-shrink: 0;
 }
 
 .item-pocket-tag {
+  display: none;
   font-size: 0.64rem;
   font-weight: 500;
   color: var(--text-muted);
@@ -3109,19 +3452,23 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #0071e3;
-  color: #ffffff;
-  border: none;
-  border-radius: 7px;
-  padding: 5px 12px;
+  background: var(--apple-blue-subtle, rgba(0, 113, 227, 0.08));
+  color: var(--apple-blue, #0071e3);
+  border: 1px solid rgba(0, 113, 227, 0.16);
+  border-radius: 999px;
+  padding: 4px 12px;
   font-weight: 600;
   font-size: 0.76rem;
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-use-item:hover {
-  opacity: 0.9;
+  background: var(--apple-blue, #0071e3);
+  color: #ffffff;
+  border-color: var(--apple-blue, #0071e3);
+  box-shadow: 0 2px 6px rgba(0, 113, 227, 0.25);
 }
 
 .item-unusable-tag {
@@ -3184,7 +3531,9 @@ body {
   gap: 2px;
 }
 
-.submode-btn {
+.submode-btn,
+.mart-mode-btn,
+.mart-tab {
   padding: 5px 16px;
   border-radius: 7px;
   border: none;
@@ -3196,11 +3545,17 @@ body {
   transition: var(--transition-smooth);
 }
 
-.submode-btn:hover {
+.submode-btn:hover,
+.mart-mode-btn:hover,
+.mart-tab:hover {
   color: var(--text-main);
 }
 
-.submode-btn-active {
+.submode-btn-active,
+.mart-mode-btn.active,
+.mart-tab.active,
+.mart-mode-btn-active,
+.mart-tab-active {
   background: #ffffff;
   color: var(--text-main);
   font-weight: 600;
@@ -3243,15 +3598,16 @@ body {
 .mart-catalog-grid,
 .mart-sell-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  width: 100%;
 }
 
 .mart-card,
 .mart-sell-card {
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -3259,12 +3615,14 @@ body {
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   min-height: 58px;
+  box-sizing: border-box;
 }
 
 .mart-card:hover,
 .mart-sell-card:hover {
-  border-color: rgba(0, 0, 0, 0.15);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+  border-color: rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .mart-card-left {
@@ -3299,8 +3657,9 @@ body {
 .mart-card-header-row {
   display: flex;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
 .mart-item-name {
@@ -3308,6 +3667,11 @@ body {
   font-weight: 600;
   color: var(--text-main);
   letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 auto;
 }
 
 .mart-price-tag {
@@ -3465,6 +3829,249 @@ body {
 
 .btn-mart-sell:hover {
   opacity: 0.9;
+}
+
+.btn-mart-action {
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 113, 227, 0.25);
+  background: rgba(0, 113, 227, 0.08);
+  color: #0071e3;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-mart-action:hover {
+  background: #0071e3;
+  color: #ffffff;
+  border-color: #0071e3;
+  box-shadow: 0 2px 6px rgba(0, 113, 227, 0.25);
+}
+
+.btn-mart-sell-action {
+  border-color: rgba(22, 163, 74, 0.25);
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+}
+
+.btn-mart-sell-action:hover {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+}
+
+/* Mart Transaction Modal Sheet */
+.mart-modal {
+  max-width: 420px;
+  width: 90%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  animation: appleModalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mart-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mart-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mart-modal-sprite {
+  width: 44px;
+  height: 44px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mart-modal-sprite img {
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.mart-modal-meta h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.mart-modal-meta p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.mart-modal-financials {
+  background: #fbfbfd;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.financial-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.financial-row strong {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  font-feature-settings: "tnum";
+}
+
+.financial-total {
+  border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.financial-total span {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.financial-total strong {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mart-modal-stepper-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.mart-modal-stepper-wrap .qty-stepper {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.mart-modal-stepper-wrap .stepper-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.mart-modal-stepper-wrap .stepper-input {
+  width: 50px;
+  height: 32px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.mart-modal-stepper-wrap .stepper-max-btn {
+  padding: 0 10px;
+  font-size: 0.75rem;
+  height: 32px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #0071e3;
+  transition: all 0.15s ease;
+}
+
+.mart-modal-stepper-wrap .stepper-max-btn:hover {
+  background: rgba(0, 113, 227, 0.08);
+}
+
+.mart-modal-chips-row {
+  display: flex;
+  gap: 6px;
+}
+
+.stepper-shortcut-chip {
+  padding: 3px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepper-shortcut-chip:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-main);
+}
+
+.btn-modal-confirm {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  background: #0071e3;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-confirm:hover:not(:disabled) {
+  background: #0077ed;
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+}
+
+.btn-modal-confirm:disabled {
+  background: #e5e5ea;
+  color: #86868b;
+  cursor: not-allowed;
+}
+
+.btn-modal-confirm-sell {
+  background: #16a34a;
+}
+
+.btn-modal-confirm-sell:hover:not(:disabled) {
+  background: #15803d;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+@keyframes appleModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* ========================================================
@@ -4236,26 +4843,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
+  padding: 14px 18px;
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple, 18px);
   text-decoration: none;
-  min-width: 100px;
+  min-width: 110px;
+  box-shadow: var(--shadow-apple-subtle);
   position: relative;
   transition: var(--transition-smooth);
 }
 
 .evo-node-card:hover {
   transform: translateY(-2px);
-  border-color: var(--poke-red);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--border-strong, rgba(0, 0, 0, 0.16));
+  box-shadow: var(--shadow-apple-hover);
 }
 
 .evo-node-current {
-  border-color: var(--type-primary, var(--poke-red));
-  background: #fafafa;
-  box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.12);
+  border-color: var(--type-primary, var(--apple-blue));
+  background: var(--bg-card, #ffffff);
+  box-shadow: 0 0 0 2px var(--type-primary, var(--apple-blue)), var(--shadow-apple);
 }
 
 .evo-node-sprite-box {
@@ -4320,10 +4928,17 @@ body {
 }
 
 .matchup-category-card {
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid var(--border-light);
+  background: var(--bg-card, #ffffff);
+  border-radius: var(--radius-apple-md, 14px);
+  padding: 14px 16px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  box-shadow: var(--shadow-apple-subtle);
+  transition: var(--transition-smooth);
+}
+
+.matchup-category-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-apple);
 }
 
 .matchup-header {
@@ -4471,9 +5086,9 @@ body {
 
 .wilderness-page,
 .wilderness-container {
-  max-width: 1000px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 16px 50px;
+  padding: 0;
 }
 
 /* Global Game Toast Pill */
@@ -4871,10 +5486,10 @@ body {
   width: 100%;
   max-width: 760px;
   background: #0f172a;
-  border-radius: 20px;
+  border-radius: var(--radius-apple, 18px);
   overflow: hidden;
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.7);
-  border: 2px solid #334155;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), var(--shadow-apple);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -5663,28 +6278,37 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
 .move-name {
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .move-type-tag {
-  font-size: 0.65rem;
-  font-weight: 900;
+  font-size: 0.6875rem;
+  font-weight: 600;
   color: #ffffff;
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .move-stats-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.72rem;
+  font-size: 0.6875rem;
   color: #94a3b8;
-  font-weight: 700;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .move-pp strong {
@@ -6584,9 +7208,9 @@ body {
 
 /* 2. Gym Circuit Lobby View */
 .gym-circuit-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 16px 60px;
+  padding: 0;
 }
 
 .gym-hero-banner {
@@ -6699,10 +7323,10 @@ body {
 
 .gym-leader-card {
   background: #ffffff;
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-apple, 18px);
+  border: 1px solid var(--border-color, #e2e8f0);
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-apple);
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -7016,8 +7640,8 @@ body {
   max-width: 320px;
   background: rgba(15, 23, 42, 0.82);
   backdrop-filter: blur(16px);
-  border: 2px solid rgba(239, 68, 68, 0.5);
-  border-radius: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: var(--radius-apple, 18px);
   padding: 22px 24px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(239, 68, 68, 0.15);
   z-index: 5;
@@ -7029,8 +7653,8 @@ body {
   max-width: 320px;
   background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(16px);
-  border: 2px solid var(--leader-theme, #38bdf8);
-  border-radius: 20px;
+  border: 1px solid var(--leader-theme, #38bdf8);
+  border-radius: var(--radius-apple, 18px);
   padding: 22px 24px;
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.1);
   z-index: 5;
@@ -7403,9 +8027,9 @@ body {
    ======================================================== */
 .gym-battle-outer-wrap {
   width: 100%;
-  max-width: 920px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 0;
 }
 
 .gym-arena-theme {
@@ -7880,8 +8504,8 @@ body {
   width: 100%;
   max-width: 480px;
   background: linear-gradient(135deg, #090d16 0%, #1e1b4b 60%, #0f172a 100%);
-  border: 2px solid #facc15;
-  border-radius: 24px;
+  border: 1px solid rgba(250, 204, 21, 0.7);
+  border-radius: var(--radius-apple, 18px);
   padding: 36px 24px 28px;
   text-align: center;
   color: #f8fafc;
@@ -8332,14 +8956,15 @@ body {
 
 /* Modern Status Cards (Player & Opponent) */
 .modern-status-card {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 41, 59, 0.85) 100%);
-  border: 1.5px solid rgba(56, 189, 248, 0.35);
-  border-radius: 14px;
+  background: rgba(28, 28, 30, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-apple, 18px);
   padding: 8px 14px;
   min-width: 220px;
   max-width: 260px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), var(--shadow-apple);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 .modern-status-header {
@@ -8564,14 +9189,14 @@ body {
 }
 
 .move-category-badge {
-  font-size: 0.65rem;
-  font-weight: 900;
-  padding: 3px 6px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 6px;
   border-radius: 999px;
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .move-category-badge.category-physical {
@@ -8587,24 +9212,29 @@ body {
 }
 
 .modern-move-title {
-  font-size: 0.92rem;
-  font-weight: 800;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .modern-move-type {
-  font-size: 0.68rem;
-  font-weight: 800;
-  padding: 2px 7px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 2px 8px;
   border-radius: 999px;
   color: #ffffff;
   text-transform: capitalize;
 }
 
 .modern-move-pp {
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: #475569;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.01em;
 }
 
 /* Super Effective Red Glow & Upward Arrow */
@@ -8674,15 +9304,16 @@ body {
   bottom: 85px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.92);
-  border: 1.5px solid rgba(56, 189, 248, 0.55);
-  border-radius: 999px;
+  background: rgba(28, 28, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-apple-pill, 980px);
   padding: 8px 22px;
   color: #f8fafc;
   font-size: 0.88rem;
   font-weight: 800;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), var(--shadow-apple);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   z-index: 32;
   display: flex;
   align-items: center;
@@ -9048,9 +9679,9 @@ body {
    1. PRO POKÉMON COMPARISON TOOL (/compare)
    ---------------------------------------------------- */
 .compare-page-container {
-  max-width: 1040px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 0;
 }
 
 .compare-header {
@@ -9851,9 +10482,9 @@ body {
    2. INDIGO PLATEAU LEAGUE CHAMPIONSHIP (/league)
    ---------------------------------------------------- */
 .league-page-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 24px 20px 60px;
+  padding: 0;
 }
 
 .league-lobby-header {
@@ -10782,12 +11413,12 @@ body {
   max-width: 960px;
   margin: 0 auto;
   background: #090d16;
-  border: 1.5px solid var(--border-light);
-  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-apple, 18px);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), var(--shadow-apple);
 }
 
 .battle-top-hud {
@@ -10920,14 +11551,15 @@ body {
 
 /* Status Cards */
 .battle-status-card {
-  background: rgba(15, 23, 42, 0.88);
-  backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+  background: rgba(28, 28, 30, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-apple, 18px);
   padding: 10px 14px;
   min-width: 190px;
   margin-top: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), var(--shadow-apple);
 }
 
 .boss-raid-bar {
@@ -11049,9 +11681,13 @@ body {
 /* Dialogue Banner */
 .battle-dialogue-banner {
   padding: 14px 20px;
-  background: #0f172a;
-  border-top: 1px solid var(--border-light);
-  border-bottom: 1px solid var(--border-light);
+  background: rgba(28, 28, 30, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-apple, 18px);
+  margin: 12px 16px;
+  box-shadow: var(--shadow-apple-subtle);
   min-height: 52px;
   display: flex;
   align-items: center;
@@ -11151,7 +11787,11 @@ body {
 }
 
 .move-name {
-  font-size: 0.9rem;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 800;
 }
 
@@ -11171,7 +11811,7 @@ body {
   font-size: 0.68rem;
   font-weight: 800;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: 999px;
 }
 
 .tag-super {
@@ -11591,14 +12231,14 @@ body {
 /* Dungeon Catch Success Screen */
 .dungeon-catch-card {
   background: var(--bg-card);
-  border: 2px solid #eab308;
-  border-radius: 24px;
+  border: 1px solid rgba(234, 179, 8, 0.6);
+  border-radius: var(--radius-apple, 18px);
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: 0 0 40px rgba(234, 179, 8, 0.25);
+  box-shadow: 0 0 40px rgba(234, 179, 8, 0.25), var(--shadow-apple);
 }
 
 .catch-sparkle-ring {
@@ -11891,14 +12531,14 @@ body {
 .tower-intermission-card,
 .tower-defeat-card {
   background: var(--bg-card);
-  border: 1.5px solid var(--border-light);
-  border-radius: 24px;
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple, 18px);
   padding: 40px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-apple);
 }
 
 .intermission-streak-badge {
@@ -12610,9 +13250,9 @@ body {
    ======================================================== */
 .link-page-container {
   width: 100%;
-  max-width: 980px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 0;
 }
 
 .link-header-banner {
@@ -13572,12 +14212,12 @@ body {
    APPLE STYLE HUB CONTAINERS
    ===================================================================== */
 .apple-hub-container {
-  max-width: 1000px;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 48px 24px;
+  padding: 0;
   background-color: var(--bg-primary, #f5f5f7);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  min-height: 100vh;
+  min-height: auto;
 }
 
 .apple-hub-header {
@@ -13622,9 +14262,9 @@ body {
 /* Apple Cards */
 .apple-card {
   background: var(--bg-card, #ffffff);
-  border-radius: 20px;
+  border-radius: var(--radius-apple, 18px);
   padding: 32px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-apple);
   border: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
   display: flex;
   flex-direction: column;
@@ -13695,4 +14335,630 @@ body {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+@media (max-width: 768px) {
+  .apple-hub-container {
+    padding: 0;
+  }
+  .apple-grid-2 {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+  .apple-grid-3 {
+    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+  .apple-card {
+    padding: 20px;
+    flex-direction: column !important;
+  }
+  .apple-hub-header {
+    margin-bottom: 24px;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+  .apple-hub-title {
+    font-size: 2rem;
+  }
+}
+/* =====================================================================
+   APP FOOTER (APPLE DESIGN SYSTEM)
+   ===================================================================== */
+.app-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  background: var(--bg-card, #ffffff);
+  padding: 24px 0;
+}
+
+.footer-content {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.footer-sub {
+  font-size: 0.82rem;
+  color: var(--text-secondary, #86868b);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* =====================================================================
+   SUB-PAGE CONTAINER NORMALIZATION
+   ===================================================================== */
+.list-page,
+.team-page,
+.bag-mart-page,
+.wilderness-page,
+.wilderness-container,
+.gym-circuit-container,
+.league-page-container,
+.dungeon-page-container,
+.tower-page-container,
+.compare-page-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.apple-hub-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  background-color: transparent;
+  min-height: auto;
+}
+
+.detail-page,
+.link-page-container,
+.gym-battle-outer-wrap {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* =====================================================================
+   MILESTONE 1 - FEATURE 3 (F3)
+   GLOBAL MOBILE RESPONSIVENESS & OVERFLOW PREVENTION (< 768px)
+   ===================================================================== */
+
+@media (max-width: 768px) {
+  /* 1. Global Shell & Container Padding Normalization */
+  .main-content {
+    padding: 16px 12px 48px;
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .footer-content {
+    padding: 0 14px;
+  }
+
+  .apple-hub-container,
+  .team-page,
+  .bag-mart-page,
+  .wilderness-container,
+  .gym-circuit-container,
+  .detail-page,
+  .compare-page-container,
+  .link-page-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* 2. Grid Containers — Clean Single-Column Reflow */
+  .party-grid,
+  .bag-items-grid,
+  .mart-catalog-grid,
+  .mart-sell-grid,
+  .gym-leaders-grid,
+  .peers-grid,
+  .apple-grid-2,
+  .apple-grid-3,
+  .compare-takeaways-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* 3. Detail Page Responsive Grid & Stats Reflow */
+  .detail-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .abilities-chips-list {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .stat-row {
+    grid-template-columns: 90px 36px 1fr;
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .detail-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-team-action,
+  .btn-cry-action {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+  }
+
+  .image-toggle-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .toggle-group-left {
+    width: 100%;
+    display: flex;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .tcg-cards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+  }
+
+  /* 4. Compare Page Reflow */
+  .compare-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .compare-center-vs {
+    margin: 8px auto;
+  }
+
+  .compare-specs-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  /* 5. Headers, Toolbars, & Control Banners */
+  .team-page-header,
+  .bag-mart-hero,
+  .wilderness-header-banner,
+  .gym-hero-banner,
+  .link-header-banner,
+  .apple-hub-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .team-header-utilities,
+  .wilderness-header-meta,
+  .link-header-info {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .btn-heal-team,
+  .btn-team-header-bag {
+    flex: 1 1 calc(50% - 4px);
+    justify-content: center;
+  }
+
+  .control-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  .search-wrapper {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .filter-wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .filter-wrapper select,
+  .pokedex-select,
+  #generation-filter,
+  #type-filter,
+  #sort-filter {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pockets-bar,
+  .mart-submode-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pocket-chips-row,
+  .mart-category-chips {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .bag-search-wrapper,
+  .submode-toggles {
+    width: 100%;
+  }
+
+  .weather-widget-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .weather-widget-left,
+  .weather-widget-right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* 6. Battle Arena HUD & Controls */
+  .battle-top-hud {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .battle-viewport {
+    height: 280px;
+  }
+
+  .moves-deck-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .empty-party-slot {
+    min-height: 80px;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 14px;
+  }
+
+  .empty-slot-content {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .mart-modal {
+    width: 95%;
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  /* 7. Modals & Dialogs Reflow */
+  .starter-modal-content,
+  .passport-card-container,
+  .evolution-modal-chamber,
+  .tcg-modal-content {
+    padding: 18px 14px;
+    border-radius: 18px;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .starter-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .passport-badges-row {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .passport-party-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .tcg-modal-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+}
+
+/* Extra Compact Boundary Handling (< 380px, e.g. iPhone SE 1st Gen) */
+@media (max-width: 380px) {
+  .pokemon-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .starter-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .moves-deck-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .passport-party-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+html, body, #root, .app, .app-shell {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+/* ========================================================
+   APPLE DESIGN TOKENS & GLOBAL HARMONY
+   ======================================================== */
+:root {
+  /* Apple Color Palette */
+  --apple-blue: #0071e3;
+  --apple-blue-hover: #0077ed;
+  --apple-red: #ff3b30;
+  --apple-green: #34c759;
+  --apple-gray-bg: #f5f5f7;
+  --apple-card-bg: #ffffff;
+  
+  /* Text & Border */
+  --text-primary: #1d1d1f;
+  --text-secondary: #86868b;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --border-light: rgba(0, 0, 0, 0.05);
+  
+  /* Shadows & Radii */
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 980px;
+}
+
+body {
+  background-color: var(--apple-gray-bg);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========================================================
+   GLOBAL GRID SYSTEMS (BAG, MART, TEAM, PC)
+   ======================================================== */
+.apple-grid-catalog {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+@media (max-width: 600px) {
+  .apple-grid-catalog {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Base Card Style */
+.apple-item-card {
+  background: var(--apple-card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.apple-item-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.apple-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ========================================================
+   TYPOGRAPHY FIXES (SKILLS, ABILITIES)
+   ======================================================== */
+.metric-val {
+  font-weight: 600;
+  font-size: 0.85rem; /* Reduced from 0.9rem to prevent overflow */
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.modern-move-title, .move-name {
+  font-size: 0.8125rem !important; /* Standardized sizing */
+  font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.move-pill-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--apple-card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-gym-action, .btn-link-action {
+  background: var(--apple-blue);
+  color: white;
+  border-radius: var(--radius-pill);
+  border: none;
+  font-weight: 600;
+}
+
+/* Compare Page & Link Battle Fixes */
+.preset-pill-active {
+  background: var(--apple-blue) !important;
+  color: #fff !important;
+  border-color: var(--apple-blue) !important;
+}
+
+.btn-compare-search {
+  background: var(--apple-blue);
+  color: #fff;
+  border-radius: 8px;
+}
+
+.radar-core {
+  background: var(--apple-blue);
+}
+
+.radar-pulse-ring {
+  border-color: var(--apple-blue);
+}
+
+/* ========================================================
+   DETAIL PAGE COMBAT MOVES SECTION (APPLE CARD STANDARD)
+   ======================================================== */
+.detail-moves-section {
+  background: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-apple, 18px);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-apple-subtle, 0 2px 10px rgba(0, 0, 0, 0.03));
+  box-sizing: border-box;
+}
+
+.detail-moves-section .section-title-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.detail-moves-section .section-title-wrap h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary, #1d1d1f);
+}
+
+.moves-count-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-tertiary, #f2f2f7);
+  color: var(--text-secondary, #86868b);
+  letter-spacing: 0.02em;
+}
+
+.detail-moves-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.detail-moves-grid .move-pill-card {
+  background: var(--bg-primary, #f5f5f7);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: var(--transition-smooth, all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1));
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.detail-moves-grid .move-pill-card:hover {
+  background: var(--bg-card, #ffffff);
+  border-color: rgba(0, 0, 0, 0.14);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.04));
+  transform: translateY(-1px);
+}
+
+.detail-moves-grid .move-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary, #1d1d1f);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.move-accuracy,
+.detail-moves-grid .move-pp {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted, #94a3b8);
+  letter-spacing: 0.01em;
+}
+
+.move-category-badge {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.move-category-badge.category-physical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.move-category-badge.category-special {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.move-category-badge.category-status {
+  background: rgba(148, 163, 184, 0.2);
+  color: #64748b;
 }

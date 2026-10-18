@@ -44,6 +44,7 @@ function BagAndMartPage() {
   const [martCategory, setMartCategory] = useState("all");
   const [buyQuantities, setBuyQuantities] = useState({});
   const [sellQuantities, setSellQuantities] = useState({});
+  const [activeMartModal, setActiveMartModal] = useState(null); // { mode: 'buy'|'sell', item, qty }
 
   function showToast(msg, isSuccess = true) {
     setToastMessage({ text: msg, isSuccess });
@@ -225,8 +226,8 @@ function BagAndMartPage() {
                     key={pocket.id}
                     type="button"
                     onClick={() => setSelectedPocket(pocket.id)}
-                    className={`pocket-chip ${
-                      selectedPocket === pocket.id ? "pocket-chip-active" : ""
+                    className={`pocket-chip pocket-pill pocket-tab ${
+                      selectedPocket === pocket.id ? "pocket-chip-active active" : ""
                     }`}
                   >
                     <span>{pocket.name}</span>
@@ -341,8 +342,8 @@ function BagAndMartPage() {
               <button
                 type="button"
                 onClick={() => setMartSubMode("buy")}
-                className={`submode-btn ${
-                  martSubMode === "buy" ? "submode-btn-active" : ""
+                className={`submode-btn mart-mode-btn mart-tab ${
+                  martSubMode === "buy" ? "submode-btn-active active" : ""
                 }`}
               >
                 Buy
@@ -350,8 +351,8 @@ function BagAndMartPage() {
               <button
                 type="button"
                 onClick={() => setMartSubMode("sell")}
-                className={`submode-btn ${
-                  martSubMode === "sell" ? "submode-btn-active" : ""
+                className={`submode-btn mart-mode-btn mart-tab ${
+                  martSubMode === "sell" ? "submode-btn-active active" : ""
                 }`}
               >
                 Sell
@@ -386,83 +387,39 @@ function BagAndMartPage() {
           {/* BUY MODE CATALOG */}
           {martSubMode === "buy" && (
             <div className="mart-catalog-grid">
-              {filteredMartStock.map((item) => {
-                const qty = getBuyQty(item.id);
-                const totalCost = item.price * qty;
-                const canAfford = trainer.money >= totalCost;
-
-                return (
-                  <div key={item.id} className="mart-card">
-                    <div className="mart-card-left">
-                      <div className="mart-item-sprite-box">
-                        <img
-                          src={item.sprite}
-                          alt={item.name}
-                          className="mart-sprite-img"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mart-card-center">
-                      <div className="mart-card-header-row">
-                        <h4 className="mart-item-name">{item.name}</h4>
-                        <span className="mart-price-tag">₽{item.price.toLocaleString()}</span>
-                        <span className="mart-item-pocket">{item.pocket}</span>
-                      </div>
-                      <p className="mart-item-desc">{item.description}</p>
-                    </div>
-
-                    <div className="mart-card-right">
-                      <div className="qty-stepper">
-                        <button
-                          type="button"
-                          onClick={() => setBuyQty(item.id, qty - 1)}
-                          disabled={qty <= 1}
-                          className="stepper-btn"
-                          aria-label="Decrease quantity"
-                        >
-                          <IconMinus size={11} />
-                        </button>
-                        <input
-                          type="number"
-                          value={qty}
-                          onChange={(e) => setBuyQty(item.id, e.target.value)}
-                          min={1}
-                          max={99}
-                          className="stepper-input"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setBuyQty(item.id, qty + 1)}
-                          className="stepper-btn"
-                          aria-label="Increase quantity"
-                        >
-                          <IconPlus size={11} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setMaxAffordable(item)}
-                          className="stepper-max-btn"
-                          title="Buy maximum affordable"
-                        >
-                          Max
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleBuy(item)}
-                        disabled={!canAfford}
-                        className={`btn-mart-buy ${
-                          !canAfford ? "btn-disabled" : ""
-                        }`}
-                      >
-                        <span>Buy ({qty > 1 ? `₽${totalCost.toLocaleString()}` : `₽${item.price.toLocaleString()}`})</span>
-                      </button>
+              {filteredMartStock.map((item) => (
+                <div key={item.id} className="mart-card">
+                  <div className="mart-card-left">
+                    <div className="mart-item-sprite-box">
+                      <img
+                        src={item.sprite}
+                        alt={item.name}
+                        className="mart-sprite-img"
+                      />
                     </div>
                   </div>
-                );
-              })}
+
+                  <div className="mart-card-center">
+                    <div className="mart-card-header-row">
+                      <h4 className="mart-item-name">{item.name}</h4>
+                      <span className="mart-price-tag">₽{item.price.toLocaleString()}</span>
+                      <span className="mart-item-pocket">{item.pocket}</span>
+                    </div>
+                    <p className="mart-item-desc">{item.description}</p>
+                  </div>
+
+                  <div className="mart-card-right">
+                    <button
+                      type="button"
+                      onClick={() => setActiveMartModal({ mode: "buy", item, qty: 1 })}
+                      className="btn-mart-action"
+                      aria-label={`Buy ${item.name}`}
+                    >
+                      Buy
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
@@ -477,79 +434,39 @@ function BagAndMartPage() {
                 </div>
               ) : (
                 <div className="mart-sell-grid">
-                  {allInventoryItems.map((item) => {
-                    const sellQty = getSellQty(item.id, item.count);
-                    const totalReward = item.sellPrice * sellQty;
-
-                    return (
-                      <div key={item.id} className="mart-sell-card">
-                        <div className="mart-card-left">
-                          <div className="mart-item-sprite-box">
-                            <img
-                              src={item.sprite}
-                              alt={item.name}
-                              className="mart-sprite-img"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="mart-card-center">
-                          <div className="mart-card-header-row">
-                            <h4 className="mart-item-name">{item.name}</h4>
-                            <span className="mart-sell-price-tag">+₽{item.sellPrice.toLocaleString()}/ea</span>
-                            <span className="mart-stock-tag">Owned: ×{item.count}</span>
-                          </div>
-                          <p className="mart-item-desc">{item.description}</p>
-                        </div>
-
-                        <div className="mart-card-right">
-                          <div className="qty-stepper">
-                            <button
-                              type="button"
-                              onClick={() => setSellQty(item.id, sellQty - 1, item.count)}
-                              disabled={sellQty <= 1}
-                              className="stepper-btn"
-                            >
-                              <IconMinus size={11} />
-                            </button>
-                            <input
-                              type="number"
-                              value={sellQty}
-                              onChange={(e) =>
-                                setSellQty(item.id, e.target.value, item.count)
-                              }
-                              min={1}
-                              max={item.count}
-                              className="stepper-input"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setSellQty(item.id, sellQty + 1, item.count)}
-                              disabled={sellQty >= item.count}
-                              className="stepper-btn"
-                            >
-                              <IconPlus size={11} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setSellQty(item.id, item.count, item.count)}
-                              className="stepper-max-btn"
-                            >
-                              All
-                            </button>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleSell(item)}
-                            className="btn-mart-sell"
-                          >
-                            <span>Sell (+₽{totalReward.toLocaleString()})</span>
-                          </button>
+                  {allInventoryItems.map((item) => (
+                    <div key={item.id} className="mart-sell-card">
+                      <div className="mart-card-left">
+                        <div className="mart-item-sprite-box">
+                          <img
+                            src={item.sprite}
+                            alt={item.name}
+                            className="mart-sprite-img"
+                          />
                         </div>
                       </div>
-                    );
-                  })}
+
+                      <div className="mart-card-center">
+                        <div className="mart-card-header-row">
+                          <h4 className="mart-item-name">{item.name}</h4>
+                          <span className="mart-sell-price-tag">+₽{item.sellPrice.toLocaleString()}/ea</span>
+                          <span className="mart-stock-tag">Owned: ×{item.count}</span>
+                        </div>
+                        <p className="mart-item-desc">{item.description}</p>
+                      </div>
+
+                      <div className="mart-card-right">
+                        <button
+                          type="button"
+                          onClick={() => setActiveMartModal({ mode: "sell", item, qty: 1 })}
+                          className="btn-mart-action btn-mart-sell-action"
+                          aria-label={`Sell ${item.name}`}
+                        >
+                          Sell
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -724,6 +641,163 @@ function BagAndMartPage() {
                 Done
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MART TRANSACTION MODAL SHEET (BUY & SELL)
+          ======================================================== */}
+      {activeMartModal && (
+        <div className="modal-backdrop" onClick={() => setActiveMartModal(null)}>
+          <div
+            className="mart-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mart-modal-header">
+              <div className="mart-modal-title-group">
+                <img
+                  src={activeMartModal.item.sprite}
+                  alt={activeMartModal.item.name}
+                  className="mart-modal-sprite"
+                />
+                <div className="mart-modal-meta">
+                  <h3>{activeMartModal.mode === "buy" ? "Purchase" : "Sell"} {activeMartModal.item.name}</h3>
+                  <p>{activeMartModal.item.description}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveMartModal(null)}
+                className="btn-modal-close"
+                aria-label="Close dialog"
+              >
+                <IconX size={18} />
+              </button>
+            </div>
+
+            {/* Financials Breakdown */}
+            {(() => {
+              const item = activeMartModal.item;
+              const isBuy = activeMartModal.mode === "buy";
+              const qty = activeMartModal.qty;
+              const totalAmount = isBuy ? item.price * qty : item.sellPrice * qty;
+              const newBalance = isBuy ? trainer.money - totalAmount : trainer.money + totalAmount;
+              const canAfford = isBuy ? trainer.money >= totalAmount : true;
+              const maxLimit = isBuy ? Math.max(1, Math.floor(trainer.money / item.price)) : item.count;
+
+              return (
+                <>
+                  <div className="mart-modal-financials">
+                    <div className="financial-row">
+                      <span>Current Balance</span>
+                      <strong>₽{trainer.money.toLocaleString()}</strong>
+                    </div>
+                    <div className="financial-row">
+                      <span>Unit Price</span>
+                      <strong>₽{(isBuy ? item.price : item.sellPrice).toLocaleString()}</strong>
+                    </div>
+                    <div className="financial-row financial-total">
+                      <span>{isBuy ? "Total Cost" : "Total Proceeds"}</span>
+                      <strong style={{ color: isBuy ? "#0071e3" : "#16a34a" }}>
+                        {isBuy ? `₽${totalAmount.toLocaleString()}` : `+₽${totalAmount.toLocaleString()}`}
+                      </strong>
+                    </div>
+                    <div className="financial-row">
+                      <span>Balance After</span>
+                      <strong style={{ color: newBalance < 0 ? "#e53e3e" : "var(--text-main)" }}>
+                        ₽{Math.max(0, newBalance).toLocaleString()}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Stepper Controls */}
+                  <div className="mart-modal-stepper-wrap">
+                    <div className="qty-stepper">
+                      <button
+                        type="button"
+                        onClick={() => setActiveMartModal((prev) => ({ ...prev, qty: Math.max(1, prev.qty - 1) }))}
+                        disabled={qty <= 1}
+                        className="stepper-btn"
+                        aria-label="Decrease quantity"
+                      >
+                        <IconMinus size={14} />
+                      </button>
+                      <input
+                        type="number"
+                        value={qty}
+                        onChange={(e) => {
+                          const parsed = parseInt(e.target.value, 10) || 1;
+                          const clamped = Math.max(1, Math.min(maxLimit || 99, parsed));
+                          setActiveMartModal((prev) => ({ ...prev, qty: clamped }));
+                        }}
+                        min={1}
+                        max={maxLimit || 99}
+                        className="stepper-input"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setActiveMartModal((prev) => ({ ...prev, qty: Math.min(maxLimit || 99, prev.qty + 1) }))}
+                        disabled={isBuy ? (qty >= maxLimit || !canAfford) : qty >= item.count}
+                        className="stepper-btn"
+                        aria-label="Increase quantity"
+                      >
+                        <IconPlus size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveMartModal((prev) => ({ ...prev, qty: Math.max(1, maxLimit) }))}
+                        className="stepper-max-btn"
+                      >
+                        {isBuy ? "Max" : "All"}
+                      </button>
+                    </div>
+
+                    {/* Quick Jump Chips */}
+                    <div className="mart-modal-chips-row">
+                      {[1, 5, 10].map((step) => (
+                        <button
+                          key={step}
+                          type="button"
+                          onClick={() => setActiveMartModal((prev) => ({ ...prev, qty: Math.min(maxLimit || 99, step) }))}
+                          className="stepper-shortcut-chip"
+                        >
+                          Set {step}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Confirm CTA */}
+                  <button
+                    type="button"
+                    disabled={isBuy && !canAfford}
+                    onClick={() => {
+                      if (isBuy) {
+                        const result = buyItem(item.id, qty);
+                        showToast(result.message, result.success);
+                        if (result.success) {
+                          playMartBuySound();
+                          setActiveMartModal(null);
+                        }
+                      } else {
+                        const result = sellItem(item.id, qty);
+                        showToast(result.message, result.success);
+                        if (result.success) {
+                          playMartBuySound();
+                          setActiveMartModal(null);
+                        }
+                      }
+                    }}
+                    className={`btn-modal-confirm ${!isBuy ? "btn-modal-confirm-sell" : ""}`}
+                  >
+                    {isBuy
+                      ? (canAfford ? `Buy ${qty} for ₽${totalAmount.toLocaleString()}` : "Insufficient Funds")
+                      : `Sell ${qty} for +₽${totalAmount.toLocaleString()}`}
+                  </button>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
