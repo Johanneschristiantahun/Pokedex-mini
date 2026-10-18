@@ -1,5 +1,5 @@
 // PokéSphere Service Worker (Offline caching & PWA support)
-const CACHE_NAME = 'pokesphere-v6';
+const CACHE_NAME = 'pokesphere-v7';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -52,8 +52,14 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
 
-  // For external images (showdown gifs, sprites), cache on demand
-  if (url.hostname.includes('raw.githubusercontent.com') || url.hostname.includes('pokeapi.co') || url.hostname.includes('play.pokemonshowdown.com')) {
+  // For external assets (3D GLB models, TCG cards, showdown gifs, sprites), cache on demand
+  if (
+    url.hostname.includes('raw.githubusercontent.com') ||
+    url.hostname.includes('pokeapi.co') ||
+    url.hostname.includes('play.pokemonshowdown.com') ||
+    url.hostname.includes('cdn.jsdelivr.net') ||
+    url.hostname.includes('images.pokemontcg.io')
+  ) {
     event.respondWith(
       caches.match(event.request).then((cachedResponse) => {
         if (cachedResponse) return cachedResponse;
