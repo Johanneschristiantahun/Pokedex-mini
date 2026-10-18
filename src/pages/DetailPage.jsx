@@ -157,6 +157,7 @@ function DetailPage() {
     () => pokemonDetailCache[name.toLowerCase()] || null
   );
   const [species, setSpecies] = useState(null);
+  const [evoChain, setEvoChain] = useState([]);
   const [viewMode, setViewMode] = useState("3d"); // "3d" | "artwork" | "animated"
   const [isShiny, setIsShiny] = useState(false);
   const [showBackSprite, setShowBackSprite] = useState(false);
