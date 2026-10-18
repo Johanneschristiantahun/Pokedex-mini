@@ -150,10 +150,21 @@ function TeamPage() {
       {notification && <div className="toast-notification">{notification}</div>}
 
       {/* Clean Top Header & Utility Bar */}
-      <div className="team-page-header">
-        <div className="team-header-identity">
-          <div className="team-title-row">
-            <h1 className="team-page-title">Party & Storage</h1>
+      <div className="bag-mart-hero team-hero-card">
+        <div className="hero-text-group">
+          <h1 className="hero-title">Party & Storage</h1>
+          <p className="hero-subtitle">
+            Manage your active battle roster, restore Pokémon health, and organize PC storage.
+          </p>
+        </div>
+
+        {/* Trainer Profile Card (Apple Cash Style) */}
+        <div className="trainer-wallet-badge" title="Trainer Profile">
+          <div className="wallet-chip-icon">
+            <IconPokeball size={20} />
+          </div>
+          <div className="wallet-meta">
+            <span className="wallet-label">Trainer Profile</span>
             {isEditingTrainerName ? (
               <div className="trainer-name-inline-edit">
                 <input
@@ -174,8 +185,10 @@ function TeamPage() {
                 </button>
               </div>
             ) : (
-              <span className="trainer-name-pill">
-                <span>Trainer: <strong>{trainer.name.replace(/^Trainer\s+/i, "") || trainer.name}</strong></span>
+              <div className="trainer-name-display-pill">
+                <span className="wallet-amount">
+                  {trainer.name.replace(/^Trainer\s+/i, "") || trainer.name}
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -187,51 +200,60 @@ function TeamPage() {
                 >
                   <IconPencil size={11} />
                 </button>
-              </span>
+              </div>
             )}
           </div>
-          <p className="team-page-subtitle">
-            Manage your active roster and Pokémon storage.
-          </p>
         </div>
+      </div>
 
-        <div className="team-header-utilities">
+      {/* Top Tab Navigator: Bag & Mart iOS Segmented Style */}
+      <div className="tab-navigator team-storage-tabs">
+        <button
+          type="button"
+          onClick={() => setActiveTab("party")}
+          className={`tab-btn storage-tab-btn ${activeTab === "party" ? "tab-btn-active active" : ""}`}
+        >
+          <span>Active Party</span>
+          <span className="tab-count-pill">{team.length}/6</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("box")}
+          className={`tab-btn storage-tab-btn ${activeTab === "box" ? "tab-btn-active active" : ""}`}
+        >
+          <span>Storage Box</span>
+          <span className="tab-count-pill">{box.length}</span>
+        </button>
+      </div>
+
+      {/* Utilities Action Bar */}
+      <div className="team-header-utilities-bar">
+        <div className="team-utilities-left">
           <button
             type="button"
             onClick={handleHealCenter}
             disabled={isHealing || team.length === 0}
             className={`btn-heal-team ${isHealing ? "healing" : ""}`}
-            title="Restore party to full health"
+            title="Restore party to full health with Nurse Joy"
           >
-            {isHealing ? "Restoring…" : "Heal Party"}
+            <IconPotion size={14} />
+            <span>{isHealing ? "Restoring Health…" : "Heal Party (Nurse Joy)"}</span>
           </button>
 
           <span className="potion-stock-badge">
             Potions: <strong>{potionCount}</strong>
           </span>
+        </div>
 
+        <div className="team-utilities-right">
           <Link to="/bag" className="btn-team-header-bag">
-            Bag
+            <span>Open Bag</span>
+          </Link>
+          <Link to="/wilderness" className="btn-team-header-wilderness">
+            <span>Explore Wilderness</span>
           </Link>
         </div>
-      </div>
-
-      {/* Team vs PC Storage Box Tab Switcher */}
-      <div className="team-storage-tabs">
-        <button
-          type="button"
-          onClick={() => setActiveTab("party")}
-          className={`storage-tab-btn ${activeTab === "party" ? "active" : ""}`}
-        >
-          Active Party ({team.length}/6)
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("box")}
-          className={`storage-tab-btn ${activeTab === "box" ? "active" : ""}`}
-        >
-          Storage Box ({box.length})
-        </button>
       </div>
 
       {/* TAB 1: ACTIVE PARTY (6 SLOTS) */}
@@ -240,26 +262,26 @@ function TeamPage() {
           {/* Quick Team Summary Strip (Apple Stats Banner) */}
           <div className="team-summary-strip">
             <div className="team-summary-item">
-              <span className="summary-label">Roster Tim</span>
-              <span className="summary-value"><strong>{team.length}</strong> / 6 Partner</span>
+              <span className="summary-label">Team Roster</span>
+              <span className="summary-value"><strong>{team.length}</strong> / 6 Partners</span>
             </div>
             <div className="team-summary-item">
-              <span className="summary-label">Rata-rata Level</span>
+              <span className="summary-label">Average Level</span>
               <span className="summary-value">
                 Lv. <strong>{team.length > 0 ? Math.round(team.reduce((acc, p) => acc + p.level, 0) / team.length) : "—"}</strong>
               </span>
             </div>
             <div className="team-summary-item">
-              <span className="summary-label">Kondisi Tim</span>
+              <span className="summary-label">Team Status</span>
               <span className={`summary-value ${team.some((p) => p.currentHp <= 0) ? "has-fainted" : "all-healthy"}`}>
                 {team.some((p) => p.currentHp <= 0)
-                  ? `${team.filter((p) => p.currentHp <= 0).length} Terluka`
-                  : "Semua Prima"}
+                  ? `${team.filter((p) => p.currentHp <= 0).length} Fainted`
+                  : "All Healthy"}
               </span>
             </div>
             <div className="team-summary-item">
-              <span className="summary-label">Stok Potion</span>
-              <span className="summary-value"><strong>{potionCount}</strong> Tersedia</span>
+              <span className="summary-label">Potions In Bag</span>
+              <span className="summary-value"><strong>{potionCount}</strong> Available</span>
             </div>
           </div>
 
@@ -275,8 +297,8 @@ function TeamPage() {
                         <IconPokeball size={28} />
                       </div>
                       <div className="empty-slot-text">
-                        <h4>Slot #{slotIndex + 1} Kosong</h4>
-                        <p>Pilih partner Pokémon untuk memperkuat tim</p>
+                        <h4>Slot #{slotIndex + 1} Empty</h4>
+                        <p>Choose a partner Pokémon to join your party</p>
                       </div>
                     </div>
                     <div className="empty-slot-btn-group">
@@ -284,7 +306,7 @@ function TeamPage() {
                         + Pokédex
                       </Link>
                       <Link to="/wilderness" className="btn-browse-wilderness">
-                        + Jelajah Wild
+                        + Wilderness
                       </Link>
                     </div>
                   </div>

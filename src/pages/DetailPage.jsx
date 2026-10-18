@@ -580,8 +580,8 @@ function DetailPage() {
                       }
                     }}
                     className="btn-3d-reset-corner"
-                    title="Reset sudut visual 3D ke posisi awal"
-                    aria-label="Reset visual 3D"
+                    title="Reset camera to default position"
+                    aria-label="Reset 3D camera"
                   >
                     <IconRefresh size={12} />
                     <span>Reset</span>
@@ -590,7 +590,7 @@ function DetailPage() {
 
                 {model3dError && (
                   <div className="model-3d-error-overlay">
-                    <span>Model 3D belum tersedia untuk varian ini.</span>
+                    <span>3D model is not available for this entry.</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -599,7 +599,7 @@ function DetailPage() {
                       }}
                       className="btn-view-artwork-fallback"
                     >
-                      Buka Artwork
+                      View Artwork
                     </button>
                   </div>
                 )}
@@ -640,14 +640,11 @@ function DetailPage() {
                     type="button"
                     onClick={() => setShowBackSprite((prev) => !prev)}
                     className="btn-rotator-toggle"
-                    title="Ganti tampak depan / belakang"
+                    title={showBackSprite ? "Switch to front view" : "Switch to back view"}
                   >
                     <IconRefresh size={12} />
-                    <span>{showBackSprite ? "Tampak Depan" : "Tampak Belakang"}</span>
+                    <span>{showBackSprite ? "Front View" : "Back View"}</span>
                   </button>
-                  <span className="view-angle-indicator">
-                    {showBackSprite ? "Tampak Belakang" : "Tampak Depan"}
-                  </span>
                 </div>
               </div>
             )}
@@ -656,7 +653,7 @@ function DetailPage() {
           {/* Outside Helper Hint: completely outside the box to prevent obstructing Pokémon */}
           {viewMode === "3d" && !model3dError && (
             <div className="model-3d-hint-outside">
-              <span>Geser untuk rotasi 360° bebas • Pinch / scroll untuk zoom • Tombol Reset di pojok kanan</span>
+              <span>Drag to rotate 360° • Pinch or scroll to zoom • Reset camera button in bottom right</span>
             </div>
           )}
         </div>
@@ -962,7 +959,12 @@ function DetailPage() {
                 >
                   <div className="move-pill-header">
                     <span className="move-name">{m.name}</span>
-                    <TypeBadge type={m.type} size="xs" />
+                    <div className="move-pill-header-badges">
+                      <span className={`move-category-badge category-${m.category}`}>
+                        {m.category === "special" ? "SP" : m.category === "status" ? "STAT" : "PHY"}
+                      </span>
+                      <TypeBadge type={m.type} size="xs" />
+                    </div>
                   </div>
                   <div className="move-pill-footer">
                     <div className="move-pill-stats">
@@ -970,9 +972,6 @@ function DetailPage() {
                       <span className="move-accuracy">Acc {m.accuracy ? `${m.accuracy}%` : "—"}</span>
                       <span className="move-pp">PP {m.maxPp}</span>
                     </div>
-                    <span className={`move-category-badge category-${m.category}`}>
-                      {m.category === "special" ? "SP" : m.category === "status" ? "STAT" : "PHY"}
-                    </span>
                   </div>
                 </div>
               ))}
